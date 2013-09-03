@@ -1,0 +1,5 @@
+Notater av Geir Turtum om NRWD(NTNU Rotation Wrist Device/Norwegian Regent Waving Device)
+
+Kandidater til utviklingsmetodikk
+- Top Down Design
+
