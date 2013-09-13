@@ -5,7 +5,7 @@ by Geir Turtum
 
 */
 
-int IntPerSec = 4000;
+int IntPerSec = 1000;
 int NrOfInts = 4000;
 int Running = 1;
 
@@ -62,17 +62,31 @@ void loop()
   Serial.println("Running...");
   
   for(int i=0; i<NrOfInts; i++){
+    /*
     if(DelayUs <= 16383){ //delayMicroseconds not accurate if above
       delayMicroseconds(DelayUs);
     }else{  
       delay(DelayUs/1000); //delayMs
     }
+    */
     
     FreqPinState = ~FreqPinState;
     digitalWrite(FreqPin, FreqPinState);
     digitalWrite(HallA, HallAOut[index]);
     digitalWrite(HallB, HallBOut[index]);
     digitalWrite(HallC, HallCOut[index]);
+    
+    Serial.print("HallA: ");
+    Serial.println(HallAOut[index], DEC);
+    Serial.print("HallB: ");
+    Serial.println(HallBOut[index], DEC);
+    Serial.print("HallC: ");
+    Serial.println(HallCOut[index], DEC);
+    Serial.println("-------------");
+    
+    while(Serial.available()==0);
+    Serial.read();
+    
     
     if(index >= (HallArrLen-1)){
       index = 0;

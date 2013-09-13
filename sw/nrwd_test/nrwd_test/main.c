@@ -12,16 +12,24 @@
 #include <util/delay.h>
 
 #include "motor.h"
+#include "position.h"
+#include "current.h"
+#include "controller.h"
 
 volatile int tmp=0;
 
 int main(void)
 {
-	
-	
+
 	motor_init();
 	
-	//motor_set_speed(100);
+	position_init();
+	
+	current_init();
+	
+	control_set_mode(MODE_POSITION);
+	
+	//motor_set_speed(70);
 	
 	//motor_start();
 	
@@ -31,6 +39,18 @@ int main(void)
     while(1)
     {
         //TODO:: Please write your application code 
-		tmp++;
+		tmp = position_read();
     }
+}
+
+
+ISR(CURRENT_vect)
+{
+	/* Overcurrent */
+	motor_stop();
+
+	_delay_ms(1000);
+
+	current_startup();
+	motor_start();
 }

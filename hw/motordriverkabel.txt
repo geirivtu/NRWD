@@ -5,13 +5,13 @@ Kontakt sett undenifra
 | 0 8 6 4 2 |
 -------------
 
-1: J3-10 (Out A på U1)
+1: J3-10 (Out A på U1 Phase A)
 2: J3-9  (Hall B)
 3: J3-8  (Hall A)
 4: J3-7  (GND)
 5: J3-6  (NA)
 6: J3-5  (Hall C)
-7: J3-4  (Out B på U2)
-8: J3-3  (Out A på U2)
+7: J3-4  (Out B på U2 Phase B) 
+8: J3-3  (Out A på U2 Phase C)
 9: J3-2  (NA)
 0: J3-1  (VCC)

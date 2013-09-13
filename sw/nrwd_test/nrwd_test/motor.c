@@ -20,7 +20,7 @@ unsigned int rot_speed = 0;
 unsigned int rot_counter = 0;
 
 //For testing that all interrupts comes trough
-volatile uint16_t nrOfInts = 0;
+volatile uint16_t nrOfInts = 0; //Debug
 
 void motor_init(void)
 {
@@ -37,22 +37,26 @@ void motor_init(void)
 	DDRE &= (0<<PE4) | (0<<PE5) | (0<<PE6);
 	PORTE |= (1<<PE4) | (1<<PE5) | (1<<PE6);
 	/*
-	PE4 : HallC
-	PE5 : HallA
-	PE6 : HallB
-	*/
+	 * PE4 : HallC
+	 * PE5 : HallA
+	 * PE6 : HallB
+	 */
 
-	/* Setting PWM-mode and prescaler */
+	/* Setting up Timer1 with fast PWM with TOP ICR1
+	 * using prescaler clk/8 
+	 * Clear OCnx on Compare Match and set at TOP
+	 */
 	TCCR1A = (1<<COM1A1) | (1<<COM1B1) | (1<<COM1C1) | (1<<WGM11);
 	TCCR1B = (1<<WGM13) | (1<<WGM12) | (1<<CS11);
 
-	/* PWM-period (1/16MHz * 8 * 100 = 50 us) */
+	/* PWM-period (1/16MHz * 8 * 100 = 50 us) 
+	 * gives a PWM frequency of 20kHz	 */
 	ICR1 = 100;
 
-	/* Positiv width */
-	PHASE_A = 0;
-	PHASE_B = 0;
-	PHASE_C = 0;
+	/* Positiv width */ 
+	PHASE_A = 0; //OCR1C Debug
+	PHASE_B = 0; //OCR1B
+	PHASE_C = 0; //OCR1A	
 
 	/* Setting up timer for interrupt on overflow for measuring motor speed */
 	TCCR0A = (1<<CS02) | (1<<CS00);
