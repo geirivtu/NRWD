@@ -1,5 +1,6 @@
 #Ignore files produced in the debug folder
 Debug/
+tmp/
 
 #Binary created by AVR Studio 6
 *.atsuo

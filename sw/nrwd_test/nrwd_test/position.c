@@ -36,8 +36,13 @@ void position_init(void)
  */
 uint16_t position_read(void)
 {
-	/* Floating point operation */
-	uint16_t degree = ((360.0/8192.0) * pulsewidth);
+	/* Floating point operation
+	 * Max pulse width = 8192 us = 360 degrees 
+	 * Wrist pos = ((360 degrees)/(8192 us)) * pulsewidth us 
+	 *           = 0.043945 * pulsewidth 
+	 */
+	 
+	uint16_t degree = ((double)0.044 * pulsewidth);
 	
 	/* Could happen for at least two reasons
 	* 1: pulse width from encoder exceeds 8192
@@ -55,7 +60,7 @@ ISR(TIMER3_CAPT_vect)
 {
 	/* Reading timestamp */
 	uint16_t icr = ICR3;
-
+	
 	/* Start of PWM period and positive edge */
 	if ((TCCR3B & (1 << ICES3)))
 	{
@@ -71,5 +76,5 @@ ISR(TIMER3_CAPT_vect)
 		TCCR3B |= (1<<ICES3);
 		stop_time = icr;
 		pulsewidth = stop_time - start_time;
-	}
+	}	
 }

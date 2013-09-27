@@ -7,7 +7,7 @@
 #include "current.h"
 #include "motor.h"
 #include "position.h"
-#include "uart.h"
+//#include "uart.h"
 
 
 signed int control_setpoint = 0;
@@ -38,10 +38,12 @@ char control_set_mode(unsigned char mode)
 	return 1;
 }
 
-/* Should set motor to max speed while not exceeding max current */
+/* Should set motor to max speed while not exceeding max current NOT TESTED */
 void control_on_off(void)
 {
 	signed int setpoint = control_setpoint;
+	
+	// uint16_t current_read()
 
 	if (setpoint > 0)
 	{
@@ -57,8 +59,8 @@ void control_on_off(void)
 	}
 }
 
-/* Make it a KI regulator */
-/* control_setpoint = [0, 360] */
+/* Make it a KI regulator 
+ * control_setpoint = [0, 360] NOT TESTED */
 void control_position(void)
 {
 	static int16_t accum_error = 0;
@@ -72,7 +74,7 @@ void control_position(void)
 		accum_error = 0;
 	}
 
-    int16_t output = (K_p*error + K_i*accum_error); // Debug Check for overflow?
+    int16_t output = (K_p*error + K_i*accum_error); // TODO Check for overflow?
 	
 	/* Output is between [-100, 100] */
 	if(output > 100){
@@ -94,6 +96,7 @@ void control_position(void)
 	motor_set_speed(output);
 }
 
+/* NOT TESTED */
 void control_speed(void)
 {
 	signed int error = control_setpoint - motor_read_speed();

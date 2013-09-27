@@ -15,12 +15,9 @@ unsigned char cw[] = {0x00, 0x05, 0x06, 0x04, 0x03, 0x01, 0x02};
 /* Commutation table for counterclockwise rotation */
 unsigned char ccw[] = {0x00, 0x02, 0x01, 0x03, 0x04, 0x06, 0x05};
 
-unsigned char counter = 0;
-unsigned int rot_speed = 0;
-unsigned int rot_counter = 0;
-
-//For testing that all interrupts comes trough
-volatile uint16_t nrOfInts = 0; //Debug
+unsigned char counter = 0; /* In TIMER0_OVF_vect */
+volatile uint16_t rot_speed = 0;
+volatile uint16_t rot_counter = 0;
 
 void motor_init(void)
 {
@@ -31,7 +28,7 @@ void motor_init(void)
    	PB6 : Motorfase B
 	PB7 : Motorfase A
 	*/
-
+	
 	/* Input with Internal pull-up */
 	//DDRE |= (1<<PE4) | (1<<PE5) | (1<<PE6);  //Should be inputs right?
 	DDRE &= (0<<PE4) | (0<<PE5) | (0<<PE6);
@@ -41,6 +38,7 @@ void motor_init(void)
 	 * PE5 : HallA
 	 * PE6 : HallB
 	 */
+	
 
 	/* Setting up Timer1 with fast PWM with TOP ICR1
 	 * using prescaler clk/8 
@@ -58,7 +56,9 @@ void motor_init(void)
 	PHASE_B = 0; //OCR1B
 	PHASE_C = 0; //OCR1A	
 
-	/* Setting up timer for interrupt on overflow for measuring motor speed */
+	/* Setting up timer0 for interrupt on overflow for measuring motor speed 
+	 * clkIO/1024 (From prescaler) 
+	 * Triggers at 61 Hz @ 16 Mhz clk */
 	TCCR0A = (1<<CS02) | (1<<CS00);
 	TIMSK0 = (1<<TOIE0);
 
@@ -151,7 +151,8 @@ void motor_commutate(unsigned char index)
 			PHASE_B = motor_speed;
 			PHASE_C = 0;
 
-			rot_counter++;
+			/* For every full motor rotation */
+			rot_counter++; /* TODO should be atomic */
 			break;
 
 		default:
@@ -166,38 +167,42 @@ void motor_read_hall(void)
 	motor_commutate(index);
 }
 
-unsigned int motor_read_speed(void)
+/* Returns wrist speed in degrees per sec NOT TESTED 
+ * Gear ratio motor - wrist 800:1
+ * wrist speed = ((rot_speed/(0.082 s))/800)*360
+ *             = rot_speed * 5.4878 */
+uint16_t motor_read_speed(void)
 {
-	return rot_speed;
+	return (uint16_t)(rot_speed*5.4878);
 }
 
-ISR(HALL_A_vect)
-{
-	motor_read_hall();
-	nrOfInts++;	//Debug
-}
-
-ISR(HALL_B_vect)
-{
-	motor_read_hall();
-	nrOfInts++; //Debug
-}
-
-ISR(HALL_C_vect)
-{
-	motor_read_hall();
-	nrOfInts++; //Debug
-}
-
-
+/*  5*1/(61 Hz) = 82 ms between each rot_speed update  */
 ISR(TIMER0_OVF_vect)
 {
 	/* Timer overflow */
 	counter ++;
-	if (counter == 10)
+	if (counter == 5)
 	{
 		counter = 0;
 		rot_speed = rot_counter;
 		rot_counter = 0;
 	}
 }
+
+ISR(HALL_A_vect)
+{	
+	motor_read_hall();
+}
+
+ISR(HALL_B_vect)
+{
+	motor_read_hall();
+}
+
+ISR(HALL_C_vect)
+{
+	motor_read_hall();
+}
+
+
+
