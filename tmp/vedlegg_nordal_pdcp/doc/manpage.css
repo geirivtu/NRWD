@@ -1,0 +1,25 @@
+*{margin:0;border:0;}
+body{margin:0px 50px; font-size:10pt; hyphens:auto;}
+*{margin-top:1em;}
+li,dt,dd{margin-top:0px;}
+.midvertical{margin-top:.5em;margin-bottom:.5em;}
+h1{color:#525052;font-size:250%;}
+h2{color:#525052;font-size:150%;}
+h3{color:#525052;font-size:125%;}
+h4{color:#525052;font-size:100%;}
+h2,h3,h4{text-transform:uppercase;}
+table{width:100%;}
+td{vertical-align:top;}
+.figure{text-align:center;}
+tt{font-weight:bold;}
+pre{font-weight:bold;line-height:200%;}
+pre i{font-weight:normal;}
+dl{border:3px double #ccc;padding:0.5em;}
+dt{float:left;clear:left;text-align:right;font-weight:bold;width:7em;}
+dt:after {content:":";}
+dd{margin-left:8em;}
+.synligtab td,th{border: 1px solid black;}
+.synligtab{border-collapse:collapse;}
+.synligtab td{vertical-align:middle;}
+blockquote{position:relative;margin-left:2em;}
+blockquote:after{position:absolute;z-index:-1;top:0;content:"”";color:#bbb;font-size:3em;left:-0.5em;}

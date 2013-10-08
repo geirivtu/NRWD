@@ -1,0 +1,304 @@
+/*
+	Documentation file by Andrzej Zamojski and Andreas Nordal ( 06.2012, Trondheim, Norway )
+*/
+
+/*! \mainpage 
+
+* \section intro_1 Project introduction
+
+*	This is a manual to Prosthetic Device Communication Protocol (PDCP) designed by Yves Losier 
+*	and implemented as Master Thesis project by <br><b>Andrzej Zamojski (TU of Lodz, Poland)</b><br> 
+*	and <br><b> Andreas Nordal (NTNU in Trondheim, Norway). </b><br>
+*	Supervisor of both of them was <b>Øyvind Stavdahl (Cybernetic Department, NTNU)</b><br>
+
+*	PDCP was previously only implemented on PIC microcontrollers, as result of interface development.
+*	To spread the idea of a standardized interface for prosthetics,
+*	it was decided to implement PDCP for the AVR platform,
+*	which is widely used in prosthesis industry.<br>
+*	
+*	Team of Andreas and Andrzej divided protocol implementation into 2 parts:
+*	<dl>
+*	<dt>Hardware Abstraction Layer ( HAL )</dt><dd>designed by Andrzej Zamojski (AZ) <a href="mailto:andruszamojski@gmail.com">(mail)</a></dd>
+*	<dt>High Level Layer ( HLL )</dt><dd>designed by Andreas Nordal (AN) <a href="mailto:andreas.nordal@gmail.com">(mail)</a></dd>
+*	</dl>
+*
+*	<b>Purpose of HAL layer </b>: provide transparency of hardware for higher layers of interface. Designers of<br>
+*	higher layers of PDCP should not take care (as far as it`s not needed) of any aspects of hardware 
+*	(like port initialization, interrupt routines responsible for communication with CAN controller and others).
+*	Parts of the code, which should be refreshed by application designer, are specially described.<br>
+*
+*	<b>Purpose of HLL layer </b>: provide abstractions of the PDCP protocol itself.
+*	Functionality and aspects of the protocol are captured through functions and datatypes.<br>
+*	binding.
+*
+*	<br><br><br>
+
+* \section intro_2	Important functionalities
+*	The most importan functionalities provided by designed interface was shortly described on the pages:<br>
+*	- \subpage HALHLLInterface	Protocol between PDCP layers was described. ( AZ + AN )
+*	- \subpage MsgSend 			Procedure of messages sending. ( AZ + AN )
+*	- \subpage MsgRec			Procedure of messages reception. ( AZ + AN )
+*	- \subpage Bind				Procedure of node binding. ( AN )
+*	- \subpage Func				Description of some functions delivered by PDCP. ( AN )
+*	- \subpage Others			Other functionalities. ( AZ )
+*	- \subpage HwPlatform		Hardware platform for AVR PDCP implementation. ( AZ )
+*	- \subpage Download			Download code and PCB project. ( AZ )
+*	<br><br>
+*	Initials indicates authors of particular pages.
+*	<br><br><br>
+
+
+* \section intro_3	Hardware resources
+*	Hardware resources used for protocol implementation are:<br>
+*	- AT90USB1287 - High Performance, Low-Power AVR 8-bit microcontroller with 128 kB of ISP Flash;
+*	- MCP2515 - Microchip CAN controller;
+*	- MCP2551 - Microchip CAN transceiver.<br><br>
+*	Above presented hardware was combined into one PCB and designed by O.J.Borgersen and<br>
+*	M.L.Volstad as USB Multifunction Board-Nimron and is used in programming courses at NTNU.
+*	More details can be found in the 
+*	<a href="http://www.nimron.no/P1000/">Internet</a>
+*	<br><br><br>
+
+
+
+* \section intro_4	Software platform
+*	Software was tested using AVR Studio version 4.19 and JTAGICE mkII debugger.<br>
+*	Software can also be compiled using provided makefile, which was tested with avr-gcc 4.3.3.
+*	<br><br><br>
+*
+
+
+* \section intro_5	Name convention
+*	To facilitate software development following name convention was used within the project:<br>
+*	- <b>CONFIG_name</b>	- Both HAL and HLL contain part of software dedicated to special  functionalities, which either are used only for 
+*	debugging or for some configuration. To facilitate the use of the software compilation and running of the part of the code
+*	can be manually enables or disabled by changing <i>#define</i> preprocessor directives. All the directives which are related to bus device mode or 
+*	define debugging modes begin with the prefix CONFIG_;
+*	<br>
+*	- <b>HW_name</b>	- HAL of interface, in contrast to the HLL, contains low level hardware initialization. To improve portability 
+*	all ports relevant for proper operation of HAL are signed with HW_ prefix. These directives should be absolutely refreshed after the 
+*	microcontroller exchange;
+*	- <b>hal_name</b> - Function responsible for interface between lower and higher layer of PDCP from hardware point of view are signed with HAL_ prefix;
+*	- <b>hll_name</b> - Function responsible for interface between lower and higher layer of PDCP from upper software point of view are signed with HLL_ prefix.
+*
+*	<br><br><br>
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*! \page HALHLLInterface "HAL-HLL Interface"
+*	For interface between hardware and software HAL-HLL interface was designed. Below described functions are responsible for data transmission
+*	between layers. <br> Function prefixe determines in which layer function was implemented.<br><br>
+*	<b>- hal_set_mask and hal_set_filter </b>- set the mask and filter configuration of the CAN controller. Input parameters are:<br>
+*	id - Node Identifier Field, as defined by PDCP.
+*    mode - type of node (whether we are DEVICE or ABITRATOR)
+*
+*	<b>- hal_msg_poll </b>- retries fetching any incoming CAN messages left in the CAN controller;
+*
+*	<b>- hll_msg_alloc </b>- reserves unused memory in the high level layer for an incoming CAN message. This memory shall contain a can_msg structure, to which a pointer shall be returned to the caller. The caller must initialze the structure and send it back by calling hll_msg_commit;
+*
+*	<b>- hll_msg_commit </b>- invokes the high level layer's processing of the CAN message referenced by msg;
+*
+*	<b>- hll_msg_get </b>- looks for an outgoing CAN message, and if found, return the contained can_msg structure. Otherwise, it shall return NULL. The caller must signify when it is finished with the pointed-to memory by calling hll_msg_free;
+*
+*	<b>- hll_msg_free </b>- marks the memory in use by the CAN message containing msg as unused.
+*	<br><br>
+*	
+*	Procedure of data transmission was presented in the figure below. Sending and receiving mechanism was precisely described in pages: Msg Sending and Msg Receiving<br>
+*	<img src="../doxy-src/interface.png" alt="Hm" />
+*	<br><br><br>
+*/
+
+
+
+
+
+
+
+/*! \page MsgSend "Msg Sending"
+*	\section send_1		HAL aspects
+*	Block diagram of message sending in HAL in relation to HLL was presented in the figure below.
+*	<img src="../doxy-src/msgSending.png" alt="" />
+*
+*	Procedure of message sending is triggered from HLL level, because lower layers does not send any messages itself.<br>
+*	If HLL has any message to send after internal computations described in section "HLL aspects", it calls function hal_msg_take() which call function triggerSoftwareInterrupt()
+*	with an argument #TRIGGER_SENDING. By changing one of the microcontroller pins mentioned function triggers external interrupt treated as software interrupt.<br>
+*	Afterwards, callback from hll_msg_get() function is made to return pointer to message structure from HLL, which should be sent. 
+*	HLL checks priority of arbitration field of returned message and basing on transmitting CAN controller register priorities calls function sendCanMsg() with appropriate arguments.
+*	Within sendCanMsg() function structure is decoded into id, message length and data field and all these parameters are sent to CAN controller using smart function
+*	mcp2515TransmitData() which provides possibility of data transfer in reading, writing or bit set mode usind function transmitSPI().
+*	After data transfer pointer to structure should be freed - this is executed by function hll_msg_free() with the pointer as the argument.
+*	Moreover hll_msg_free() checks, whether any message has been left in CAN controller because of HLL stack overflow.
+*	<br><br>
+*
+*	\section send_2		HLL aspects
+*	Should be filled by AN.
+*	<br><br><br>
+!*/
+
+
+
+
+
+
+
+/*! \page MsgRec "Msg Reception"
+*	\section rec_1		HAL aspects
+*	Block diagram of message receiving in HAL in relation to HLL was presented in the picture below.
+*	<img src="../doxy-src/msgReceiving.png" alt="" />
+*
+*	Mechanism of message reception starts inside of CAN controller. When CAN controller of particular node
+*	receives a message, firstly checks correctness of ID (placed within arbitration field) using MASK and FILTER.
+*	MCP2515 chip contains up to 7 filters, however only one is used for purpose of PDCP.
+*	Afterwards, mechanism of external interrupt is triggered by pulling external interrupt pin of microcontroller
+*	to low. Microcontroller is configured to call interrupt routine whenever falling edge on the pin is noticed.
+*	Within handler designed software checks source of interrupt - ready transmitting buffer(s), full receiving buffer(s) or
+*	some error. Information about all events is saved in special flags. <br><b> Moreover every full receiving buffer interrupt 
+*	triggers software interrupt by calling function triggerSoftwareInterrupt() with argument: TRIGGER_RECEIVING.</b>
+*	Because interrupts are swiched-off within interrupt handlers, so just after completing interrupt from CAN controller, message should be handled.<br>
+*	Firstly, function hll_msg_alloc() is called to get free pointer for the received message. Secondly, transfer of id, message length and data 
+*	is executed using function mcp2515TransmitData() and inside transmitSpi(). Just after transfer, individual elements of the message are assigned
+*	to particular fields pointed by mentioned pointer. This solution allows to avoid having buffers inside of HAL and increase speed of data 
+*	exchange between HAL and HLL of PDCP and upper layers.
+*	If data transfer is completed, HAL calls function hll_msg_commit() with the pointer as argument, which allows HLL to process data.
+*	Just after that clearInterruptFlag() is called with the flag of the receiving buffer which received the message.
+*	From the moment buffer is allowed to overwrite internal receiving buffer.<br>
+*	Message is processed in HLL.
+*	<br><br> 
+*
+*	\section rec_2		HLL aspects
+*	To be filled by AN.
+*	<br><br><br>
+*/
+
+
+
+
+
+
+/*! \page Bind "Binding"
+*	To be filled by AN.
+*	<br><br><br>
+*/
+
+
+
+
+
+
+/*! \page Func "PDCP functions"
+*	Not yet implemented.
+*	<br><br><br>
+*/
+
+
+
+
+
+
+/*! \page Others "Other functionalities"
+*	Because interface is in development stage, therefore some functionalities for debugging were provided to facilitate further interface development.<br>
+*	All functions mentioned below were included within Hardware Abstraction Layer (HAL).
+*	<br>
+
+*	\section Others1	EEPROM handling
+*	Nodes of prosthesis system contain much information about their vendor, serial number, transmission channels and other relevant parameters. 
+*	Some of them are used only during program operation and there is no need to keep them in memory. However, some of them have to be saved in the non-volatile memory 
+*	either external or internal one. Because the microcontroller is equipped with internal EEPROM (2kB) functions for EEPROM handling were implemented. These functions are:
+*	- void writeEEPROM( uint8_t address, uint8_t data ) 
+*	- uint8_t readEEPROM( uint8_t address ) 
+*	<br><br><br>
+
+
+*	\section Others2	Error handling
+*	Although message sending in MCP2515 is retried up to 255 times, sometimes transmission errors may occur. Application working with the PDCP should be informed 
+*	that error(s) happened, therefore error structure was implemented. Every error indicated by interrupt from controller increments the value of specified elements 
+*	of this structure. The application can read the whole error structure by calling function:
+*	- void checkTransmissionErrors( struct errorStr* )
+*	<br><br><br>
+
+
+*	\section Others3	USART debugging
+*	Inside of the HAL USART handling was included which occurred a very useful tool while debugging 
+*	because it enabled printing text messages in the form of strings on serial port. 
+*	In conjunction with designed PCB board (which uses simple USB port and integrated circuit emulating RS232 port) and serial terminal program installed in the computer
+*	application designer is able to print both text and for example variable values on the screen. 
+*	The latter is possible thanks to itoa() or sprint() function provided by stdlib library of AVRLIBc. The function is called:
+*	- void printUsart( char* ).
+
+*	<br><br><br>
+*/
+
+
+
+
+
+
+/*! \page HwPlatform "Hardware Plaftorm"
+*	\section HwPlatform_1		Introduction
+*	<p>For interface developing a hardware platform was proposed. Project of PCB was designed in Altium Designer Winter 2009<br>
+*	Two version of hardware were presented: 
+*	- ATmega128 (simple microcontroller) with external CAN controller (MCP2515) and CAN transceiver (MCP2551). 
+*	- AT90CAN128 (with build-in CAN controller) and external CAN transceiver (MCP2551).<br></p>
+*
+*	<p>It should be emphasized, that the hardware card was proposed to provide simple connection between microcontroller
+*	CAN controller and CAN transceiver for PDCP. Card, used in implementation, didn`t have direct connections and 
+*	a couple of wires was needed.<br> Morever, NIMRON card has RS-232 junction, but more popular standard of data exchange becomes USB. Almost every device now
+*	is equipped with USB interface while not every computer with serial RS-232. Therefore, on the new card UART-USB converter based on FT232RL chip was placed. 
+*	Additionally, the card is supplied from USB port (there is a possiblity to supply it externally from 5V or even 3.3 V - dedicated ports) and in general 
+*	there is no need for external power source and cables (as it was for NIMRON board).<br>
+*	For connection of two nodes only 2 cables are needed, what is undoubted advantage of this solution.
+*	
+*	Moreover, simple USB-UART converter was also designed for boards/cards which doesn`t contain build-in converter or RS-232 junction.
+*	</p>
+
+*	\section HwPlatform_2		Version ATmega128
+*	<p>Block diagram of first version was presented in the picture below.
+*	<img src="../doxy-src/pcbBoard_blockDiagram.png" alt="" /></p>
+
+*	\section HwPlatform_3		Version AT90CAN128
+*	<p>Block diagram of version with CAN controller built-in was presented in the picture below.
+*	<img src="../doxy-src/pcbBoard_blockDiagram_CANuC.png" alt="" /></p>
+*	<br>
+*	<b>Project files can be downloaded from Download section.</b>
+
+
+*/
+
+
+/*! \page Download "Download"
+*	\section Download_1		Introduction
+*	In this section link to software and hardware project resources are included.
+
+*	\section Download_2		Software
+*	<p>Software project files you will find below (compiled and programmed with AVR Studio 4.0, WinAVR and AVRLibc).<br>
+*	- <a href="../doxygen_manual-1.7.6.1.pdf" target="_blank">Software package (v.</a>
+*	<br><br></p>
+
+*	\section Download_3		Hardware
+*	<p>Project and gerber files are included together with Master report of Andrzej Zamojski and one can download them.<br>
+*	Link to files were listed below:<br>
+*	PCB was designed in <b>Altium Designer 2009<b>.<br> 
+*	Dedicated library should be included into the project before introducing any changes.<br></p>
+*	- <a href="../doxygen_manual-1.7.6.1.pdf" target="_blank">AT90USB1287 (+CAN CONTROLLER) - Electric Schematic (tested)</a>
+*	- <a href="../doxygen_manual-1.7.6.1.pdf" target="_blank">AT90USB1287 (+CAN CONTROLLER) - all files</a>
+*	   
+*	- <a href="../doxygen_manual-1.7.6.1.pdf" target="_blank">AT90CAN128 - Electric Schematic (NOT TESTED)</a>
+*	- <a href="../doxygen_manual-1.7.6.1.pdf" target="_blank">AT90CAN128 - all files</a>
+*
+*	- <a href="../doxygen_manual-1.7.6.1.pdf" target="_blank">USB-UART converter</a>
+*	- <a href="../doxygen_manual-1.7.6.1.pdf" target="_blank">pdcpLibrary - Altium library for above projects</a>
+*	<br><br><br>	</p>
+*/
+

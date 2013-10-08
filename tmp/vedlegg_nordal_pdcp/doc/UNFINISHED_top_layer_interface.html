@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link type="text/css" rel="stylesheet" href="manpage.css">
+
+<title>PDCP for AVR – top layer interface</title>
+</head><body>
+<h1>PDCP for AVR – top layer interface</h1>
+
+<h2>overview</h2>
+<p>This document describes the top level interface of the High Level Layer of PDCP for AVR. PDCP for AVR consists of 2 layers:</p>
+<ol class="midvertical">
+<li><tt>hll</tt>  High Level Layer</li>
+<li><tt>hal</tt>  Hardware Abstraction Layer</li>
+</ol>
+<p>Only the High Level Layer is considered here,
+which is hopefully the most important part for the application programmer.</p>
+
+<h2>synopsis</h2>
+<pre>
+#include &lt;socket.h&gt;
+struct can_msg;
+struct canel;
+struct socket;
+typedef void (*sock_recv_hook)(struct socket* <i>this</i>);
+void sock_init(struct socket* <i>this</i>);
+void sock_register_recv_hook(struct socket* <i>this</i>, sock_recv_hook <i>fn</i>);
+void sock_push(struct socket* <i>this</i>, struct can_msg* <i>msg</i>);
+struct can_msg *sock_pull(struct socket* <i>this</i>);
+
+#include &lt;hll.h&gt;
+extern struct hll <i>hll_global</i>;
+typedef socknum_t;
+typedef void (*hll_handled_hook)(uint8_t <i>fncode</i>);
+void hll_init(sock_recv_hook <i>app_callback</i>, hll_handled_hook <i>app_notify</i>);
+struct can_msg* hll_msg_pull(socknum_t <i>sd</i>);
+void hll_msg_push(struct can_msg *<i>msg</i>, socknum_t <i>sd</i>);
+
+struct can_msg* hll_msg_alloc();
+void hll_msg_commit(struct can_msg* <i>msg</i>);
+struct can_msg* hll_msg_get();
+void hll_msg_free(struct can_msg* <i>msg</i>);
+</pre>
+
+<h2>description</h2>
+
+<p><tt>hll_</tt>.</p>
+
+<p><tt>hll_</tt>.</p>
+
+<p><tt>hll_</tt>.</p>
+
+<p><tt>hll_</tt>.</p>
+
+<p><tt>hll_</tt>.</p>
+
+<p><tt>hll_</tt>.</p>
+
+<p><tt>hll_</tt>.</p>
+
+<p><tt>hll_</tt>.</p>
+
+<p><tt>hll_</tt>.</p>
+
+<p><tt>hll_</tt>.</p>
+
+<hr>
+<p><tt>hll_msg_alloc</tt> shall reserve unused memory in the high level layer for an incoming CAN message. This memory shall contain a <tt>can_msg</tt> structure, to which a pointer shall be returned to the caller. The caller must initialze the structure and send it back by calling <tt>hll_msg_commit</tt>.</p>
+
+<p><tt>hll_msg_commit</tt> shall pass the CAN message referenced by <i>msg</i> to the high level layer's input queue.</p>
+
+<p><tt>hll_msg_get</tt> shall look for an outgoing CAN message, and if found, return the contained can_msg structure. Otherwise, it shall return <tt>NULL</tt>. The caller must signify when it is finished with the pointed-to memory by calling <tt>hll_msg_free</tt>.</p>
+
+<p><tt>hll_msg_free</tt> shall mark the memory in use by the CAN message containing <i>msg</i> as unused.</p>
+
+<h2>failure modes</h2>
+<p>If no memory for an incoming CAN message is found, <tt>hll_msg_alloc</tt> shall return NULL.</p>
+<p>If no outgoing CAN message is found, <tt>hll_msg_get</tt> shall return NULL.</p>
+
+<p>These functions shall not fail:</p>
+<ul class="midvertical">
+<li><tt>hll_msg_commit</tt></li>
+<li><tt>hll_msg_free</tt></li>
+</ul>
+
+<h2>note</h2>
+<ul>
+
+<li>The hardware abstraction layer may leave CAN messages in the CAN controller in the event of failure of <tt>hll_msg_alloc</tt>. Therefore, the high level layer must call <tt>hal_msg_poll</tt> when it expects <tt>hll_msg_alloc</tt> to become possible.</li>
+
+<li>Incoming CAN messages may only be lost due to full receive buffers in the CAN controller. Assuming the high level layer calls <tt>hal_msg_poll</tt> whenever its internal «receive buffer» is no longer full, this situation only arises when the latter buffer is already full, and is still filled faster than emptied.</li>
+
+<li>Outgoing CAN messages are not lost. The high level layer may be temporarily unable to handle outgoing CAN messages only when its internal «send buffer» is full.</li>
+
+<li>The high level layer's «send» and «receive» buffers may be implemented as a shared memory pool, with no space reserved for any direction. Thus, the capacity of one buffer may be zero due to the other buffer being full.</li>
+
+</ul>
+
+</body></html>
