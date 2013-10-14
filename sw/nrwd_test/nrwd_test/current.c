@@ -41,15 +41,11 @@ void current_startup(void)
 	PORTD &= ~(1<<PD4);
 }
 
-volatile	uint16_t current_mA = 0;
-volatile	uint16_t adc = 0;
-volatile	uint16_t kAdc = 0;
-	
 
 /* Returns current in mA */
 uint16_t current_read(void)
 {
-
+	uint16_t current_mA = 0;
 	/* Multiply K with ADC value to get current in uA 
 	* K = ADCref * (1'000'000/1024)/(Aopamp) = 311 
 	* ADCref = 5 V
