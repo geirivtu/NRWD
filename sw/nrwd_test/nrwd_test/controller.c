@@ -10,12 +10,12 @@
 //#include "uart.h"
 
 
-signed int control_setpoint = 0;
-signed int motor_setpoint = 0;
-signed int prev_motor_setpoint = 0;
+int16_t control_setpoint = 0;
+int16_t motor_setpoint = 0;
+int16_t prev_motor_setpoint = 0;
 
-unsigned int K_p = 1;
-int16_t K_i = 1;
+uint16_t K_p = 1;
+uint16_t K_i = 1;
 
 char control_set_mode(unsigned char mode)
 {
@@ -59,22 +59,34 @@ void control_on_off(void)
 	}
 }
 
+	int16_t accum_error = 0; //make static
+	int16_t prev_control_setpoint = 0; //make static
+	int16_t output = 0;
+	uint16_t position;
+	int16_t error;
+
 /* Make it a KI regulator 
  * control_setpoint = [0, 360] NOT TESTED */
 void control_position(void)
 {
-	static int16_t accum_error = 0;
-	static int16_t prev_control_setpoint = 0;
+
 	
 	/* error - how many degrees away from setpoint */
-    int16_t error = control_setpoint - position_read();
+	position = position_read();
+    error = control_setpoint - position;
+	if(error > 180) error = 360 - error;
+	if(error < -180) error = 360 + error;
 
 	/* If set point changed, reset accumulated error */
 	if(prev_control_setpoint != control_setpoint){
 		accum_error = 0;
 	}
 
-    int16_t output = (K_p*error + K_i*accum_error); // TODO Check for overflow?
+	/* Proportional part */
+    output = K_p*error;
+	
+	/* Integral part */
+	output += K_i*accum_error; // TODO Check for overflow?
 	
 	/* Output is between [-100, 100] */
 	if(output > 100){
@@ -102,10 +114,13 @@ void control_speed(void)
 	signed int error = control_setpoint - motor_read_speed();
     int16_t new_speed;
 	
+	/* Proportional part */
 	motor_setpoint = (K_p*error);
+	
 	new_speed = prev_motor_setpoint + motor_setpoint;
 	
 
+	
 	if (new_speed >= 100)
 	{
 		motor_set_speed(100);
@@ -122,7 +137,7 @@ void control_speed(void)
 	}
 }
 
-void control_set_setpoint(signed int setpoint)
+void control_set_setpoint(int16_t setpoint)
 {
 	control_setpoint = setpoint;
 }

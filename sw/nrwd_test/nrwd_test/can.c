@@ -45,7 +45,7 @@ void can_init(void)
 	CANCDMOB = (1<<CONMOB1) | CAN_IDE; //CAN_IDE = 0
 
 	/* Enable Mob 0 and Mob 1 */
-	CANEN2 = (1<<ENMOB1) | (1<<ENMOB0);
+	CANEN2 = (1<<ENMOB1) | (1<<ENMOB0); //Read only register?
 
 	/* Enable interrupt on Mob 0 and Mob 1 */
 	CANIE2 = (1<<ENMOB1) | (1<<ENMOB0);

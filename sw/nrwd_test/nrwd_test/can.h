@@ -19,8 +19,8 @@ typedef struct can_message_t {
 #define	PHASE_SEG_1		4
 #define	PHASE_SEG_2		4
 
-#define ACCPT_MASK_ID	0b11111111110
-#define ACCPT_TAG_ID	0x6
+#define ACCPT_MASK_ID	0
+#define ACCPT_TAG_ID	0
 #define ACCPT_MASK_RTR	0
 #define ACCPT_TAG_RTR	0
 #define ACCPT_MASK_IDE	0
