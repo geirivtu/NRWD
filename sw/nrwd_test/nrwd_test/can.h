@@ -1,38 +1,66 @@
-#ifndef __CAN_H
-#define __CAN_H
-
-typedef struct can_message_t {
-	unsigned int id;
-	unsigned int length;
-	unsigned char data[8];
-} can_message_t;
+/*!
+	\author Dr. Klaus Schaefer \n
+	Hochschule Darmstadt * University of Applied Sciences \n
+	schaefer@eit.h-da.de \n
+	http://kschaefer.eit.h-da.de
 
 
-#define ID_CONTROLLER	0x120
-#define ID_SETPOINT		0x121
-#define ID_PARAMETER	0x122
-#define ID_ERROR		0x100
+	You can redistribute it and/or modify it 
+	under the terms of the GNU General Public License.\n
+	It is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; \n
+	without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n
+	See http://www.gnu.org/copyleft/gpl.html for mor details.
+*/
 
-#define	BRP_VALUE		(F_CPU/125000/16)
-#define	SJW_VALUE		1
-#define	PROP_SEG		7
-#define	PHASE_SEG_1		4
-#define	PHASE_SEG_2		4
+#define TRUE 1
+#define FALSE 0
+typedef char BOOL;
 
-#define ACCPT_MASK_ID	0
-#define ACCPT_TAG_ID	0
-#define ACCPT_MASK_RTR	0
-#define ACCPT_TAG_RTR	0
-#define ACCPT_MASK_IDE	0
-#define ACCPT_TAG_RB0	0
+#define NO_MOBS 15 		//!< number of message object buffers (MOBs) (AT90CAN128)
+#define NOMOB 	0xff 	//!< return value for getmob()
+#define RTR		0xff 	//!< special value for length ->RTR packet
 
-#define	CAN_FRAME_DATA_LENGTH	8
-#define	CAN_FRAME_MSG_LENGTH	3
-#define	CAN_IDE					0
-#define CAN_FRAME_SIZE			(CAN_FRAME_DATA_LENGTH + CAN_FRAME_MSG_LENGTH)
+//! can packet structure
 
-void can_init(void);
+//! used to describe a CAN20a (standard 11 bit) packet.
+//! a packet length of 0 indicates an RTR packet
+typedef struct
+	{
+	unsigned id;			//!< CAN identifier
+	unsigned char length;	//!< CAN data length
+	unsigned char data[8];	//!< CAN data array [8]
+	}
+	CAN_packet;
 
-void can_transmit(can_message_t *message);
+//! CAN callback function for RX
 
-#endif
+//! signature of functions that will be called 
+//! on a CAN receiver interrupt if the corresponding id/mask pattern was enabled.
+typedef void (* CAN_cbf)( CAN_packet *p, unsigned char mob);
+
+/*! can receive routine
+	\param mob message object buffer to use (1..14)
+	\param id CAN identifier / id range
+	\param idmask mask telling which bits in id to check
+	\param callback pointer to callback function (isr callback)
+	\return FALSE if MOB not ready, TRUE otherwise
+*/
+BOOL prepare_rx( char mob, unsigned id, unsigned idmask, CAN_cbf callback);
+
+/*! can transmit routine
+	\param mob MOB channel to use. 
+	The receive function uses low MOB numbers 0,1, ...
+	Therefore use high numbers 15, 14 ... for transmission.
+	Ideally, use different MOBs for different IDs to maintain priority.
+	\param packet pointer to CAN packet
+	\return FALSE if TX on this MOB not ready, TRUE otherwise
+*/
+BOOL can_tx( char mob, 	CAN_packet *packet);
+
+/*! can interface initialisation
+
+	call this function before any CAN related function is used
+*/
+void can_init( void);

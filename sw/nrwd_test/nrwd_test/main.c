@@ -17,19 +17,56 @@
 #include "controller.h"
 #include "can.h"
 
+
+
+//! interrupt callback function for CAN receiver interrupt.
+void setParameter( CAN_packet *p, unsigned char mob) // interrupt callback
+{
+	(void)mob;
+	//PORTE^=p->data[0];
+}
+
+//! interrupt callback function for CAN receiver interrupt.
+void setSetpoint( CAN_packet *p, unsigned char mob) // interrupt callback
+{
+	(void)mob;
+	
+	/*
+	int16_t setpoint;
+	setpoint = p->data[0] << 8;
+	setpoint += p->data[1];
+	*/
+	
+	int8_t speed = p->data[0];
+	
+	//control_set_setpoint(setpoint);
+	control_set_setpoint(speed);
+	p->id= speed & 0xFFF;
+	can_tx( 14, p);
+}
+
+
+
 int main(void)
 {
 
-	//motor_init();
+	BOOL ret;
+
+	motor_init();
 	
 	position_init();
 	
 	current_init();
 	
-	//control_set_mode(MODE_POSITION);
-	
-	//can_init();
-	
+	motor_set_speed(80);
+		
+	can_init();
+
+	ret=prepare_rx( 0, 0x150, 0x7ff, setParameter);
+	//ASSERT( ret==0);
+
+	ret=prepare_rx( 1, 0x151, 0x7ff, setSetpoint);
+	//ASSERT( ret==0);
 	
 	/* Setting PD6 to output */
 	DDRD |= (1<<PD6); //Debug
@@ -41,14 +78,18 @@ int main(void)
 	sei();
 
 	volatile uint16_t pos_temp;
+	
+	//control_set_setpoint(65);
 
     while(1)
     {
 		
         //control_controller();
-		control_position();
-
-		_delay_ms(150);
+		//control_position();
+		//control_speed();
+		
+		
+		_delay_ms(TIMESTEP);
     }
 }
 

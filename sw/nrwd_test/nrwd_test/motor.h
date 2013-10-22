@@ -26,6 +26,6 @@ void motor_commutate(unsigned char index);
 
 void motor_read_hall(void);
 
-unsigned int motor_read_speed(void);
+int16_t motor_read_speed(void);
 
 #endif

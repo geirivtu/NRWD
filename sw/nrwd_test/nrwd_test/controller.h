@@ -5,6 +5,8 @@
 #define MODE_POSITION	1
 #define MODE_SPEED		2
 
+#define TIMESTEP 150
+
 typedef void (*function)(void);
 function control_controller;
 

@@ -4,20 +4,22 @@
 
 #include "motor.h"
 
-
-unsigned char motor_speed = 0;
-signed char motor_direction;
-unsigned char *commutation_table;
+uint8_t motor_speed = 0;
+int8_t motor_direction;
+uint8_t *commutation_table;
 
 /* Commutation table for clockwise rotation */
-unsigned char cw[] = {0x00, 0x05, 0x06, 0x04, 0x03, 0x01, 0x02};
+uint8_t cw[] = {0x00, 0x05, 0x06, 0x04, 0x03, 0x01, 0x02};
 
 /* Commutation table for counterclockwise rotation */
-unsigned char ccw[] = {0x00, 0x02, 0x01, 0x03, 0x04, 0x06, 0x05};
+uint8_t ccw[] = {0x00, 0x02, 0x01, 0x03, 0x04, 0x06, 0x05};
 
-unsigned char counter = 0; /* In TIMER0_OVF_vect */
+uint8_t counter = 0; /* In TIMER0_OVF_vect */
 volatile uint16_t rot_speed = 0;
 volatile uint16_t rot_counter = 0;
+
+/* Nr of motor rotations per wrist revolution */
+#define MOTOR_ROT_FULL_TURN 333
 
 void motor_init(void)
 {
@@ -29,17 +31,6 @@ void motor_init(void)
 	PB7 : Motorfase A
 	*/
 	
-	/* Input with Internal pull-up */
-	//DDRE |= (1<<PE4) | (1<<PE5) | (1<<PE6);  //Should be inputs right?
-	DDRE &= (0<<PE4) | (0<<PE5) | (0<<PE6);
-	PORTE |= (1<<PE4) | (1<<PE5) | (1<<PE6);
-	/*
-	 * PE4 : HallC
-	 * PE5 : HallA
-	 * PE6 : HallB
-	 */
-	
-
 	/* Setting up Timer1 with fast PWM with TOP ICR1
 	 * using prescaler clk/8 
 	 * Clear OCnx on Compare Match and set at TOP
@@ -62,7 +53,21 @@ void motor_init(void)
 	TCCR0A = (1<<CS02) | (1<<CS00);
 	TIMSK0 = (1<<TOIE0);
 
-	/* Enabling external interrupt on PE4-PE6 */
+
+	/* Set to output with high */
+	/*
+	For some reason the ext interrupt triggers randomly if it is set to input
+	
+	*/
+	DDRE |= (1<<PE4) | (1<<PE5) | (1<<PE6);  
+	PORTE |= (1<<PE4) | (1<<PE5) | (1<<PE6); 
+	/*
+	 * PE4 : HallC
+	 * PE5 : HallA
+	 * PE6 : HallB
+	 */
+
+	/* Enabling external level change interrupt on PE4-PE6 */
 	EICRB = (1<<ISC60) | (1<<ISC50) | (1<<ISC40);
 	EIMSK = (1<<HALL_A) | (1<<HALL_B) | (1<<HALL_C);
 }
@@ -82,7 +87,7 @@ void motor_stop(void)
 	DDRB = 0x00;
 }
 
-void motor_set_speed(signed int speed)
+void motor_set_speed(int16_t speed)
 {
 	if(speed < 0)
 	{
@@ -114,6 +119,10 @@ void motor_set_speed(signed int speed)
 
 void motor_commutate(unsigned char index)
 {
+
+	/* Used in speed calculation */
+	rot_counter++; /* TODO should be atomic */
+	
 	switch (commutation_table[index])
 	{
 		case 0x01:
@@ -150,9 +159,6 @@ void motor_commutate(unsigned char index)
 			PHASE_A = motor_speed;
 			PHASE_B = motor_speed;
 			PHASE_C = 0;
-
-			/* For every full motor rotation */
-			rot_counter++; /* TODO should be atomic */
 			break;
 
 		default:
@@ -160,32 +166,36 @@ void motor_commutate(unsigned char index)
 	}
 }
 
+
 void motor_read_hall(void)
 {
 	/* Reading hall-sensors */
-	unsigned char index = ((PINE & 0x70)>>4);
+	uint8_t index = ((PINE & 0x70)>>4);
 	motor_commutate(index);
 }
 
 /* Returns wrist speed in degrees per sec NOT TESTED 
- * Gear ratio motor - wrist 800:1
- * wrist speed = ((rot_speed/(0.082 s))/800)*360
- *             = rot_speed * 5.4878 */
-uint16_t motor_read_speed(void)
+ * wrist speed = ((rot_speed/(0.131 s))/MOTOR_ROT_FULL_TURN)*360/6
+ *             = rot_speed * 458/MOTOR_ROT_FULL_TURN  */
+int16_t speed =  0;	//debug
+
+int16_t motor_read_speed(void)
 {
-	return (uint16_t)(rot_speed*5.4878);
+	return (uint16_t)(rot_speed*1.3738)*motor_direction;
 }
 
-/*  5*1/(61 Hz) = 82 ms between each rot_speed update  */
+/*  8*1/(61 Hz) = 131 ms between each rot_speed update  */
 ISR(TIMER0_OVF_vect)
 {
 	/* Timer overflow */
 	counter ++;
-	if (counter == 5)
+	if (counter == 8)
 	{
 		counter = 0;
 		rot_speed = rot_counter;
+		speed = motor_read_speed(); //debug
 		rot_counter = 0;
+
 	}
 }
 

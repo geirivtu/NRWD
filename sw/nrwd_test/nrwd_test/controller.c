@@ -11,8 +11,7 @@
 
 
 int16_t control_setpoint = 0;
-int16_t motor_setpoint = 0;
-int16_t prev_motor_setpoint = 0;
+
 
 uint16_t K_p = 1;
 uint16_t K_i = 1;
@@ -59,22 +58,26 @@ void control_on_off(void)
 	}
 }
 
-	int16_t accum_error = 0; //make static
-	int16_t prev_control_setpoint = 0; //make static
-	int16_t output = 0;
-	uint16_t position;
-	int16_t error;
+
+
+
 
 /* Make it a KI regulator 
  * control_setpoint = [0, 360] NOT TESTED */
 void control_position(void)
 {
-
+	static int16_t accum_error = 0; //make static
+	static int16_t prev_control_setpoint = 0; //make static
+	int16_t motor_setpoint = 0;
+	uint16_t position;
+	int16_t error;
+	
+	int8_t max_accum_erro = 40;
 	
 	/* error - how many degrees away from setpoint */
 	position = position_read();
     error = control_setpoint - position;
-	if(error > 180) error = 360 - error;
+	if(error > 180) error = error - 360;
 	if(error < -180) error = 360 + error;
 
 	/* If set point changed, reset accumulated error */
@@ -83,58 +86,90 @@ void control_position(void)
 	}
 
 	/* Proportional part */
-    output = K_p*error;
+    motor_setpoint = K_p*error;
 	
 	/* Integral part */
-	output += K_i*accum_error; // TODO Check for overflow?
+	motor_setpoint += K_i*accum_error; // TODO Check for overflow? Multiply with timestep?
 	
-	/* Output is between [-100, 100] */
-	if(output > 100){
-		output = 100;
-	}else if(output < -100){
-		output = -100;
+	/* motor_setpoint is between [-100, 100] */
+	if(motor_setpoint > 100){
+		motor_setpoint = 100;
+	}else if(motor_setpoint < -100){
+		motor_setpoint = -100;
 	}
 	
 	accum_error += error;
 	/* acum_error not to exceed a certain value */
-	if(accum_error > 30){
-		accum_error = 30;
-	}else if(accum_error < -30){
-		accum_error = -30;
+	if(accum_error > max_accum_erro){
+		accum_error = max_accum_erro;
+	}else if(accum_error < -max_accum_erro){
+		accum_error = -max_accum_erro;
 	}	
 	
 	prev_control_setpoint = control_setpoint;
 	
-	motor_set_speed(output);
+	motor_set_speed(motor_setpoint);
 }
+
+
+/* Measured angular velocity with stopwatch at different duycycles
+
+Speed(DC)   Angular velocity(degrees per sec)
+80				156
+65				94
+50				44
+*/
+
+int16_t motor_setpoint = 0;
+int16_t prev_motor_setpoint = 0;
+static int16_t accum_error = 0; //make static
+static int16_t prev_control_setpoint = 0; //make static
+int16_t error;
 
 /* NOT TESTED */
 void control_speed(void)
 {
-	signed int error = control_setpoint - motor_read_speed();
-    int16_t new_speed;
+	
+	int8_t max_accum_error = 50;
+	
+	error = control_setpoint - motor_read_speed();
+    
+	
+		
+	/* If set point changed, reset accumulated error */
+	if(prev_control_setpoint != control_setpoint){
+		accum_error = 0;
+	}
 	
 	/* Proportional part */
-	motor_setpoint = (K_p*error);
+	motor_setpoint = 50 + (K_p*error);
 	
-	new_speed = prev_motor_setpoint + motor_setpoint;
+	/* Integral part */
+	motor_setpoint += K_i*accum_error; // TODO Check for overflow?
 	
-
+	accum_error += error;
+	/* acum_error not to exceed a certain value */
+	if(accum_error > max_accum_error){
+		accum_error = max_accum_error;
+	}else if(accum_error < -max_accum_error){
+		accum_error = -max_accum_error;
+	}	
 	
-	if (new_speed >= 100)
+	
+	/* motor_set_speed already checks for saturation */
+	/*
+	if (motor_setpoint >= 100)
 	{
-		motor_set_speed(100);
-		prev_motor_setpoint = 100;
+		motor_setpoint = 100;
 	}
-	else if (new_speed <= -100)
+	else if (motor_setpoint <= -100)
 	{
-		motor_set_speed(-100);
-		prev_motor_setpoint = -100;
+		motor_setpoint = -100;
 	}
-	else {
-		motor_set_speed(new_speed);
-		prev_motor_setpoint = (new_speed);
-	}
+	*/
+	prev_motor_setpoint = motor_setpoint;
+	
+	motor_set_speed(motor_setpoint);
 }
 
 void control_set_setpoint(int16_t setpoint)

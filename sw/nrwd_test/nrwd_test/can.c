@@ -1,81 +1,156 @@
-#include <avr/io.h>
-#include <avr/interrupt.h>
+/*!	\file
+	generic CAN bus driver for AT90CAN128
 
+	privides interrupt-driven reception and polled transmission of can packets
+
+	\author Dr. Klaus Schaefer \n
+	Hochschule Darmstadt * University of Applied Sciences \n
+	schaefer@eit.h-da.de \n
+	http://kschaefer.eit.h-da.de
+
+	You can redistribute it and/or modify it 
+	under the terms of the GNU General Public License.\n
+	It is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; \n
+	without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n
+	See http://www.gnu.org/copyleft/gpl.html for mor details.
+
+*/
+
+#include "avr/interrupt.h"
+#include "assert.h"
 #include "can.h"
 
+CAN_cbf canlist[NO_MOBS]; //!< can callback list for RX channels, indexed by MOB number
 
-void can_init(void)
-{
-	/* Resetting CAN-controller */
-	CANGCON = (1<<SWRES);
+//! CAN interrupt service routine
 
-	/* CAN baud rate 125000 with 16MHz crystal */
+//! presently only used for reception of CAN packets
+ISR( CANIT_vect)
+	{
+	unsigned i;
+	static CAN_packet packet;
+	char save_canpage=CANPAGE;
+	
+	unsigned mob=CANHPMOB; // get highest prio mob
+    CANPAGE = mob & 0xf0;
+	mob >>= 4; // -> mob number 0..15
+	//ASSERT( (CANSTMOB & ~0xa0) ==0); // allow only RX ready and DLC warning
+	register char length;
+	packet.id=(CANIDT2>>5) | (CANIDT1 <<3);
+	length=CANCDMOB & 0x0f;
+	packet.length=length;
+	for (i = 0; i <length; ++i)
+		{
+		 packet.data[i] = CANMSG;
+		}
+	CANSTMOB=0;		// reset INT reason
+	CANCDMOB=0x80;	// re-enable RX on this channel
+	canlist[ mob]( &packet, mob);
+	CANPAGE=save_canpage;	// restore CANPAGE
+	}
+
+BOOL can_tx( char mob, 	CAN_packet *packet)
+	{
+	unsigned cnt;
+	//ASSERT( packet->id <= 0x7ff);
+	//ASSERT( packet->length <=8);
+	//ASSERT( mob <=14);
+    CANPAGE = mob << 4;
+	if(
+		(  CANCDMOB & 0b11000000) // if MOB in use
+		&& 
+	  	( (CANSTMOB & 0x40) ==0)   // TX not ready
+	  )
+		return FALSE;
+	CANSTMOB = 0x00;    	// cancel pending operation 
+	CANCDMOB = 0x00;		
+	if( packet->length!=RTR)
+		{
+		CANIDT1=packet->id >>3;
+		CANIDT2=packet->id <<5;
+        CANIDT3 = 0;
+        CANIDT4 = 0;
+		for (cnt=0; cnt < packet->length; ++cnt) 
+			CANMSG = packet->data[cnt];         
+    	CANCDMOB|=packet->length;
+		}
+	else
+		{
+		CANIDT1=packet->id >>3;
+		CANIDT2=packet->id <<5;
+        CANIDT3 = 0;
+        CANIDT4 = 1<<RTRTAG;
+		CANCDMOB|=packet->length;
+		}
+    CANCDMOB|=0x40; //enable TX
+	return TRUE;
+	}
+
+BOOL prepare_rx( char mob, unsigned id, unsigned idmask, CAN_cbf callback)
+	{
+	if( mob >= 15) 				// illegal MOB number
+		return TRUE;
+	canlist[ (unsigned)mob]=callback;
+    CANPAGE = mob << 4;
+	if( callback==0)			// release this MOB 
+		{
+		CANSTMOB = 0x00;    	// cancel pending operation 
+		CANCDMOB = 0x00;		
+		unsigned mask=1<<mob;
+		CANIE2 &=  ~mask;
+		CANIE1 &= ~(mask>>8);
+		return FALSE;
+		}
+	if( CANCDMOB & 0b11000000) 	// if MOB already in use
+		return TRUE;			// no vacancy ...
+	CANSTMOB = 0x00;    	// cancel pending operation 
+	CANCDMOB = 0x00;		
+	CANHPMOB = 0x00;		// enable direct mob indexing, see docu
+	CANIDT1=id >>3;
+	CANIDT2=id <<5;
+	CANIDM1=idmask >>3;
+	CANIDM2=idmask <<5;
+	CANIDM3=0;
+	CANIDM4=0;
+	CANCDMOB=0x80; // enable RX
+	unsigned mask=1<<mob;
+	CANIE2 |=  mask;
+	CANIE1 |= (mask>>8);
+	return FALSE;
+	}
+	
+
+// Gotten from krakkenes can.h
+#define	BRP_VALUE		(F_CPU/125000/16)
+#define	SJW_VALUE		1
+#define	PROP_SEG		7
+#define	PHASE_SEG_1		4
+#define	PHASE_SEG_2		4
+
+
+void can_init( void)
+	{
+	unsigned mob;
+
+/*
+	CANBT1=0x26;	// 16 MHz, 100kbit/s
+	CANBT2=0x04;
+	CANBT3=0x13;
+	*/
+/* CAN baud rate 125000 with 16MHz crystal */
 	CANBT1 = ((BRP_VALUE - 1) << 1);
 	CANBT2 = ((SJW_VALUE - 1) << 5) | ((PROP_SEG - 1) << 1);
  	CANBT3 = ((PHASE_SEG_2 - 1) << 4) | ((PHASE_SEG_1 - 1) << 1) | 1;
-	
-	CANTIM = 0;
-	CANTTC = 0;
 
-
-	CANHPMOB = 0; //??
-	/* Prescaler for the CAN timer. */
-	CANTCON = 0;
-
-	/* Switch to Mob 0 (Transmit) */
-	CANPAGE = (0<<4);
-	CANSTMOB = 0;
-
-	/* Switch to Mob 1 (Receive) */
-	CANPAGE = (1<<4);
-	/* CAN MOb status register */
-	CANSTMOB = 0;
-
-	/* Identifier Masking */
-	CANIDM4 = (ACCPT_MASK_RTR << 2) | ACCPT_MASK_IDE;	// 0x00;
-	CANIDM2 = (ACCPT_MASK_ID << 5) & 0xFF;				// 0x00;
-	CANIDM1 = (ACCPT_MASK_ID >> 3) & 0xFF;				// 0x00;
-
-	/* Identifier Tags */
-	CANIDT4 = (ACCPT_TAG_RTR << 2) | ACCPT_TAG_RB0;		// 0x00;
-	CANIDT2 = (ACCPT_TAG_ID << 5) & 0xFF;				// 0x00;
-	CANIDT1 = (ACCPT_TAG_ID >> 3) & 0xFF;				// 0x00;
-
-	/* Enable reception */
-	CANCDMOB = (1<<CONMOB1) | CAN_IDE; //CAN_IDE = 0
-
-	/* Enable Mob 0 and Mob 1 */
-	CANEN2 = (1<<ENMOB1) | (1<<ENMOB0); //Read only register?
-
-	/* Enable interrupt on Mob 0 and Mob 1 */
-	CANIE2 = (1<<ENMOB1) | (1<<ENMOB0);
-
-	/* Enable interrupt on RX and TX */
-	CANGIE = (1<<ENIT) | (1<<ENRX);
-
-	/* Enable CAN controller */
-	CANGCON = (1<<ENASTB);
-}
-
-void can_transmit(can_message_t *message)
-{
-	/* Disabling interrupt */
-	CANGIE &= ~(1<<ENIT);
-
-	/* Selecting MOb 0 (transmitting) */
-	CANPAGE = (0<<4);
-
-	/* Writing message id */
-	CANIDT1	= ((message->id) >> 3);
-	CANIDT2 = ((message->id) << 5);
-
-	/* Writing data to message */
-	for (int i = 0; i < (message->length); i++) {
-		CANMSG = ((message->data[i]) >> (i*8));
+	for (mob = 0; mob < NO_MOBS; mob++)
+		{
+		CANPAGE  = (mob << 4);
+		CANSTMOB = 0;
+		CANCDMOB = 0;
+		}
+	CANGCON |= 0x02;
+	CANGIE=(1<<ENIT) | (1<< ENRX);
 	}
 
-	/* Enabling transmission, interrupt and selecting MOb 1 (receiving) */
-	CANCDMOB = (1<<CONMOB0) | CAN_IDE | (message->length);
-	CANGIE |= (1<<ENIT);
-	CANPAGE = (1<<4);
-}
