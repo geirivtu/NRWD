@@ -21,7 +21,7 @@ void current_init(void)
 	ADCSRA = (1<<ADEN);
 	
 	/* First conversion ends up with wrong(?) result, do one at init to warmup ADC */
-	ADMUX &= 0b11100000 | 3;
+	ADMUX |= 3;
 	/* Starting conversion */
 	ADCSRA |= (1<<ADSC);
 
@@ -42,7 +42,8 @@ void current_startup(void)
 }
 
 
-/* Returns current in mA */
+/* Returns current in mA */ //TODO not working??
+
 uint16_t current_read(void)
 {
 	uint16_t current_mA = 0;
@@ -55,7 +56,7 @@ uint16_t current_read(void)
 	
 	/* Choosing channel ADC3, output from the OPAMP where 2.28V equals the max current of 145 mA  */
 	/* The OPAMP has a gain of 15.7 */
-	ADMUX &= 0b11100000 | 3;
+	ADMUX |= 3;
 
 	/* Starting conversion */
 	ADCSRA |= (1<<ADSC);

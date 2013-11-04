@@ -31,18 +31,20 @@ void setSetpoint( CAN_packet *p, unsigned char mob) // interrupt callback
 {
 	(void)mob;
 	
-	/*
+	
 	int16_t setpoint;
 	setpoint = p->data[0] << 8;
 	setpoint += p->data[1];
+	
+	/*
+	int16_t speed = p->data[0];
+	if(speed > 128) speed = -1;
 	*/
 	
-	int8_t speed = p->data[0];
-	
-	//control_set_setpoint(setpoint);
-	control_set_setpoint(speed);
-	p->id= speed & 0xFFF;
-	can_tx( 14, p);
+	control_set_setpoint(setpoint);
+	//control_set_setpoint(speed);
+	//p->id= speed & 0xFFF;
+	//can_tx( 14, p);
 }
 
 
@@ -57,8 +59,6 @@ int main(void)
 	position_init();
 	
 	current_init();
-	
-	motor_set_speed(80);
 		
 	can_init();
 
@@ -68,41 +68,80 @@ int main(void)
 	ret=prepare_rx( 1, 0x151, 0x7ff, setSetpoint);
 	//ASSERT( ret==0);
 	
+	control_set_mode(CONTROL_MODE_SPEED);
+	
 	/* Setting PD6 to output */
+	/*
 	DDRD |= (1<<PD6); //Debug
 	
 	PORTD &= ~(1<<PD6);	 //debug
 	PORTD |= (1<<PD6); //Debug
-
+	*/
+	
 	/* Enabling external interrupt */
 	sei();
 
 	volatile uint16_t pos_temp;
 	
-	//control_set_setpoint(65);
+	volatile int16_t tmp = 0;
+	
+	CAN_packet *canTmp;
+	canTmp->id = 0;
+	canTmp->length = 1;
+	canTmp->data[0] = 0;
 
     while(1)
     {
 		
-        //control_controller();
-		//control_position();
-		//control_speed();
+        control_controller();
 		
+		tmp = motor_read_speed();
+		canTmp->data[0] = tmp;
+	
+		can_tx( 14, canTmp);
+		//control_speed();
+		//control_on_off();
+		//control_position();
 		
 		_delay_ms(TIMESTEP);
     }
 }
 
 
-
+uint16_t current_isr;
 
 ISR(CURRENT_vect)
 {
 	/* Overcurrent */
+	
+	
+	current_isr = current_read();
+	
 	motor_stop();
 
 	_delay_ms(1000);
-
+	
+	controller_mode_t mode = control_get_mode();
+	switch(mode){
+		case CONTROL_MODE_ON_OFF:
+			/* Set speed to 0 */ 
+			control_set_setpoint(0);
+			break;
+		case CONTROL_MODE_POSITION:
+			/* Set target position to current position */
+			control_set_setpoint(position_read());
+			break;
+		
+		case CONTROL_MODE_SPEED:
+			/* Set speed to 0 */
+			control_set_setpoint(0);
+			break;
+		
+		default:
+			/* Should not be here */
+		
+		break;
+	}
 	current_startup();
 	motor_start();
 }

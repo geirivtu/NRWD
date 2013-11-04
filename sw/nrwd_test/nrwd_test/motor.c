@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include <stdio.h>
 
+#include <util/atomic.h>
 #include "motor.h"
 
 uint8_t motor_speed = 0;
@@ -103,7 +104,7 @@ void motor_set_speed(int16_t speed)
 	/* Saturation */
 	if((speed * motor_direction) > 100)
 	{
-		motor_speed = 100;
+		motor_speed = (100 * motor_direction);
 	}
 	else
 	{
@@ -177,11 +178,19 @@ void motor_read_hall(void)
 /* Returns wrist speed in degrees per sec NOT TESTED 
  * wrist speed = ((rot_speed/(0.131 s))/MOTOR_ROT_FULL_TURN)*360/6
  *             = rot_speed * 458/MOTOR_ROT_FULL_TURN  */
-int16_t speed =  0;	//debug
+
 
 int16_t motor_read_speed(void)
 {
-	return (uint16_t)(rot_speed*1.3738)*motor_direction;
+	int16_t speed =  0;	//debug
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		speed = (int16_t)(rot_speed*1.3738)*motor_direction;	
+	}
+	
+	
+	
+	return speed;
 }
 
 /*  8*1/(61 Hz) = 131 ms between each rot_speed update  */
@@ -193,7 +202,9 @@ ISR(TIMER0_OVF_vect)
 	{
 		counter = 0;
 		rot_speed = rot_counter;
-		speed = motor_read_speed(); //debug
+		
+		//speed = motor_read_speed(); //debug
+		
 		rot_counter = 0;
 
 	}

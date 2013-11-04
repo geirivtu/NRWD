@@ -64,9 +64,9 @@ uint16_t analog_read(uint8_t adc_nr){
 	
 	/* Set to correct ADC channel */
 	if(adc_nr == ADC0_PF0){
-		ADMUX &= 0b11100000 | ADC0_PF0;
+		//ADMUX &= 0b11100000 | ADC0_PF0; wrong
 	}else if(adc_nr == ADC1_PF1){
-		ADMUX &= 0b11100000 | ADC1_PF1;
+		//ADMUX &= 0b11100000 | ADC1_PF1; wrong
 	}else{
 		//error
 	}

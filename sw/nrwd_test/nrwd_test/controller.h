@@ -1,16 +1,21 @@
 #ifndef __CONTROLLER_H
 #define __CONTROLLER_H
 
-#define MODE_ON_OFF		0
-#define MODE_POSITION	1
-#define MODE_SPEED		2
 
 #define TIMESTEP 150
+
+typedef enum mode{
+	CONTROL_MODE_ON_OFF,
+	CONTROL_MODE_POSITION,
+	CONTROL_MODE_SPEED,
+	} controller_mode_t;
 
 typedef void (*function)(void);
 function control_controller;
 
-char control_set_mode(unsigned char mode);
+uint8_t control_set_mode(controller_mode_t mode);
+
+controller_mode_t control_get_mode(void);
 
 void control_on_off(void);
 
@@ -18,8 +23,8 @@ void control_position(void);
 
 void control_speed(void);
 
-void control_set_setpoint(signed int setpoint);
+void control_set_setpoint(int16_t setpoint);
 
-void control_set_parameter(unsigned int proportional);
+void control_set_parameter(double proportional);
 
 #endif

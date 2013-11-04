@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include <stdio.h>
 #include <util/delay.h>
+#include <stdlib.h>
 
 #include "controller.h"
 #include "current.h"
@@ -10,25 +11,30 @@
 //#include "uart.h"
 
 
-int16_t control_setpoint = 0;
+int16_t Control_setpoint = 0;
 
+/* Decides how close to the CURRENT_MAX the controllers
+ * should regulate to */
+static int8_t Current_safe_zone = 10;
 
-uint16_t K_p = 1;
-uint16_t K_i = 1;
+controller_mode_t Controller_mode = CONTROL_MODE_ON_OFF; 
 
-char control_set_mode(unsigned char mode)
+uint8_t control_set_mode(controller_mode_t mode)
 {
-	if (mode == MODE_ON_OFF)
+	if (mode == CONTROL_MODE_ON_OFF)
 	{
 		control_controller = &control_on_off;
+		Controller_mode = CONTROL_MODE_ON_OFF;
 	}
-	else if (mode == MODE_POSITION)
+	else if (mode == CONTROL_MODE_POSITION)
 	{
 		control_controller = &control_position;
+		Controller_mode = CONTROL_MODE_POSITION;
 	}
-	else if (mode == MODE_SPEED)
+	else if (mode == CONTROL_MODE_SPEED)
 	{
 		control_controller = &control_speed;
+		Controller_mode = CONTROL_MODE_SPEED;
 	}
 	else
 	{
@@ -37,23 +43,54 @@ char control_set_mode(unsigned char mode)
 	return 1;
 }
 
+/* Returns the current control mode */
+controller_mode_t control_get_mode()
+{
+	return Controller_mode;
+}
+
+
 /* Should set motor to max speed while not exceeding max current NOT TESTED */
 void control_on_off(void)
 {
-	signed int setpoint = control_setpoint;
-	
-	// uint16_t current_read()
+	int16_t motor_setpoint = 0;
+	static int16_t accum_error = 0; 
 
-	if (setpoint > 0)
-	{
-		motor_set_speed(100);
+	int16_t error;
+	uint16_t current;
+	uint8_t current_setpoint;
+		
+	current_setpoint = CURRENT_MAX-Current_safe_zone;
+
+	double K_p = 0.4;
+	double K_i = 0.1;
+	
+
+	if(Control_setpoint!=0){
+		current = current_read();
+		error = current_setpoint - current;
+	
+		/* Proportional part */
+		motor_setpoint = (int16_t)(K_p*error);
+
+		/* Integral part */
+		motor_setpoint += (int16_t)(K_i*accum_error); 
+	
+		accum_error += error;	
 	}
-	else if (setpoint < 0)
-	{
-		motor_set_speed(-100);
+	else{ 
+		accum_error = 0;
 	}
-	else
+	
+	/* Control_setpoint decides motor direction */
+	if (Control_setpoint > 0)
 	{
+		motor_set_speed(motor_setpoint);
+	}
+	else if (Control_setpoint < 0)
+	{
+		motor_set_speed(-motor_setpoint);
+	}else{
 		motor_set_speed(0);
 	}
 }
@@ -63,56 +100,53 @@ void control_on_off(void)
 
 
 /* Make it a KI regulator 
- * control_setpoint = [0, 360] NOT TESTED */
+ * Control_setpoint = [0, 360] NOT TESTED */
 void control_position(void)
 {
-	static int16_t accum_error = 0; //make static
-	static int16_t prev_control_setpoint = 0; //make static
+	
+	static int16_t accum_error = 0; 
+	static int16_t prev_Control_setpoint = 0; 
 	int16_t motor_setpoint = 0;
 	uint16_t position;
 	int16_t error;
 	
-	int8_t max_accum_erro = 40;
+	/* How many degrees of error the system accepts */
+	uint8_t error_tolerance = 3;
+	
+	double K_p = 0.9;
+	double K_i = 0.1;
 	
 	/* error - how many degrees away from setpoint */
 	position = position_read();
-    error = control_setpoint - position;
+    error = Control_setpoint - position;
 	if(error > 180) error = error - 360;
 	if(error < -180) error = 360 + error;
 
 	/* If set point changed, reset accumulated error */
-	if(prev_control_setpoint != control_setpoint){
+	if(prev_Control_setpoint != Control_setpoint){
 		accum_error = 0;
 	}
 
-	/* Proportional part */
-    motor_setpoint = K_p*error;
+	if(abs(error) > error_tolerance){
+		/* Proportional part */
+		motor_setpoint = (int16_t)(K_p*error);
+
+		/* Integral part */
+		motor_setpoint += (int16_t)(K_i*accum_error); 
 	
-	/* Integral part */
-	motor_setpoint += K_i*accum_error; // TODO Check for overflow? Multiply with timestep?
-	
-	/* motor_setpoint is between [-100, 100] */
-	if(motor_setpoint > 100){
-		motor_setpoint = 100;
-	}else if(motor_setpoint < -100){
-		motor_setpoint = -100;
+		accum_error += error;
+	}else{
+		motor_setpoint = 0;
+		accum_error = 0;
 	}
 	
-	accum_error += error;
-	/* acum_error not to exceed a certain value */
-	if(accum_error > max_accum_erro){
-		accum_error = max_accum_erro;
-	}else if(accum_error < -max_accum_erro){
-		accum_error = -max_accum_erro;
-	}	
-	
-	prev_control_setpoint = control_setpoint;
+	prev_Control_setpoint = Control_setpoint;
 	
 	motor_set_speed(motor_setpoint);
 }
 
 
-/* Measured angular velocity with stopwatch at different duycycles
+/* Measured angular velocity with stopwatch at different dutycycles
 
 Speed(DC)   Angular velocity(degrees per sec)
 80				156
@@ -120,64 +154,63 @@ Speed(DC)   Angular velocity(degrees per sec)
 50				44
 */
 
-int16_t motor_setpoint = 0;
-int16_t prev_motor_setpoint = 0;
-static int16_t accum_error = 0; //make static
-static int16_t prev_control_setpoint = 0; //make static
-int16_t error;
-
 /* NOT TESTED */
 void control_speed(void)
 {
+	int16_t motor_setpoint = 0;
+	static int16_t accum_error = 0; 
+
+	int16_t error;
+	uint16_t current;
 	
-	int8_t max_accum_error = 50;
+	double K_p = 0.4;
+	double K_i = 0.07;
 	
-	error = control_setpoint - motor_read_speed();
-    
+	/* Special case: Minimize the time it takes before stopping */
+	if(Control_setpoint==0) accum_error = 0;
 	
-		
-	/* If set point changed, reset accumulated error */
-	if(prev_control_setpoint != control_setpoint){
-		accum_error = 0;
+	int16_t control_motor_speed = motor_read_speed();
+	
+	current = current_read();
+	if(current >= (CURRENT_MAX-Current_safe_zone)){
+		/* Set new setpoint so as not to exceed CURRENT_MAX */
+		control_set_setpoint(control_motor_speed);
 	}
+	
+	error = Control_setpoint - control_motor_speed;
 	
 	/* Proportional part */
-	motor_setpoint = 50 + (K_p*error);
-	
+	motor_setpoint = (int16_t)(K_p*error);
+
 	/* Integral part */
-	motor_setpoint += K_i*accum_error; // TODO Check for overflow?
+	motor_setpoint += (int16_t)(K_i*accum_error); 
 	
 	accum_error += error;
-	/* acum_error not to exceed a certain value */
-	if(accum_error > max_accum_error){
-		accum_error = max_accum_error;
-	}else if(accum_error < -max_accum_error){
-		accum_error = -max_accum_error;
-	}	
-	
-	
-	/* motor_set_speed already checks for saturation */
-	/*
-	if (motor_setpoint >= 100)
-	{
-		motor_setpoint = 100;
-	}
-	else if (motor_setpoint <= -100)
-	{
-		motor_setpoint = -100;
-	}
-	*/
-	prev_motor_setpoint = motor_setpoint;
-	
+
+	/* motor_set_speed already checks for saturation */	
 	motor_set_speed(motor_setpoint);
 }
 
 void control_set_setpoint(int16_t setpoint)
 {
-	control_setpoint = setpoint;
+	Control_setpoint = setpoint;
 }
 
-void control_set_parameter(unsigned int proportional)
+void control_set_parameter(double proportional)
 {
-	K_p = proportional;
+	//K_p = proportional;
+	
+	switch(Controller_mode){
+		case CONTROL_MODE_ON_OFF:
+		
+		break;
+		
+		case CONTROL_MODE_POSITION:
+		
+		break;
+		
+		case CONTROL_MODE_SPEED:
+		
+		break;
+	}
 }

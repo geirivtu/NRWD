@@ -7,6 +7,7 @@
  * current to the motor at this value(in mA) taken from the specs  */
 #define CURRENT_MAX	145
 
+
 void current_init(void);
 
 void current_startup(void);
