@@ -11,6 +11,7 @@ typedef enum mode{
 	} controller_mode_t;
 
 typedef void (*function)(void);
+
 function control_controller;
 
 uint8_t control_set_mode(controller_mode_t mode);

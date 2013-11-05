@@ -15,6 +15,7 @@
 #include "position.h"
 #include "current.h"
 #include "controller.h"
+#include "analog.h"
 #include "can.h"
 
 
@@ -60,6 +61,8 @@ int main(void)
 	
 	current_init();
 		
+	//analog_init();
+		
 	can_init();
 
 	ret=prepare_rx( 0, 0x150, 0x7ff, setParameter);
@@ -71,12 +74,12 @@ int main(void)
 	control_set_mode(CONTROL_MODE_SPEED);
 	
 	/* Setting PD6 to output */
-	/*
+	
 	DDRD |= (1<<PD6); //Debug
 	
 	PORTD &= ~(1<<PD6);	 //debug
 	PORTD |= (1<<PD6); //Debug
-	*/
+	
 	
 	/* Enabling external interrupt */
 	sei();
@@ -99,28 +102,18 @@ int main(void)
 		canTmp->data[0] = tmp;
 	
 		can_tx( 14, canTmp);
-		//control_speed();
-		//control_on_off();
-		//control_position();
+
 		
 		_delay_ms(TIMESTEP);
     }
 }
 
 
-uint16_t current_isr;
-
+/* Overcurrent */
 ISR(CURRENT_vect)
 {
-	/* Overcurrent */
-	
-	
-	current_isr = current_read();
-	
 	motor_stop();
 
-	_delay_ms(1000);
-	
 	controller_mode_t mode = control_get_mode();
 	switch(mode){
 		case CONTROL_MODE_ON_OFF:
@@ -142,6 +135,9 @@ ISR(CURRENT_vect)
 		
 		break;
 	}
+
+	_delay_ms(1000);
+	
 	current_startup();
 	motor_start();
 }

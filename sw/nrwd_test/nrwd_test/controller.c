@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <util/delay.h>
 #include <stdlib.h>
+#include <util/atomic.h>
 
 #include "controller.h"
 #include "current.h"
@@ -11,7 +12,7 @@
 //#include "uart.h"
 
 
-int16_t Control_setpoint = 0;
+volatile int16_t Control_setpoint = 0;
 
 /* Decides how close to the CURRENT_MAX the controllers
  * should regulate to */
@@ -193,7 +194,11 @@ void control_speed(void)
 
 void control_set_setpoint(int16_t setpoint)
 {
-	Control_setpoint = setpoint;
+	/* Makes setting of variable atomic */
+	ATOMIC_BLOCK(ATOMIC_FORCEON)
+	{
+		Control_setpoint = setpoint;
+	}
 }
 
 void control_set_parameter(double proportional)

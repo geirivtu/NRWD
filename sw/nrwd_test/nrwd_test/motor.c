@@ -1,8 +1,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
-
 #include <util/atomic.h>
+
 #include "motor.h"
 
 uint8_t motor_speed = 0;
