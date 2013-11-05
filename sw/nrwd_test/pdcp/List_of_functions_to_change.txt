@@ -1,0 +1,10 @@
+
+functions.c
+	-initCan( uint8_t id);
+	-hal_set_filter(id);
+	-hal_set_mask(id);
+	
+irqhandlers.c
+	-ISR ( CONFIG_INT_SENDING ) 
+	-receiveCanMsg ( uint8_t regRec );
+	-sendCanMsg ( struct can_msg* msgToSend, uint8_t regToSend );

@@ -89,13 +89,13 @@
  uint8_t transmitSpi ( uint8_t data ){
 	
 	/* Activate device CS = 0 */
-	HW_CS_MCP2515_PORT &= ~( 1 << HW_CS_MCP2515 );
+	//HW_CS_MCP2515_PORT &= ~( 1 << HW_CS_MCP2515 );
  
 	/* Start transmission */ 
-	SPI_SPDR = ( char ) data;
+	////SPI_SPDR = ( char ) data;
 	
 	/* Waiting for end of transmission */
-	while( !( SPI_SPSR & ( 1 << SPSR_SPIF ) ) );
+	//while( !( SPI_SPSR & ( 1 << SPSR_SPIF ) ) );
 	
 	/* Return result of transmission */
 	return ( ( uint8_t ) SPI_SPDR );
@@ -116,7 +116,7 @@
 	 
 	 cli();
 	 
-	 can_init();
+	 can_init(); //by geir
 	 
 	///* Set masks & filters */
 	//hal_set_filter(id);
