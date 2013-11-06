@@ -22,14 +22,7 @@
  extern volatile uint16_t time;
  extern volatile uint8_t flag;
 
- /* Terminal messages */ 
- #if ( CONFIG_DEBUG_UART_INFO )
- 	char* strMERRE = "MERRE error \r";
- 	char* strERROR = "Error interrupt occured \r";
- #endif
 
- 
- 
  /* Flags for interrupt driving */
  static volatile uint8_t	msgError;
  static volatile uint8_t	wakeUp;
@@ -188,49 +181,6 @@
  
  
  
-#if ( CONFIG_TESTING_HAL )
- /**
- * @name 		TIMER0_OVF_VECT Interrupt handler
- * @brief  		TIMER0 Overflow interrupt handler - used for time measurement in testing modes
- * @param[in]	void
- * @return 		void
- */
- ISR ( TIMER0_OVF_VECT ){
-	
-	static volatile uint16_t counter;
-	volatile uint8_t sendOnce;
-
-	/* Disable interrupts */
-	cli();
-	
-	/* Counter value incrementation */
-	counter++;
-	
-	/*  */ 
-	switch ( counter ){
-	
-		case ( 6*TIME_PERIOD ):	// ca every 100 ms
-			
-			HW_PORT_LED ^= ( 1 << HW_PORT_LED2 );
-			if (flag) time++;
-			counter = 0;
-			
-			break;
-				
-		default:
-			break;
-	}
-
-	/* Enable interrupts */
-	sei();
-	
- }
-#endif
-
-
-
-
-
 
  
  /* ISR ( CONFIG_INT_RECEIVING) ===================================== */
@@ -244,8 +194,6 @@
 	
 	/* Disable interrupts */
 	cli();
-	
-	
 	
 	if ( rxBuf0Full )
 		//receiveCanMsg( NULL, REC_REG_0 );		//* for HAL testing (prototype in irqHandlers.h must be changed!
@@ -336,22 +284,7 @@
  
  
  
- 
-  /* ISR ( BADISR_vect) ===================================== */
- /**
- * @name 		BADISR_vect BADisr
- * @brief  		BADISR_vect handler - fired just before processor 
- *				reset in case of memory problems...
- * @param[in]	void
- * @return 		void
- */
- ISR ( BADISR_vect ){
- 	static char *tmp = "Default handler fired!\r";
-	printUsart(tmp);
- }
 
- 
- 
  /* FUNCTIONS ========================================================= */
  /* =================================================================== */
  
@@ -542,22 +475,3 @@
  void hal_msg_poll ( void ){
 	triggerSoftwareInterrupt( TRIGGER_RECEIVING );
  }
-
-
-
-  /* clearMCP2515InterruptFlag =====================================  */
- /**
- * @fn 			void clearMCP2515InterruptFlag( uint8_t reg, uint8_t flag )
- * @brief  		Function to reset clear flags inside of CAN controller.
- * @param[in]	reg		Register containing a flag
- * @param[in]	flag	Flag to reset
- * @return 		void
- */
- void clearMCP2515InterruptFlag( uint8_t reg, uint8_t flag ){
-	transmitSpi( MPC_BIT_MODIFY );		//* Put MCP2515 in bit modify mode
-	transmitSpi( reg );					//* Register name - CANINTF
-	transmitSpi( 1 << flag );			//* Treated as a mask
-	transmitSpi( 0 << flag );			//* Treated as a data	
-	MCP_DEACTIVATE;						//* CAN controller - deactivation
- }
- 
