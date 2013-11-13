@@ -25,20 +25,32 @@
     <OverrideVtorValue>exception_table</OverrideVtorValue>
     <BootSegment>2</BootSegment>
     <eraseonlaunchrule>0</eraseonlaunchrule>
-    <avrtool />
-    <avrtoolinterface />
+    <avrtool>com.atmel.avrdbg.tool.jtagice3plus</avrtool>
+    <avrtoolinterface>JTAG</avrtoolinterface>
     <AsfFrameworkConfig>
       <framework-data xmlns="">
-  <options />
-  <configurations />
-  <files />
-  <documentation help="" />
-  <offline-documentation help="" />
-  <dependencies>
-    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.11.0" />
-  </dependencies>
-</framework-data>
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.11.0" />
+        </dependencies>
+      </framework-data>
     </AsfFrameworkConfig>
+    <com_atmel_avrdbg_tool_jtagice3plus>
+      <ToolOptions>
+        <InterfaceProperties>
+          <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
+          <JtagDbgClock>200000</JtagDbgClock>
+        </InterfaceProperties>
+        <InterfaceName>JTAG</InterfaceName>
+      </ToolOptions>
+      <ToolType>com.atmel.avrdbg.tool.jtagice3plus</ToolType>
+      <ToolNumber>J30200003000</ToolNumber>
+      <ToolName>JTAGICE3</ToolName>
+    </com_atmel_avrdbg_tool_jtagice3plus>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -107,10 +119,10 @@
     <Compile Include="config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="functions.c">
+    <Compile Include="hal.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="functions.h">
+    <Compile Include="hal.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hll.c">
@@ -131,16 +143,7 @@
     <Compile Include="hll_device.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="irqHandlers.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="irqHandlers.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="main.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="MCP2515control.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="pdcp.h">
@@ -159,9 +162,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="types.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="uCmaskFile.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

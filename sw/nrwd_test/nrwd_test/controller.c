@@ -192,6 +192,58 @@ void control_speed(void)
 	motor_set_speed(motor_setpoint);
 }
 
+
+	int16_t motor_setpoint = 0;
+	static int16_t accum_error_v = 0;
+	static int16_t accum_error_i = 0;
+	
+	int16_t current_setpoint = 0;
+
+	int16_t error_v;
+	int16_t error_i;
+	
+	uint16_t current;
+	int16_t control_motor_speed;
+	
+void control_speed_v2(void)
+{
+	double K_p_v = 0.4;
+	double K_i_v = 0.07;
+	
+	double K_p_i = 0.4;
+	double K_i_i = 0.07;	
+	
+	/* Special case: Minimize the time it takes before stopping */
+	//if(Control_setpoint==0) accum_error = 0;
+	
+	control_motor_speed = motor_read_speed();
+	error_v = Control_setpoint - control_motor_speed;
+	
+	/* Outer loop pi regulator */
+	current_setpoint = (int16_t)(K_p_v*error_v) + (int16_t)(K_i_v*accum_error_v);
+	accum_error_v += error_v;
+	
+	//Current saturation
+	if(current_setpoint >= (CURRENT_MAX-Current_safe_zone)){
+		current_setpoint = 	(CURRENT_MAX-Current_safe_zone);
+	}
+	
+	current = current_read();
+	error_i = current_setpoint - current;
+	
+	/* Inner loop pi regulator */
+	motor_setpoint = (int16_t)(K_p_i*error_i) + (int16_t)(K_i_i*accum_error_i);
+	accum_error_i += error_i;
+
+	if(Control_setpoint == 0){
+		 accum_error_i = 0;
+		 accum_error_v = 0;
+	}
+
+	/* motor_set_speed already checks for saturation */
+	motor_set_speed(motor_setpoint);
+}
+
 void control_set_setpoint(int16_t setpoint)
 {
 	/* Makes setting of variable atomic */

@@ -13,7 +13,7 @@
 #include "hll.h"
 #include "hll_device.h"
 #include "pdcp.h"
-#include "functions.h"
+#include "hal.h"
 
 void hll_arbdev_init(){}
 

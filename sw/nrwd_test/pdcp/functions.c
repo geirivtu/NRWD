@@ -15,7 +15,6 @@
  #include <stdint.h>
  #include "functions.h"
 
-#include "can.h"
  
 
  
@@ -29,17 +28,14 @@
  void initLowLevelProtocolHardware ( void ) {
 	
 	/* Leds - only for testing */
-	/*
 	#if ( CONFIG_DEBUG_LED_TOGGLING )	
 		HW_DDR_LED = 0xFF;
 		HW_PORT_LED = 0xFF;
 	#endif
-	*/
 	
 	/* Init I/O, SPI ports and application designer ports if needed */
 	initIOPort();					
-	
-	//initSpi();	
+	initSpi();	
 	
 	#if ( CONFIG_DEBUG_UART_INFO ) 
 		initUSART( RS_UBRR );
@@ -89,13 +85,13 @@
  uint8_t transmitSpi ( uint8_t data ){
 	
 	/* Activate device CS = 0 */
-	//HW_CS_MCP2515_PORT &= ~( 1 << HW_CS_MCP2515 );
+	HW_CS_MCP2515_PORT &= ~( 1 << HW_CS_MCP2515 );
  
 	/* Start transmission */ 
-	////SPI_SPDR = ( char ) data;
+	SPI_SPDR = ( char ) data;
 	
 	/* Waiting for end of transmission */
-	//while( !( SPI_SPSR & ( 1 << SPSR_SPIF ) ) );
+	while( !( SPI_SPSR & ( 1 << SPSR_SPIF ) ) );
 	
 	/* Return result of transmission */
 	return ( ( uint8_t ) SPI_SPDR );
@@ -112,89 +108,75 @@
  * @return 		CAN_INIT_STATUS 	Status of CAN initialization 	
  */
  CAN_INIT_STATUS initCan( uint8_t id ){
-	 
-	 
-	 cli();
-	 
-	 can_init(); //by geir
-	 
-	///* Set masks & filters */
-	//hal_set_filter(id);
-	//hal_set_mask(id);
-	//
-	///* Reset error structure */
-	//clearTransmissionErrors( );
-	 
-	 return CAN_INIT_OK;
-	//
-	//cli();
-		//
-	///* Call reset command */
-	//transmitSpi( MCP_RESET );
-	//MCP_DEACTIVATE;
-		//
-		//
-	///* Put MCP into configuration mode */
-	//MCP_DEACTIVATE;	
-	//mcp2515TransmitData( MCP_WRITE_CMD, CANCTRL, ( CANCTRL_REQOP_CONFIGURATION << CANCTRL_REQOP_SHIFT ), 0 );
-		//
-	///* CNF1 */
-	////dataToSend = 0xC1;				//* for 250 kbps
-	////dataToSend = 0x00;				//* for 500 kbps
-	//dataToSend = 0xC0;					//* for 1 Mbps
-	//mcp2515TransmitData( MCP_WRITE_CMD, CNF1, dataToSend, 0 );
-		//
-	///* CNF2 */
-	////dataToSend = 0xB5;				//* for 250 kbps
-	////dataToSend = 0xA4;				//* for 500 kbps
-	//dataToSend = 0x89;					//* for 1 Mbps
-	//mcp2515TransmitData( MCP_WRITE_CMD, CNF2, dataToSend, 0 );
-		//
-	///* CNF3 */
-	////dataToSend = 0x01;				//* for 250 kbps
-	////dataToSend = ( 0x04 );			//* for 500 kbps
-	//dataToSend = ( 0x02 );				//* for 1 Mbps
-	//mcp2515TransmitData( MCP_WRITE_CMD, CNF3, dataToSend, 0 );
-		//
-	///* Put MCP into normal mode */
-	//MCP_DEACTIVATE;	
-	//mcp2515TransmitData( MCP_WRITE_CMD, CANCTRL, ( CANCTRL_REQOP_NORMAL << CANCTRL_REQOP_SHIFT ), 0 );
-	//
-	//
-	//
-	///* Switch on particular interrupts */		
-	//dataToSend = 	/*( 1 << CANINTE_MERRE ) */( 1 << CANINTE_ERRIE ) | 
-					//( 1 << CANINTE_TX2IE ) | ( 1 << CANINTE_TX1IE ) | ( 1 << CANINTE_TX0IE ) | 
-					//( 1 << CANINTE_RX1IE ) | ( 1 << CANINTE_RX0IE );
-	//mcp2515TransmitData( MCP_WRITE_CMD, CANINTE, dataToSend, 0 );
-	//
-	///* Clear all interrupt flags */
-	//mcp2515TransmitData( MCP_WRITE_CMD, CANINTF, 0x00, 0 );
-		//
-	///* Set receiving buffer properties */				
-	///* --- receive only valid msgs with standard identifiers, rollover */
-	//dataToSend = 	( RXB0CTRL_RXM_ONLY_VALID_STAND_ID << RXB0CTRL_RXM0 ) | 
-					//( 1 << RXB0CTRL_BUKT );
-	//mcp2515TransmitData( MPC_BIT_MODIFY, RXB0CTRL, dataToSend, SET_BIT );
-	//mcp2515TransmitData( MPC_BIT_MODIFY, RXB1CTRL, ( RXB1CTRL_RXM_ONLY_VALID_STAND_ID << RXB1CTRL_RXM0 ) , SET_BIT );
-		//
-			//
-	///* TXBxCTRL	*/
-	///* Set transmitting buffer properties - standard identifier, priorities */
-	///* TXB0CTRL - highest, TXB1CTRL - intermediate, TXB2CTRL - intermediate */
-	//mcp2515TransmitData( MPC_BIT_MODIFY, TXB0CTRL, ( TXP_HIGHEST_MSG_PRIORITY << TXBCTRL_TXP ) , SET_BIT );
-	//mcp2515TransmitData( MPC_BIT_MODIFY, TXB1CTRL, ( TXP_HIGH_INTERMEDIATE_MSG_PRIORITY << TXBCTRL_TXP ) , SET_BIT );
-	//mcp2515TransmitData( MPC_BIT_MODIFY, TXB2CTRL, ( TXP_HIGH_INTERMEDIATE_MSG_PRIORITY << TXBCTRL_TXP ) , SET_BIT );
-				//
-	///* Set masks & filters */
-	//hal_set_filter(id);
-	//hal_set_mask(id);
-		//
-	///* Reset error structure */
-	//clearTransmissionErrors( );
-	//
-	//MCP_DEACTIVATE;
-	//return CAN_INIT_OK;
+	
+	cli();
+		
+	/* Call reset command */
+	transmitSpi( MCP_RESET );
+	MCP_DEACTIVATE;
+		
+		
+	/* Put MCP into configuration mode */
+	MCP_DEACTIVATE;	
+	mcp2515TransmitData( MCP_WRITE_CMD, CANCTRL, ( CANCTRL_REQOP_CONFIGURATION << CANCTRL_REQOP_SHIFT ), 0 );
+		
+	/* CNF1 */
+	//dataToSend = 0xC1;				//* for 250 kbps
+	//dataToSend = 0x00;				//* for 500 kbps
+	dataToSend = 0xC0;					//* for 1 Mbps
+	mcp2515TransmitData( MCP_WRITE_CMD, CNF1, dataToSend, 0 );
+		
+	/* CNF2 */
+	//dataToSend = 0xB5;				//* for 250 kbps
+	//dataToSend = 0xA4;				//* for 500 kbps
+	dataToSend = 0x89;					//* for 1 Mbps
+	mcp2515TransmitData( MCP_WRITE_CMD, CNF2, dataToSend, 0 );
+		
+	/* CNF3 */
+	//dataToSend = 0x01;				//* for 250 kbps
+	//dataToSend = ( 0x04 );			//* for 500 kbps
+	dataToSend = ( 0x02 );				//* for 1 Mbps
+	mcp2515TransmitData( MCP_WRITE_CMD, CNF3, dataToSend, 0 );
+		
+	/* Put MCP into normal mode */
+	MCP_DEACTIVATE;	
+	mcp2515TransmitData( MCP_WRITE_CMD, CANCTRL, ( CANCTRL_REQOP_NORMAL << CANCTRL_REQOP_SHIFT ), 0 );
+	
+	
+	
+	/* Switch on particular interrupts */		
+	dataToSend = 	/*( 1 << CANINTE_MERRE ) */( 1 << CANINTE_ERRIE ) | 
+					( 1 << CANINTE_TX2IE ) | ( 1 << CANINTE_TX1IE ) | ( 1 << CANINTE_TX0IE ) | 
+					( 1 << CANINTE_RX1IE ) | ( 1 << CANINTE_RX0IE );
+	mcp2515TransmitData( MCP_WRITE_CMD, CANINTE, dataToSend, 0 );
+	
+	/* Clear all interrupt flags */
+	mcp2515TransmitData( MCP_WRITE_CMD, CANINTF, 0x00, 0 );
+		
+	/* Set receiving buffer properties */				
+	/* --- receive only valid msgs with standard identifiers, rollover */
+	dataToSend = 	( RXB0CTRL_RXM_ONLY_VALID_STAND_ID << RXB0CTRL_RXM0 ) | 
+					( 1 << RXB0CTRL_BUKT );
+	mcp2515TransmitData( MPC_BIT_MODIFY, RXB0CTRL, dataToSend, SET_BIT );
+	mcp2515TransmitData( MPC_BIT_MODIFY, RXB1CTRL, ( RXB1CTRL_RXM_ONLY_VALID_STAND_ID << RXB1CTRL_RXM0 ) , SET_BIT );
+		
+			
+	/* TXBxCTRL	*/
+	/* Set transmitting buffer properties - standard identifier, priorities */
+	/* TXB0CTRL - highest, TXB1CTRL - intermediate, TXB2CTRL - intermediate */
+	mcp2515TransmitData( MPC_BIT_MODIFY, TXB0CTRL, ( TXP_HIGHEST_MSG_PRIORITY << TXBCTRL_TXP ) , SET_BIT );
+	mcp2515TransmitData( MPC_BIT_MODIFY, TXB1CTRL, ( TXP_HIGH_INTERMEDIATE_MSG_PRIORITY << TXBCTRL_TXP ) , SET_BIT );
+	mcp2515TransmitData( MPC_BIT_MODIFY, TXB2CTRL, ( TXP_HIGH_INTERMEDIATE_MSG_PRIORITY << TXBCTRL_TXP ) , SET_BIT );
+				
+	/* Set masks & filters */
+	hal_set_filter(id);
+	hal_set_mask(id);
+		
+	/* Reset error structure */
+	clearTransmissionErrors( );
+	
+	MCP_DEACTIVATE;
+	return CAN_INIT_OK;
 
  }
 
@@ -318,15 +300,15 @@
 	/* External interrupt initialization */
 	/* Falling edge of INT(HW_MCP_EXT_INT) [set in uCmaskFile.h]
 		triggers interrupt	*/
-	//EXT_EICRA |= ( EXT_TRIGGER_FALLING_EDGE << HW_MCP_EXT_INT ) | ( EXT_TRIGGER_FALLING_EDGE << 2 );
+	EXT_EICRA |= ( EXT_TRIGGER_FALLING_EDGE << HW_MCP_EXT_INT ) | ( EXT_TRIGGER_FALLING_EDGE << 2 );
 	
 	/* Activating an external interrupt of number described in HW_MCP_EXT_INT */
-	//EXT_INT_EIMSK |= ( 1 << HW_MCP_EXT_INT );
+	EXT_INT_EIMSK |= ( 1 << HW_MCP_EXT_INT );
 	
 	
 	/* Software interrupt initialization (pin change interrupt control reg) */
-	//EXT_EICRB |= ( 0x1 << 2 )|( 0x1 << 0 );												// must be checked before
-	//EXT_INT_EIMSK |= ( 1 << CONFIG_INT_SEND_NUM ) | ( 1 << CONFIG_INT_REC_NUM );		// INT5, INT4 now
+	EXT_EICRB |= ( 0x1 << 2 )|( 0x1 << 0 );												// must be checked before
+	EXT_INT_EIMSK |= ( 1 << CONFIG_INT_SEND_NUM ) | ( 1 << CONFIG_INT_REC_NUM );		// INT5, INT4 now
 	
  }
  
@@ -346,7 +328,7 @@
 	 initIOPort_appDesigner();
 	 
 	 /* Init SPI port */
-	 //initSPIPorts();
+	 initSPIPorts();
 	 
 	 /* Init software interrupt ports */
 	 initINTPorts();
@@ -470,10 +452,8 @@
 	HW_SOFT_EXT_INT_DDR |= ( 1 << HW_SOFT_EXT_INT_1 ) | ( 1 << HW_SOFT_EXT_INT_2 ) ;
 
 	/* External interrupts */
-	/*
 	HW_MCP_EXT_INT_DDR &= ~( 1 << HW_MCP_EXT_INT );
 	HW_MCP_EXT_INT_PORT |= ( 1 << HW_MCP_EXT_INT );
-	*/
  }
   
  

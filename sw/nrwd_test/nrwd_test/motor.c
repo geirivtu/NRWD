@@ -19,8 +19,7 @@ uint8_t counter = 0; /* In TIMER0_OVF_vect */
 volatile uint16_t rot_speed = 0;
 volatile uint16_t rot_counter = 0;
 
-/* Nr of motor rotations per wrist revolution */
-#define MOTOR_ROT_FULL_TURN 333
+
 
 void motor_init(void)
 {
@@ -175,11 +174,12 @@ void motor_read_hall(void)
 	motor_commutate(index);
 }
 
+/* Nr of motor rotations per wrist revolution */
+//#define MOTOR_ROT_FULL_TURN 333
+
 /* Returns wrist speed in degrees per sec NOT TESTED 
  * wrist speed = ((rot_speed/(0.131 s))/MOTOR_ROT_FULL_TURN)*360/6
  *             = rot_speed * 458/MOTOR_ROT_FULL_TURN  */
-
-
 int16_t motor_read_speed(void)
 {
 	int16_t speed =  0;	//debug
@@ -187,8 +187,6 @@ int16_t motor_read_speed(void)
 	{
 		speed = (int16_t)(rot_speed*1.3738)*motor_direction;	
 	}
-	
-	
 	
 	return speed;
 }

@@ -32,18 +32,18 @@ void setSetpoint( CAN_packet *p, unsigned char mob) // interrupt callback
 {
 	(void)mob;
 	
-	
+	/*
 	int16_t setpoint;
 	setpoint = p->data[0] << 8;
 	setpoint += p->data[1];
-	
-	/*
-	int16_t speed = p->data[0];
-	if(speed > 128) speed = -1;
 	*/
 	
-	control_set_setpoint(setpoint);
-	//control_set_setpoint(speed);
+	int16_t speed = p->data[0];
+	if(speed > 128) speed = -1;
+	
+	
+	//control_set_setpoint(setpoint);
+	control_set_setpoint(speed);
 	//p->id= speed & 0xFFF;
 	//can_tx( 14, p);
 }
@@ -96,7 +96,9 @@ int main(void)
     while(1)
     {
 		
-        control_controller();
+        //control_controller();
+		control_speed_v2();
+		//control_on_off();
 		
 		tmp = motor_read_speed();
 		canTmp->data[0] = tmp;

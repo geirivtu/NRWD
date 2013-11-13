@@ -17,7 +17,7 @@
  #include <util/delay.h>
  
  #include "uCmaskFile.h"
- #include "functions.h"
+ #include "hal.h"
  #include "MCP2515control.h"
  #include "hll.h"
 
@@ -48,7 +48,7 @@
  void clearMCP2515InterruptFlag ( uint8_t reg, uint8_t flag );
  // void receiveCanMsg ( struct can_msg* msgRec, uint8_t regRec );		// only for HAL testing
  void receiveCanMsg ( uint8_t regRec );
- void sendCanMsg ( struct can_msg* msgToSend, uint8_t regToSend );
+
  void hal_msg_poll ( void );
  
  #endif

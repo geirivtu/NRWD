@@ -28,4 +28,7 @@ void control_set_setpoint(int16_t setpoint);
 
 void control_set_parameter(double proportional);
 
+void control_speed_v2(void); //remove
+
+
 #endif

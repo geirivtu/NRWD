@@ -16,8 +16,6 @@
  #include "uCmaskFile.h"
  #include "irqHandlers.h"
  
- #include "can.h"	//at90can
- 
  /* Variables for time measuring - in testing */
  extern volatile uint16_t time;
  extern volatile uint8_t flag;
@@ -245,8 +243,6 @@
 	/* Disable interrupts */
 	cli();
 	
-	
-	
 	if ( rxBuf0Full )
 		//receiveCanMsg( NULL, REC_REG_0 );		//* for HAL testing (prototype in irqHandlers.h must be changed!
 		receiveCanMsg( REC_REG_0 );				//* trigger receiving from buffer 0
@@ -366,10 +362,6 @@
  //void receiveCanMsg ( struct can_msg* msgRec, uint8_t regRec ){
  void receiveCanMsg ( uint8_t regRec ){
 
-	 /* AT90CAN128 using canlib */
-	 
-	 
-	 /* AT90CAN128 END*/
 
 #if ( !CONFIG_DEBUG_TEST_HLL )							//* only for HAL testing
 	volatile uint8_t loopCounter = 0;					//* auxiliary variable
@@ -466,67 +458,45 @@
  * @return 		void
  */ 
   void sendCanMsg ( struct can_msg* msgToSend, uint8_t regToSend ){
-	  
-	 /* AT90CAN128 using canlib */
  
- 	CAN_packet *canMsg;
-	char mob;
-	uint8_t i;
-	 
-	canMsg->id = msgToSend->id;
-	canMsg->length = msgToSend->len;
+	uint8_t loopCounter; 
+	uint8_t regShift = regToSend * REG_OFFSET;
+	volatile char str[40];
 	
-	for(i=0; i<msgToSend->len; i++){
-		canMsg->data[i] = msgToSend->data[i];	
-	}
-	
-	mob = 14; //What mob to use?
-	can_tx(mob, canMsg);
-	
+	#if ( CONFIG_DEBUG_UART_INFO )
+		sprintf(str,"Arbitration field of sent msg: %x\r",msgToSend->id );
+			printUsart(str);
 
- 
-	/* AT90CAN128 END*/
+		sprintf(str,"NodeID of sent msg: %x\r",msgToSend->data[1]);
+			printUsart(str);
+	#endif
 	
+	/* Send identifier SIDH and SIDL */	
+	mcp2515TransmitData( MCP_WRITE_CMD, TXB0SIDH + regShift, ( msgToSend->id >> 3 ) , 0 );
+	mcp2515TransmitData( MCP_WRITE_CMD, TXB0SIDL + regShift, ( ( msgToSend->id & 0x7 ) << 5 ) , 0 );
+					
+	/* Send length */			
+	mcp2515TransmitData( MCP_WRITE_CMD, TXB0DLC + regShift, ( msgToSend->len & 0xF ) , 0 );
 	
- //
-	//uint8_t loopCounter;
-	//uint8_t regShift = regToSend * REG_OFFSET;
-	//volatile char str[40];
-	//
-	//#if ( CONFIG_DEBUG_UART_INFO )
-		//sprintf(str,"Arbitration field of sent msg: %x\r",msgToSend->id );
-			//printUsart(str);
-//
-		//sprintf(str,"NodeID of sent msg: %x\r",msgToSend->data[1]);
-			//printUsart(str);
-	//#endif
-	//
-	///* Send identifier SIDH and SIDL */	
-	//mcp2515TransmitData( MCP_WRITE_CMD, TXB0SIDH + regShift, ( msgToSend->id >> 3 ) , 0 );
-	//mcp2515TransmitData( MCP_WRITE_CMD, TXB0SIDL + regShift, ( ( msgToSend->id & 0x7 ) << 5 ) , 0 );
-					//
-	///* Send length */			
-	//mcp2515TransmitData( MCP_WRITE_CMD, TXB0DLC + regShift, ( msgToSend->len & 0xF ) , 0 );
-	//
-	///* Send bytes of msgToSend */
-	//for ( loopCounter = 0; loopCounter < ( msgToSend->len ); loopCounter++ )
-		//mcp2515TransmitData( MCP_WRITE_CMD, ( TXB0D0 + regShift + loopCounter ), ( msgToSend->data[loopCounter] ) , 0 );
-				//
-					//
-	///* Send information - buffer ready for transmission, physical layer wait for free bus */								
-	//mcp2515TransmitData( MPC_BIT_MODIFY, TXB0CTRL + regShift, ( 1 << TXBCTRL_TXREQ ) , SET_BIT);
-//
-	///* Clear internal flags of transmit buffer ready */
-	//if ( regToSend == 2 )
-		//txBuf2Ready = 0;
-	//else if ( regToSend == 1 )
-		//txBuf1Ready = 0;
-	//else 
-		//txBuf0Ready = 0;
-											//
-	//#if ( CONFIG_DEBUG_LED_TOGGLING ) 
-		//HW_PORT_LED ^= ( 1 << HW_PORT_LED0 );
-	//#endif
+	/* Send bytes of msgToSend */
+	for ( loopCounter = 0; loopCounter < ( msgToSend->len ); loopCounter++ )
+		mcp2515TransmitData( MCP_WRITE_CMD, ( TXB0D0 + regShift + loopCounter ), ( msgToSend->data[loopCounter] ) , 0 );
+				
+					
+	/* Send information - buffer ready for transmission, physical layer wait for free bus */								
+	mcp2515TransmitData( MPC_BIT_MODIFY, TXB0CTRL + regShift, ( 1 << TXBCTRL_TXREQ ) , SET_BIT);
+
+	/* Clear internal flags of transmit buffer ready */
+	if ( regToSend == 2 )
+		txBuf2Ready = 0;
+	else if ( regToSend == 1 )
+		txBuf1Ready = 0;
+	else 
+		txBuf0Ready = 0;
+											
+	#if ( CONFIG_DEBUG_LED_TOGGLING ) 
+		HW_PORT_LED ^= ( 1 << HW_PORT_LED0 );
+	#endif
  }
 
  
