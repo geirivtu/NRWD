@@ -1,0 +1,453 @@
+\documentclass[12pt,a4paper]{report}
+%\usepackage[language]{babel}
+\usepackage{listings}
+
+\usepackage[norsk]{babel}
+
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\author{Geir Turtum}
+\title{Styresystem for kybernetisk håndledd}
+\begin{document}
+
+\lstdefinestyle{customc}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+ % frame=L,
+  xleftmargin=\parindent,
+  language=C,
+  showstringspaces=false,
+ % basicstyle=\footnotesize\ttfamily,
+  %keywordstyle=\bfseries\color{green!40!black},
+  %commentstyle=\itshape\color{purple!40!black},
+  %identifierstyle=\color{blue},
+  %stringstyle=\color{orange},
+}
+
+\lstset{language=C}
+
+\maketitle
+
+
+\chapter*{Oppgavetekst}
+
+Instituttet har sammen med University of New Brunswick, Canada, stått sentralt i utviklingen av et motorisert protesehåndledd med unike kinematiske egenskaper. Det foreligger et maskinvaredesing og en prototyp av styresystemet, og dette systemet skal nå ferdigstilles og programmeres slik at protesen kan brukes i forsknigssammenheng. Sentrale systemegenskaper inkluderer kommunikasjon over en CAN-buss ved hjelp av protokollen PDCP, noe signalbehandling og styring av en børsteløs DC-motor.
+ 
+\begin{enumerate}
+\item Gi en kort oversikt over prosjektets bakgrunn og nåværende status, der du legger vekt på systemets tilstand relativt dets spesifikasjoner og tiltenkte anvendelse.
+
+\item Foreliggende HW-design er basert på en enkelt mikrokontroller som skal stå for både motorkommutering, regulering, signalbehandling og kommunikasjonsprotokoll(er). Foreta en vurdering av om dette designet er egnet, med spesiell vekt på avbruddshåndtering og sanntidsaspekter. Gjør om nødvendig praktiske målinger for å underbygge din konklusjon.
+ 
+\item Foreslå på bakgrunn av punkt 2 en maskin- og programvarearkitektur for systemet. Eksisterende løsninger bør gjenbrukes i den grad det er mulig og hensiktsmessig.
+
+\item Implementer og test systemet så langt tiden tillater det.
+
+\end{enumerate}
+ 
+ 
+\chapter*{Sammendrag}
+
+Denne prosjektoppgaven skal ta for seg konstruksjon og implementasjon av styresystemet til håndleddsprotesen NRWD(NTNU Rotation Wrist Device). NRWD ble i sin tid skapt på bakgrunn av doktorgradsavhandingen[ref] til Øyvind Stavdahl som undersøkte den optimale vinkelen mellom underarm og hånd til en håndleddsprotese med èn frihetsgrad. 
+
+Det er blitt skrevet flere prosjekt og master oppgaver om NRWD?en hvor alle har hatt som mål og fullføre styresystemet, men pga diverse årsaker ikke har fullført. Denne oppgaven baserer seg i hovedsak på masteren til Andreas Kråkenes[Ref] som hadde som mål og realisere en prototyp av systemets maskinvare. Han har produsert maskinvare som er klart til testing, samt skrevet maskindrivere til de fleste av hardware modulene, noe som har lagt et meget godt grunnlag for videre arbeide. 
+
+Når denne oppgaven er ferdigskrevet skal en fungerene og robust prototype være klargjort som realiserer de spesifikasjonene som er satt til systemet av Stavdahl.
+
+\chapter*{Forord}
+
+Jeg vil takke katten min Tom. 
+
+
+\tableofcontents
+
+
+\chapter{Introduksjon}
+
+\section{ Bakgrunn for oppgaven}
+
+Ideen bak protesen kommer fra Øyvind Stavdahl sin doktorgradsavhandling[ref] fra [årstall]. Den undersøkte hvilken vinkel det skulle være mellom underarm og rotasjonsaksen til en håndleddsprotese med èn frihetsgrad for å gi en best mulig brukeropplevelse. [sett inn figur] Forsøk ble gjort med mennesker uten proteser som ble bedt om å utføre ulike oppgaver med hendene sine. Bevegelsene ble deretter tatt opp og analysert for hvilke håndleddsbevegelser som var mest brukt, resultatene tydet på at den optimale vinkelen mellom  underarm og håndledd var på x grader[se figur] [ref avhandling]. For å teste disse resultatene i praksis trengte man en håndleddsprotese med design som muliggjør valgfri rotasjonsaske. I [årstall] ble mekanikken til en slik 1 akse håndleddsprotese bygget som en del av mastergraden til [ref]. Etter at mekanikken var ferdigstilt trengte man et styresystem for å kontrollere protesen. 
+Tidligere arbeide
+
+Realisering av styresystemet til protesen har hittil vært påbegynt i to mastergradoppgaver. Den siste av disse er skrevet av Andreas Kråkenes i 2011 og kom langt på vei til å fullføre designet. Hovedgrunnen til at protesen ikke enda har blitt fullført skyldes at det første designet innholdt en alvorlig arkitektur feil som innvolverte kommunikasjonen mellom to mikrokontrollere. Det ble forsøkt fikset på uten hell og til slutt etter mye tid gikk man over til en løsning som besto av at en mikrokontroller skulle styre hele systemet. 
+
+Da prosjektet ble overtatt av undertegnede var alt av hardware designet og lagt ut på prototype kort. Dessverre var skjemategningen bare tilgjengelig i pdf format så utlegg må gjøres på nytt når kretsen skal miniatyriseres for å få plass inni protesen. Software for å teste deler av systemet var ferdigskrevet, men koden var av varierene kvalitet og mye funksjonalitet var enda ikke implementert. Der det manglet mest var de ulike regulatorene og implementasjonen av PDCP protokollen. 
+
+
+\section{ Mitt bidrag}
+
+Hver av de overleverte hardware modulene har blitt testet for feil og om de oppfyller de krav som er satt i funksjonsspesifikasjonene[ref]. Se diskusjon i kapittel [Modul testing/ implemenstasjon og diskusjon] Der det har blitt oppdaget mangler eller feil har det blitt gjort forslag til hva som må gjøres for å utbedre feilen. 
+
+Etter at systemets gikk over til å bruke én istedenfor to mikrokontrollere har det enda ikke blitt utført noe dypere analyse eller blitt utført noen tester som ser på om systemet har nok resurser til å utføre alle sine oppgaver. Denne prosjektoppgaven har undersøkt grundig hvorvidt én mikrokontroller er nok til å drive styresystemet. Videre så har software for hver modul blitt skrevet ferdig og satt sammen til et komplett styresystem som oppfyller de spesifikasjonskrav som er gitt av [ref funksjonsspesifikasjoner]. Modulen som håndterer kommunikasjon via CAN grensesnittet har blitt skrevet slik at den er kompatibel med PDCP protokollen som gitt i [ref PDCP].
+
+
+\section{ Utviklingsmetodikk og fremgangsmåte}
+
+Hvordan dette prosjektet best skulle styres falt klart for meg fra begynnelsen av. Det er et hardware og software system som allerede da det ble overtatt var delt opp i klare moduler. Som nevnt tidligere var det meste av hardware designet ferdig, mens mye av softwaren enda måtte skrives. Det var også mye software som var skrevet av tidligere studenter som skulle flettes inn i prosjektet for ikke å reprodusere arbeide som var gjort tidligere, det tenkes spesielt på lavnivå implementasjonen av PDCP protokollen som ble utviklet av  Andrzej Zamojski[ref] og  Andreas Nordal[ref] og selvfølgelig software driverne til NRWD?en skrevet av Andreas Kråkenes. 
+
+Metoden min sin hovedlinje var og i størst grad arbeide på prosjektet modul for modul, forsikre meg om at alt fungerte separat før til slutt og bringe det alt sammen. Kort oppsummert punktvis var planen:
+
+\begin{itemize}
+
+\item Sette seg inn i bakgrunnsstoff
+\item Test hver hardware modul for seg, samt tilhørende software driver
+\item Sjekk, oppfyller hardware og software kravene satt av funksjonsspesifikasjonene?
+\item Sett seg inn i protese protokollen PDCP
+\item Integrer PDCP med systemet
+\end{itemize}
+
+
+Før arbeidet startet ble det skrevet korte testplaner for hver hardware modul. De ble så gjennomgått og testet en etter en slik at jeg kunne stole på at det av hardware jeg brukte fungerte som beskrevet. Det falt seg naturlig å teste driverkoden sammen med hardware modulen under testing, og skrive den om der det ble funnet feil eller mangler. 
+
+Da den delen av prosjektet var ferdig hadde man et fungerende styresystem til håndleddsprotesen, det som gjensto da var å integrere systemet med PDCP protokollen. 
+
+Verktøyet som ble brukt for å budsjettere tiden og sørge for at man kom i mål med prosjektet til rigktig tid var, på anbefaling fra veileder, Gantt diagrammet. Dette var til stor hjelp når det gjaldt å holde styr på hvor langt man var på vei i henhold til planen. 
+
+[legg ved bilde av gantt diagrammet]
+
+
+\chapter{NRWD Spesifikasjoner}
+
+
+Spesifikasjonene til protesen er i hovedsak utarbeidet av Øyvind Stavdahl og noen mindre revisjoner gjort i sammarbeid med tidligere studenter som har arbeidet på oppgaven. Vedlagt er versjon 0.4 av funksjons spesifikasjonene[ref]. Under følger en punktvis gjennomgang av spesifikasjonene, fokuset er på om systemet i sin nåværende form innfrir kravene og hva som eventuelt mangler. Noen av spesifikasjonene omhandler de rent mekaniske sidene, som foreksempel de ytre dimensjonene til protesen. Disse vil være merket som ?ikke relevant?. 
+
+Spesifikasjonene er delt opp etter hvilken del av systemet de omhandler.
+
+\section{Wrist Joint Function, WJF}
+
+\begin{center}
+
+	\begin{tabular}{ | l | p{10cm} | l | }
+	
+	\hline
+	Nr & Beskrivelse  & Status \\ \hline
+	WJF-01 & The NRWD joint shall be a single, simple revolute joint which axis of rotation can be placed at an attitude with respect to the forearm and terminal device as spedcified in [1], Equations (7.4) and (7.5).  & Ikke relevant \\ \hline
+	WJF-02 & The joint axis should be manually adjustable to other attitudes than that specified in WJF-01. & Ikke relevant \\ \hline
+	WJF-03 & The joint shall enable an angular excursion of at least 180 degrees. The excursion should be unlimited. & Ikke relevant \\ 
+	\hline
+	 
+	\end{tabular} 
+\end{center}
+
+\section{Wrist Motor Function, WMF}
+
+\begin{center}
+	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\hline
+
+Nr & Beskrivelse & Status  \\ \hline
+WMF-01 & The wrist joint (output of the gear train) shall have a maximum angular velocity of at least  1.4 rad/s (81 deg/s). The maximum velocity should be as high as possible. & Høyeste målte vinkel hastighet er målt til 2.72 rad/s (156 grader/sekund) \\ \hline
+WMF-02 & The wrist joint should have a maximum torque of at least 34,3 mNm. & Ikke målt, men ifølge målinger gjort av Zink \cite{bib:zink} er stall torque på 59.6 mNm.  \\ \hline
+WMF-03 & The motor shall have a maximum mechanical output power of at least TBC W. & NA  \\ \hline
+WMF-04 & The motor shall be protected from overheating. The protection should be implemented by hardware. & Dette har blitt implementert i strømovervåkings modulen. \\ 
+
+	\hline
+	\end{tabular} 
+\end{center}
+
+\section{Wrist Servo Function, WSF}
+
+\begin{center}
+	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\hline
+
+Nr & Beskrivelse & Status  \\ \hline
+WSF-01 & The movements of the wrist joint shall be controllable according to the follwing modes:
+\begin{itemize}
+\item On/Off-mode
+\item Position mode
+\item Velocity mode
+\end{itemize}
+ & Alle kontrollerne er Implementert i controller.c  \\ \hline
+WSF-01-01 & In On/Off-mode the motor shall be at rest or run at maximum speed (open-loop) in one  direction according to a given setpoint.  & Implementert ved bruk av PI-kontroller som kjører motoren nærmest mulig maksimum tillatte strømforbruk.  \\ \hline
+WSF-01-02 & In position mode the joint angle shall be proportional  to a given angular setpoint.  & Implementert med PI-kontroller. \\ \hline
+WSF-01-02-01 & The WSF shall include an absolute position sensor. This sensor shall provide no less than 10 bits resolution per revolution. & En 12-bits magnetisk enkoder er brukt.  \\ \hline
+WSF-01-03 & In velocity mode the joint angular velocity shall be crudely proportional to a given velocity setpoint. & Implementert med PI-kontroller. \\ \hline
+WSF-01-03-01 & The WSF shall include a velocity sensor or estimator. & Hastighet er estimert ved hjelp av hall elementene. \\ \hline
+WSF-02 & The movements of the wrist joint should be controllable according to the follwing modes:  
+\begin{itemize}
+
+\item Torque mode
+\item Impedance mode
+\end{itemize}
+ & Ikke implementert.  \\ \hline
+WSF-02-04 & In torque mode the motor torque shall be proportional to a given torque setpoint.  & Ikke implementert.  \\ \hline
+WSF-02-04-01  & The WSF should include means for monitoring motor current.  & Implementert, se strømovervåknings modulen.  \\ \hline
+WSF-02-05 & In impedance mode the mechanical impedance of the joint shall be determined by a given impedance setpoint  & Ikke implementert.  \\ \hline
+WSF-03 & WSF shall provide an interface to WCF through which the modes (described in WFS-01 to WSF-02) can be selected and relevant parameters can be set, and through which WSF can report relevant state variables TBD. & Koden er lagt opp for at dette enkelt kan bli implementert når kommunikasjons spesifikasjonen er klargjort.  \\ 
+
+	\hline
+	\end{tabular} 
+\end{center}
+
+\section{Wrist Communication Function, WCF}
+
+\begin{center}
+	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\hline
+
+Nr & Beskrivelse & Status \\ \hline
+WCF-01 & The NRWD shall have a two-wire Proximal Communication Interface (PCI) and a two-wire Distal Communication Interface (DCI). & Implementert ved CAN-bus. \\ \hline 
+WCF-02 & The PCI shall be configurable so that it implements two (0V, 7,2V) analog input lines or a bidirectional twowire CAN interface with the PDCP protocol(Losier,2009). & Implementert ved CAN-bus og PDCP-protokollen. \\ \hline
+WCF-02-01 & The analog input lines shall be able to sample both lines at a rate of 1 kHz. The sampling rate should be as high as 2 kHz. & Implementert i analog.c \\ \hline
+WCF-03 & The DCI shall be configurable so that it implements two (0 V, 7.2 V) analog output lines or a bidirec[1]onal two-wire CAN interface with the PDCP-protocol.  & Implementert ved CAN-bus og PDCP-protokollen. Implementasjonen av PDCP-protokollen er ikke ferdig.  \\ \hline
+WCF-04 & The WCF shall be configurable to an all-Analog mode, with the PCI as an analog input interface and the DCI as an analog output interface. & Analog output interface ikke implementert i verken HW eller SW.  \\ \hline
+WCF-05 & The WCF shall be configurable to an all-digital mode, with the PCI and the DCI acting as bidirectional CAN bus interfaces. & Implementert. CAN buss trenger bare et tilkoplingspunkt.  \\ \hline
+WCF-07 & The WCF should be configurable to a hybrid mode in which the PCI acts as two analog input lines while DCI acts as a bidirectional CAN interface (cf. WCF-01) & Ikke implementert i HW.  \\ \hline
+WCF-10 & The WCF shall include a serial interface for downloading software and for debugging/diagnostic purposes. & Implementert ved bruk av JTAG.  \\ \hline
+WCF-11 & WCF shall implement an interface to WSF according to WSF-03. &  Se WSF-03. \\ 
+
+	\hline
+	\end{tabular} 
+\end{center}
+
+\section{Wrist Power Function, WPF}
+
+\begin{center}
+	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\hline
+
+Nr & Beskrivelse & Status \\ \hline
+WPF-01  & The WPF shall accept external power in the form of an unregulated two-wire DC supply. & Implementert ved brukt av intern spenningsregulator. \\ \hline
+WPF-02 & The NRWD shall tolerate and run normally when powered with a voltage in the range (6 V, 12 V). The range of usable voltages should be as wide as (5 V, 18 V). &  Valgte spenningsregulator opererer normalt innenfor området (7V, 18V). Det er anbefalt å gå over til en Low Droupout Regulator for å tilfredstille kravet.  \\ \hline
+WPF-03 & The NRWD shall tolerate supply voltage in the range (0 V, 12 V) without exhibiting unpredictable behaviour and without getting damaged. & Implementert ved bruk av brown out deteksjon internt på AVR?en. [todo] \\ \hline
+WPF-04 & The NRWD should automatically limit its motor current to a level that does not reduce the supply voltage below the interval given in WPF-01. & Ikke implementert.  \\ 
+
+	\hline
+	\end{tabular} 
+\end{center}
+
+\section{Proximal Attachment Function, PAF}
+
+\begin{center}
+	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\hline
+
+Nr & Beskrivelse & Status\\ \hline
+PAF-01 & The PAF shall comprise two parts, the proximal of which is adapted to be permanently attached to the forearm socket and the distal permanently attached to the wrist unit. The parts must ?mate? to form a mechanically stable connection while also being detachable. & Ikke relevant\\ \hline
+PAF-01-01 & The proximal part of the PAF shall be hollow to allow access to the space within the socket proximally to the wrist. & Ikke relevant\\ \hline
+PAF-02 & PAF disconnection should be possible with hand or a simple tool, e.g. a screwdriver. &  Ikke relevant\\ \hline
+PAF-03 & The PAF shall include a four-wire electric coupling, preferably mechanically integrated with the PAF itself. & Ikke implementert i prototype hardwaren. \\ \hline
+PAF-03-01 & The PAF electrical coupling shall include at least two power supply wires/contacts capable of transferring a constant current of 4 A per wire. & Ikke implementert i prototype hardwaren. \\ 
+
+	\hline
+	\end{tabular} 
+\end{center}
+
+\section{Distal Attachment Function, DAF}
+
+\begin{center}
+	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\hline
+Nr & Beskrivelse & Status\\ \hline
+DAF-01 & The DAF should comprise two parts, the proximal of which is permanently attached to the wrist and the distal permanently attached to the terminal device. The parts must ?mate? to form a mechanically stable connection while also being detachable. &  Ikke relevant\\ \hline
+DAF-02 & The DAF shall include a four-wire electric coupling, preferably mechanically integrated with the DAF itself. & Ikke implementert i prototype hardwaren. \\ \hline
+DAF-02-01 & The DAF electrical coupling shall include at least two wires/contacts capable of transferring a constant current of 2 A per wire, and these wires shall be connected to the power supply wires from PAF. & Ikke implementert i prototype hardwaren. \\ \hline
+DAF-02-02 & The DAF electrical coupling should be rotatable without twisting the wires. & Ikke implementert i prototype hardwaren. \\ 
+	\hline
+	\end{tabular} 
+\end{center}
+
+\chapter{Mekanikken}
+
+Mekanikken i protesen er et resultat av masteroppgave skrevet ved universitetet i  New Brunswick, Canada. Dette ble gjort på oppdrag fra Øyvind Stavdahl for å teste resultatene fra sin doktorgradsavhandling i praksis. Mekanikken består av to deler som ved hjelp av et kulelager kan rotere fritt fra hverandre. Selve bevegelsen er drevet av en motor som er koplet til et girtog med utveksling 120:1 [ref] [inkluder oversiktsbilde]
+
+Under testing av motordriveren ble det funnet at det, ved en forsyningsspenning på 12V, måtte det til en dutycycle på oppmot 60\% for å i det hele tatt bevege mekanikken. Ved rundt 80\% dutycycle ble strømmen til motoren kuttet av strømovervåkingsmodulen da strømmen gjennom motoren oversteg maksimum grensen for hva den kunne tåle før det ble fare for overopphetning. Dette ga regulatoren et veldig lite rom å jobbe innenfor noe som gjorde implementasjonen av posisjon og hastighetskontrolleren meget vanskelig. Mekanikken ble tatt med til mekaniske verksted for å se om de kunne løse problemet. Det viste seg at aksen til det minste tannhjulet var bøyd noe som førte til ekstra friksjon i systemet, verkstedet fikk bøyd det til slik at det gikk fra å ha en kast på 0.22 mm til 0.03 mm. Dette reduserte friksjonen betraktelig og mekanikken kunne nå beveges med en dutycycle ned mot 40\%. 
+
+Da mekanikken ble undersøkt ble det også funnet at kulelageret i protesen begynte å bli slitt og at ved utskiftning av denne så kunne friksjonen bli yterligere redusert. Det er ikke sikkert at rettingen av giraksen er en endelig løsning på problemet. Mest sannsynelig er ikke mekanikken riktig dimensjonert for de krefter den blir utsatt for. For fremtidig bruk er det lagt ved en oversikt over rotasjonshastigheten til protesen ved forskjellige dutycycler. [ref] Denne kan brukes for å se om problemet har gjenoppstått.
+
+
+\chapter{Interrupt diskusjon}
+
+Tidligere forsøk på å realisere styresystemet til NRWD?en har brukt to mikrokontrollere, det gikk man bortifra etter at det oppsto problemer med kommunikasjonen mellom enhetene. Da er spørsmålet om den valgte mikrokontrolleren, AT90CAN128 kjørende på 16 MHz, er nok til å håndtere alle oppgaver som skal utføres. 
+
+Etter at alle software modulene har blitt initialisert er det bare den valgte regulatoren(posisjon/ hastighet) som beregner pådrag som blir håndtert inni while loopen. Alt annet blir håndtert inni interrupt rutinene, som motor kommutering, posisjonsoppdatering, kommunikasjon osv. 
+
+Om ikke systemet har nok resurser til å håndtere alle interruptene som kommer vil man risikere å miste kommunikasjons meldinger og at motoren ikke lenger blir kommutert riktig som begge vil medføre at du får et system som virker tregt og uresponsivt. For å kunne gi en garanti om at dette ikke ville skje ble systemet analysert for tidsbruk i interrupt rutiner. 
+
+Typen interrupts som systemet skal håndtere kan deles inn i to typer, periodiske og aperiodiske. 
+
+De periodiske er som følger:
+\begin{itemize}
+\item HALL\_X\_vect - Trigger hver gang en av de tre hall sensorene i motoren skifter nivå
+\item TIMER3\_CAPT\_vect - Trigger på hver flanke til PWM signalet fra posisjons sensoren
+\item TIMER0\_OVF\_vect - Brukes til å beregne hastigheten til motoren
+\end{itemize}
+
+
+De aperiodiske er:
+\begin{itemize}
+\item CANIT\_vect - Trigger hver gang det kommer en CAN melding
+\item CURRENT\_vect - Trigger når hardwaren slår av strømmen til motoren
+\item RESET 
+\end{itemize}
+
+Varigheten til hvert interrupt ble målt ved å sette en GPIO-pinne høy ved inngangen av interruptet og lav i den gikk ut og lese av oppetiden på oscilloskopet. Deretter ble tiden det tar for mikrokontrolleren å gjøre kontekst skiftet lagt til. Se tabell \ref{tab:interrupt} for oppsumering av tidsbruk til de periodisk interruptene.
+
+\begin{table}[h]
+	\begin{center}
+		\begin{tabular}{ | l | l | l | l |}
+		\hline
+	Navn & Varighet ($\mu$s) & Maks frekvens & $\mu$s per sekund \\ \hline
+	HALL\_X\_vect  & 4.5 & 3600 & 16200  \\ \hline
+	TIMER3\_CAPT\_vect  & 4.8 & 490 & 2352 \\ \hline
+	TIMER0\_OVF\_vect  & 3.2 & 61 & 196 \\ \hline
+	Totalt &  &  & 18742  \\
+		\hline
+		\end{tabular} 
+	\end{center}
+	\caption{Timing av periodiske interrupts}
+	\label{tab:interrupt}
+\end{table}
+
+Vi ser av [interrupt tabell] at mikrokontrolleren bruker mindre enn 2\% av tiden inni en interrupt rutine. Det gir rikelig med tid til å håndtere kontroll loopen som kjører utenfor interruptene. 
+
+Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteringen av motoren. En den for treig vil den ikke kunne kommutere raskt nok til at motoren oppnår den ønskede hastighet. ATMEL sin applikasjonsnote AVR452 som tar for seg motor styring av BLDC motorer ved bruk av AT90CAN mikrokontrolleren setter en teoretisk maksgrense ved 3478K rpm ved 8 MHz, da maksfarten til NRWD motoren er satt til 3600 rpm befinner vi oss godt innenfor kravene. 
+
+
+\chapter{Modul testing/ implemenstasjon og diskusjon}
+
+Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til flere studenter. Således var det mye dokumentasjon, hardware og software som måtte gjennomgåes før det kunne bygges videre på. For å være sikker på at det som ble bygget på var av akseptabel kvalitet ble hver modul gjennomgått for om den fungerte i henhold til det som sto beskrevet i tidligere oppgaver. Masteroppgaven til Andreas Kråkenes var spesielt nyttig her siden han var siste student som jobbet på prosjektet og således er nesten alt av kode og hardware for NRWD?en som ble overlevert, produsert og dokumentert av han.
+
+
+Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at hardware og software for den modulen oppførte seg som forventet. Under følger testplanene som ble brukt, samt en diskusjon rundt hver modul. 
+
+\section{Mikrokontroller}
+
+Det første som ble testet var om det var mulig å få kontakt med mikrokontrolleren. Til det ble det brukt en JTAGICE 3. Alt fungerte bra. 
+
+\section{Spenningsforsyning}
+
+Spenningsregulatoren brukt i NRWD?en er en linær regulator som i henhold til databladet gir ut 5V +- 0.2V ved inngangsspenninger 7-20 V. Ifølge funksjonsspesifikasjonen WPF-02 skal NRWD?en håndtere spenninger mellom  6-12 V. Det er viktig at NRWD?en kan operere på spenninger ned til 6V siden de vanligste batteriene som er brukt i slike proteser gir ut en spenning som kan gå ned til minst 6V. Når differansen mellom inngangs- og utgangsspenning kan være så lav som 1V er en LDO (Low Dropout Regulator) et bedre valg. 
+
+\section{Posisjonsmåling}
+
+
+Ifølge kravspesifikasjonene[ref] til NRWD?en skal den være utstyrt med en absolutt posisjonssensor med en oppløsning på minst 10 bit. Løsningen som har blitt valgt av min forfølger er en Hall sensor enkoder som leser av vinkelen til magnetfeltet gikk av en magnet festet på den distale[?] delen av NRWD?en. Den gir ut et PWM signal med dutycycle [?] proporsjonalt med vinkelen til magnetfeltet på sensoren. Til nå har en av interrupt pinnene blitt satt opp med flanke deteksjon hvor den først ser etter en stigende flanke, skrur på timeren og konfigurerer pinnen til å få interrupt på synkende flanke. Når neste interrupt blir trigget leser man av timeren og får derved vinkelen. Problemet med dette oppsettet kommer ved vinkler nær 0 og 360 grader. Ved så små og store vinkler vil tiden mellom flankene være så korte[sett inn figur] at mikrokontrolleren ikke vil rekke å behandle interruptet  før det neste kommer og avlesningen vil bli feil. 
+Det har derfor blitt valgt å gå over til å bruke et lavpassfilter på sensorsignalet så vinkelen kan leses av ved bruk av en ADC. Det vil ha tilleggsfordelen at man ikke bruker så mye tid på å lese av posisjon som nå blir gjort siden frekvensen til signalet fra sensoren allerede er satt til 240[ref], noe som er mye høyere enn det som kreves for god kontroll. 
+
+Siden signalet har en frekvens på 204[?] har det blitt valg er RC filter med knekkfrekvens []. ADC pinnen har en intern pullup motstand så den eneste eksterne komponenten som trengs er en kondensator. Verdien på den interne pulloppmotstanden er [?] så for å få den ønskede knekkfrekvensen ble en [?] F stor kondensator valgt. 
+
+\section{Motordriver}
+
+Ifølge funksjonsspesifikansjonen, punkt WMF-01[ref], skal protesen hvertfall ha en maksimums omdreiningshastighet på 81 grader/sek. Da motoren er giret ned med en ratio 800:1 vil det tilsvare en motorhastighet på 10800 rpm.
+
+(81 grader/sek * 800 * 60 sek / 360 grader = 10800 rpm)
+
+Ifølge databladet[ref] er makshastigheten til motoren 35600 rpm noe som faller godt innenfor kravet. 
+Da motorens hall sensorer genererer 6 interrupt per omdreining vil mikrokontrolleren måtte kunne håndtere minst opptil 3560 interrupts i sekundet[se formel]. 
+
+( 35600 rpm / 60 s ) * 6 interrupts = 3560 interrupts
+
+En testbenk ble satt opp for å teste om mikrokontrolleren greie å håndtere alle motor sensor interruptene. Et arduino brett ble brukt for å simulere utgangene til motoren sine hall sensorer med opptil en hastighet som tilsvarer 400?000 rpm. Arduino brettet var programmert til å påføre et vist antall interrupts, mikrokontrolleren ble satt opp til å telle inkommende interrupts og da antallet stemte overens viste man at mikrokontrolleren taklet disse hastighetene. 
+
+\section{Strømovervåkning}
+
+Strømovervåkningsmodulen skal sørge for at motoren ikke overoppheter og gi mikrokontrolleren mulighet til å måle hvor mye strøm motoren trekker. Dette i henhold til de to funksjonsspesifikasjons kravene, WMF-04[ref] som sier at motoren skal være beskyttet mot overopphetning i hardware og WSF-02-04-01[ref] som sier at man skal kunne lese av hvor mye strøm motoren trekker. 
+
+[legg inn skjemategning]
+
+Som vi ser av skjemategningen går motorstrømmen over den 1 ohms målemotstanden. Deretter blir signalet lavpassfiltrert, motoren er styrt med en 20 kHz PWM signal, og forsterket opp av en operasjonsforsterker. For å få strømovervåkning har utgangen fra operasjonsforsterkeren blitt lagt ut til en av mikrokontrolleren sine ADC innganger. Da kan strømmen leses av ved denne formelen. 
+
+\begin{lstlisting}
+	/* Multiply K with ADC value to get current in uA 
+	* KuA = ADCref * (1'000'000/1024)/(Aopamp) = 311 
+	* ADCref = 5 V
+	* Aopamp = 15.7 (opamp gain)
+	*/
+	uint16_t K = 31; //311 	
+	//kAdc = K*adc;
+	current_mA = (K*ADC)/100;
+\end{lstlisting}
+
+
+
+Utgangen fra operasjonsforsterkeren går også inn på en komparatorkrets som setter en SR-vippe, denne sørger for å slå av strømforsyningen til motoren når den trekker mer enn den maksimalt tillatte strømmen. SR-vippen kan bli resatt av mikrokontrolleren.
+
+Når komperatorkretsen detekterer overstrøm vil det også bli generert et eksternt interrupt på mikrokontrolleren så den kan behandle situasjonen. 
+
+
+Utregningen av den maksimalt tillatte strømmer er tidligere gjort av Andreas Kråkens[rapport ref] utifra motorprodusentens tekniske informasjonshefte og er satt til 145 mA. 
+
+Kretsen ble testet ved å måle strømmen gjennom motoren ved hjelp av et multimeter. Komparatorkretsen slo av strømmen idet den nådde den maksimalt tillatte verdien. 
+
+\section{CAN}
+
+
+\chapter{Software implementasjon}
+
+Det som i hovedsak manglet ved overtagelsen av prosjektet var å skrive ferdig software til NRWD?en. Det var skrevet drivere til de fleste modulene hvor koden var av varierende kvalitet, skrevet mer for å teste hardware?en enn for å kunne brukes i det ferdige produktet. 
+
+Modulariseringen av koden ble beholdt da den allerede var delt opp i fornuftige deler. 
+
+Systemet er for det meste drevet av interrupts, både interne og eksterne. Motorkommuteringen, posisjonsmålingen, motagelser av CAN-meldinger, fartsmåling og så videre skjer alle inni interruptrutiner. Når koden som kjører til en hver tid kan bli avbrutt av en interrupt rutine er det meget viktig å kode slik at det ikke oppstår race[?] kondisjoner. Den enkleste måten å forhindre dette på er å sørge for best mulig seperasjon mellom modulene, så ikke en modul kan endre på variabler brukt av en annen modul. 
+
+Det nederste laget er driverne til de forskjellige hardware modulene, current.h for strømovervåkning, position.h for posisjonssensoren, motor.h for motorstyring og can.h for det nederste laget av PDCP protokollen.
+
+Selve implementasjonen av PDCP protokollen er en porting av programvare skrevet av  Andreas Nordal og Andrzej Zamojski i sine masteroppgaver[ref]. 
+
+
+\chapter{Diskusjon}
+
+
+\chapter{Konklusjon}
+
+\chapter{}
+
+
+\begin{thebibliography}{99}
+\bibitem{bib:zink}
+  Arthur Zinck,
+  \emph{Design of a compact, reconfigurable, prosthetic wrist}.
+  2011.
+  
+\bibitem{bib:kraakenes}
+  Andreas Kråkenes,
+  \emph{Styresystem for kybernetisk håndleddsprotese}.
+  Master i teknisk kybernetikk
+  2011.
+  
+\bibitem{bib:nordal}
+  Andreas Nordal,
+  \emph{Implementasjon og testing av en åpen bussprotokoll for armproteser}.
+  Master i teknisk kybernetikk
+  2012.
+  
+\bibitem{bib:zamojski}
+  Andrzej Zamojski,
+  \emph{Design, Implementation and Testing of Low-level Layers of the PDCP for the AVR Platform}.
+  Master i teknisk kybernetikk
+  2012.
+  
+
+\end{thebibliography}
+
+\appendix
+
+\chapter{Innhold CD}
+
+\chapter{Funksjonsspesifikasjon NRWD}
+
+\chapter{Diverse}
+
+
+\begin{table}[h]
+	\begin{center}
+		\begin{tabular}{ | c | c |}
+		\hline
+			Duty cycle &  Vinkelhastighet \\ \hline
+			80	& 156 grader/sekund\\ \hline
+			65	& 94 grader/sekund\\ \hline
+			50	& 44 grader/sekund\\ \hline
+		\end{tabular}
+	\end{center}
+\caption{Vinkelhastighet til NRWD'en ved ulike duty cycles, 12V spenningsforsyning}
+\label{tab:velocity}
+\end{table}
+
+
+
+
+
+\end{document}

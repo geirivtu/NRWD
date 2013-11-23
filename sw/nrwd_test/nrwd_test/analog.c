@@ -23,11 +23,12 @@ void analog_init(void){
 	
 	/* Set up timer2 interrupt overflow to sample lines */
 	/* f_interrupt = f_clkio / (N*(1+OCR2A)) */
+	/* The N variable represents the prescale factor (1, 8, 32, 64, 128, 256, or 1024). */
 	
 	/* Defines top value of counter */
 	OCR2A = 255;
 	
-	/* Prescaler: IOclock/64 and CTC mode( Clear Timer COmpare Match */
+	/* Prescaler: IOclock/64 and CTC mode( Clear Timer Compare Match) */
 	TCCR2A = (1<<CS22) | (1<<WGM21);
 	
 	/* Timer/Counter2 Output Compare Match A Interrupt Enable */
@@ -55,9 +56,26 @@ uint16_t analog_read(uint8_t adc_nr){
 	return ADC;
 }
 
+/* Read analog input */
+void preprocessing(void){
+	
+	
+	
+}
+
+
+/* Use processed signals to control system */
+void intent_interpretation(void){
+	
+	
+	
+}
 
 ISR(TIMER2_COMP_vect)
 {
+	
+	preprocessing();
+	
 	/* Toggle output pin */
 	PORTD ^= (1<<PD6);
 }
