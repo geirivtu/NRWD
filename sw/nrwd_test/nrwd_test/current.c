@@ -5,7 +5,6 @@
 #include "current.h"
 
  
-
 void current_init(void)
 {
 	DDRD |= (1<<PD4);
@@ -43,8 +42,7 @@ void current_startup(void)
 }
 
 
-/* Returns current in mA */ //TODO not working??
-
+/* Returns current in mA */ 
 uint16_t current_read(void)
 {
 	uint16_t current_mA = 0;

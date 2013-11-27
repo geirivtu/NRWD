@@ -6,11 +6,11 @@
  */ 
 
 
-#ifndef ANALOG_H_
-#define ANALOG_H_
+#ifndef __ANALOG_H
+#define __ANALOG_H
 
 
 void analog_init(void);
 
 
-#endif /* ANALOG_H_ */
+#endif /* __ANALOG_H */

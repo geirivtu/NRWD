@@ -59,7 +59,11 @@ uint16_t analog_read(uint8_t adc_nr){
 /* Read analog input */
 void preprocessing(void){
 	
+	uint16_t sig_a, sig_b;
 	
+	
+	sig_a = analog_read(ADC0_PF0);
+	sig_b = analog_read(ADC1_PF1):
 	
 }
 
@@ -74,7 +78,7 @@ void intent_interpretation(void){
 ISR(TIMER2_COMP_vect)
 {
 	
-	preprocessing();
+	preprocessing(); 
 	
 	/* Toggle output pin */
 	PORTD ^= (1<<PD6);

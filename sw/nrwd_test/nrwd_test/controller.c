@@ -9,7 +9,6 @@
 #include "current.h"
 #include "motor.h"
 #include "position.h"
-//#include "uart.h"
 
 
 volatile int16_t Control_setpoint = 0;

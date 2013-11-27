@@ -46,9 +46,6 @@ void setSetpoint( CAN_packet *p, unsigned char mob) // interrupt callback
 
 int main(void)
 {
-
-	BOOL ret;
-
 	motor_init();
 	
 	position_init();
@@ -59,9 +56,8 @@ int main(void)
 		
 	can_init();
 
-	ret=prepare_rx( 1, 0x151, 0x7ff, setSetpoint);
-	//ASSERT( ret==0);
-	
+	prepare_rx( 1, 0x151, 0x7ff, setSetpoint);
+
 	control_set_mode(CONTROL_MODE_SPEED);
 	
 	/* Setting PD6 to output */
