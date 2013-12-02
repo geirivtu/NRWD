@@ -71,6 +71,9 @@ Jeg vil takke katten min Tom.
 \item NRWD - NTNU Rotary Wrist Device
 \item PDCP - Prosthetic Device Communication Protocol
 \item CAN - Controller Area Network
+\item PWM - Pulse Width Modulation
+\item UNB - University of New Brunswick
+
 
 \end{itemize}
 
@@ -83,44 +86,65 @@ Jeg vil takke katten min Tom.
 
 \section{Bakgrunn for oppgaven}
 
-Ideen bak protesen kommer fra Øyvind Stavdahl sin doktorgradsavhandling \cite{bib:stavdahl2002} fra 2002. Den undersøkte hvilken vinkel det skulle være mellom underarm og rotasjonsaksen til en håndleddsprotese med èn frihetsgrad for å gi en best mulig brukeropplevelse. [sett inn figur] Forsøk ble gjort med mennesker uten proteser som ble bedt om å utføre ulike oppgaver med hendene sine. Bevegelsene ble deretter tatt opp og analysert for hvilke håndleddsbevegelser som var mest brukt, resultatene tydet på at den optimale vinkelen mellom  underarm og håndledd var på x grader[se figur] [ref avhandling]. For å teste disse resultatene i praksis trengte man en håndleddsprotese med design som muliggjør valgfri rotasjonsaske. I [årstall] ble mekanikken til en slik 1 akse håndleddsprotese bygget som en del av mastergraden til Arthur Zink\cite{bib:zink}. Etter at mekanikken var ferdigstilt trengte man et styresystem for å kontrollere protesen. 
+Ideen bak protesen kommer fra Øyvind Stavdahl sin doktorgradsavhandling \cite{bib:stavdahl2002} fra 2002. I den viste eksprimenter med friske håndledd at en vinkel mellom lengdeaksen til underarm og rotasjonsaksen til håndleddet gjorde flere bevegelser enklere for brukeren å utføre. 
+
+For å teste disse resultatene i praksis trengte man en 1-akse håndleddsprotese med design som muliggjør valgfri rotasjonsaske, se figur \ref{fig:wrist_angel}. Som en del av mastergraden til Arthur Zink\cite{bib:zink} ved University of New Brunswick, Canada ble mekanikken til en slik 1-akse håndleddsprotese bygget. Etter at mekanikken var ferdigstilt trengte man et styresystem for å kontrollere protesen. 
+ 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\linewidth]{../Figurer/wrist_angel}
+\caption{Vinkel mellom håndprotese og underarm kan varieres. Kilde: Styresystem for kybernetisk håndleddsprotese\cite{bib:kraakenes}}
+
+\label{fig:wrist_angel}
+\end{figure}
+
+Det ble også funnet ut at dette var en gylden mulighet til å teste ut den åpne protesestyrings protokollen PDCP som da var under utvikling hos UNB. Det ble lagt til som et krav i funksjonsspesifikasjonen til NRWD'en at den skulle kommunisere ved hjelp av denne protokollen, i tillegg til at den skulle kunne styres med de mer konvensjonelle analoge og digitale elektrodene. 
 
 
 \section{Tidligere arbeide}
 
-Realisering av styresystemet til protesen har hittil vært påbegynt i to mastergradoppgaver. Den siste av disse var skrevet av Andreas Kråkenes i 2011\cite{bib:kraakenes} og kom langt på vei til å fullføre designet. Hovedgrunnen til at protesen ikke enda har blitt fullført skyldes at det første designet innholdt en alvorlig arkitektur feil som innvolverte kommunikasjonen mellom to mikrokontrollere. Det ble forsøkt fikset på uten hell og til slutt etter mye tid gikk man over til en løsning som besto av at en mikrokontroller skulle styre hele systemet. 
+Realisering av styresystemet til protesen har hittil vært påbegynt i to mastergradoppgaver. Den siste av disse var skrevet av Andreas Kråkenes i 2011\cite{bib:kraakenes} og kom langt på vei til å fullføre designet. Hovedgrunnen til at protesen ikke enda har blitt fullført skyldes at det første designet innholdt en alvorlig \mbox{arkitektur} feil som innvolverte kommunikasjonen mellom to mikrokontrollere. Det ble forsøkt fikset på uten hell og til slutt etter mye tid gikk man over til en løsning som besto av at en mikrokontroller skulle styre hele systemet. 
 
 Da prosjektet ble overtatt av undertegnede var alt av hardware designet og lagt ut på prototype kort. Dessverre var skjemategningen bare tilgjengelig i pdf format så utlegg må gjøres på nytt når kretsen skal miniatyriseres for å få plass inni protesen. Software for å teste deler av systemet var ferdigskrevet, men koden var av varierene kvalitet og mye funksjonalitet var enda ikke implementert. Der det manglet mest var de ulike regulatorene og implementasjonen av PDCP protokollen. 
 
+I 2012 ble laget en implementasjon av PDCP protokollen av to mastergradsstudenter ved NTNU\cite{bib:nordal,bib:zamojski}. UNB hadde tildigere laget en implementasjon basert på PIC mikrokontrolleren, mens denne var designet for Atmel sine AVR mikrokontrollere. Implementasjonen var designet for at det skulle være enkelt å overføre koden til ny maskinvare noe som gjorde at den egnet seg godt for dette prosjektet.
 
-\section{Mitt bidrag}
 
-Hver av de overleverte hardware modulene har blitt testet for feil og om de oppfyller de krav som er satt i funksjonsspesifikasjonene[ref]. Se diskusjon i kapittel [Modul testing/ implemenstasjon og diskusjon] Der det har blitt oppdaget mangler eller feil har det blitt gjort forslag til hva som må gjøres for å utbedre feilen. 
+\section{Mine bidrag}
 
-Etter at systemets gikk over til å bruke én istedenfor to mikrokontrollere har det enda ikke blitt utført noe dypere analyse eller blitt utført noen tester som ser på om systemet har nok resurser til å utføre alle sine oppgaver. Denne prosjektoppgaven har undersøkt grundig hvorvidt én mikrokontroller er nok til å drive styresystemet. Videre så har software for hver modul blitt skrevet ferdig og satt sammen til et komplett styresystem som oppfyller de spesifikasjonskrav som er gitt av funksjonsspesifikasjonen, se vedlegg \ref{fig:funkspes}. Modulen som håndterer kommunikasjon via CAN grensesnittet har blitt skrevet slik at den er kompatibel med PDCP protokollen som gitt i [ref PDCP].
+En naturlig start på prosjektet var å gå gjennom den overleverte maskinvaren og medfølgende driverkode modul for modul. Detaljer rundt hvordan de ulike modulene ble testet er beskrevet i kapittel \ref{chap:modTesting}.
 
+Den overleverte koden var av varierende kvalitet. Koden var strukturert på et fornuftig vis, med en c fil for hver maskinvare modul. Denne strukturen ble beholdt ut prosjektet. Selve driverkoden trengte en del mer arbeid. Det var skrevet nok til å teste basis funksjonaliteten til hver modul, men måtte utvides med tilleggsfunksjonalitet før den kunne brukes. 
+
+Under testing av maskinvaren ble det funnet muligheter for forbedringer i spenningsregulator og posisjonsensor modulene. Anbefalinger til endring i maskinvaren er gjort i kapittel \ref{chap:modTesting}. 
+
+Det første styressystemet som ble designet til NRWD'en benyttet seg av to mikrokontrollere for å håndtere alle oppgavene til systemet. Denne arkitekturen gikk man bort ifra da man fikk problemer med kommunikasjonen mellom de to kontrollerne og man gikk over til å bruke en mikrokontroller. Som en del av oppgaven ble det gjort grundige undersøkelser om den valgte mikrokontrolleren hadde nok ressurser til å styre systemet på egen hånd. Diskusjonen rundt dette er gjort i kapittel \ref{chap:interrupt}.
+
+Ifølge funksjonsspesifikasjonene skal protesen ha minst tre forskjellige styringsmoduser, maks fart i valgt retning, posisjon- og hastighetsstyring. De forskjellige regulatorene ble alle skrevet fra bunnen av. For detaljer til hvordan de ulike regulatorene ble implementert se kapittel \ref{chap:sw}.
+
+På slutten av prosjektet ble styringssystemet integrert med kommunikasjons protokollen PDCP. Implementasjonen av protokollen var all erede gjort, jobben besto av å skrive om maskinvare abstraksjons laget. Hvorfor og hvordan dette ble gjort er beskrevet i kapittel \ref{chap:sw}.
 
 \section{Utviklingsmetodikk og fremgangsmåte}
 
-Hvordan dette prosjektet best skulle styres falt klart for meg fra begynnelsen av. Det er et hardware og software system som allerede da det ble overtatt var delt opp i klare moduler. Som nevnt tidligere var det meste av hardware designet ferdig, mens mye av softwaren enda måtte skrives. Det var også mye software som var skrevet av tidligere studenter som skulle flettes inn i prosjektet for ikke å reprodusere arbeide som var gjort tidligere, det tenkes spesielt på lavnivå implementasjonen av PDCP protokollen som ble utviklet av  Andrzej Zamojski \cite{bib:zamojski} og  Andreas Nordal\cite{bib:nordal} og selvfølgelig software driverne til NRWD'en skrevet av Andreas Kråkenes. 
+Hvordan dette prosjektet best skulle styres falt klart for meg fra begynnelsen av. Det er et maskin- og programvare system som allerede da det ble overtatt var delt opp i klare moduler. Som nevnt tidligere var det meste av maskinvare designet ferdig, mens mye av programvaren enda måtte skrives. Det var også mye programvare som var skrevet av tidligere studenter som skulle flettes inn i prosjektet for ikke å reprodusere arbeide som var gjort tidligere, det tenkes spesielt på lavnivå implementasjonen av PDCP protokollen som ble utviklet av  Andrzej Zamojski \cite{bib:zamojski} og  Andreas Nordal\cite{bib:nordal} samt programvare driverne til NRWD'en skrevet av Andreas Kråkenes. 
 
-Metoden min sin hovedlinje var og i størst grad arbeide på prosjektet modul for modul, forsikre meg om at alt fungerte separat før til slutt og bringe det alt sammen. Kort oppsummert punktvis var planen:
+Metoden min sin hovedlinje var og i størst grad arbeide på prosjektet modul for modul, forsikre meg om at alt fungerte separat før til slutt å sette modulene sammen til et komplett styresystem. Kort oppsummert punktvis var planen:
 
 \begin{itemize}
 
-\item Sette seg inn i bakgrunnsstoff
-\item Test hver hardware modul for seg, samt tilhørende software driver
-\item Sjekk, oppfyller hardware og software kravene satt av funksjonsspesifikasjonen?
-\item Sett seg inn i protese protokollen PDCP
-\item Integrer PDCP med systemet
+\item Sette seg inn i bakgrunnsstoff for oppgaven.
+\item Test hver maskinvare modul for seg, samt tilhørende programvare driver.
+\item Sjekk om maskinvare og programvare oppfyller kravene satt av funksjonsspesifikasjonen.
+\item Fullfør driverkoden til modulen som blir testet. 
+\item Sett seg inn i implementasjonen av PDCP gjort av tidligere NTNU studenter. 
+\item Integrere PDCP med styringssystemet.
 \end{itemize}
 
+Hvordan hver modul ble testet blir gått gjennom i kapittel \ref{chap:modTesting}.
 
-Før arbeidet startet ble det skrevet korte testplaner for hver hardware modul. De ble så gjennomgått og testet en etter en slik at jeg kunne stole på at det av hardware jeg brukte fungerte som beskrevet. Det falt seg naturlig å teste driverkoden sammen med hardware modulen under testing, og skrive den om der det ble funnet feil eller mangler. 
 
-Da den delen av prosjektet var ferdig hadde man et fungerende styresystem til håndleddsprotesen, det som gjensto da var å integrere systemet med PDCP protokollen. 
+Verktøyet som ble brukt for å budsjettere tiden og sørge for at man kom i mål med prosjektet til rigktig tid var, på anbefaling fra veileder, Gantt diagrammet. Figur \ref{fig:fig_gantt_diagram} viser framgangsplanen for de første ukene av prosjektet og hvorvidt planen ble overholdt. Gantt diagrammet var et nyttig verktøy å bruke, ikke bare ga det en klar oversikt over hvilke oppgaver man hadde igjen, men også hvorvidt man greide å overholde de tidsfrister man hadde satt. 
 
-Verktøyet som ble brukt for å budsjettere tiden og sørge for at man kom i mål med prosjektet til rigktig tid var, på anbefaling fra veileder, Gantt diagrammet. Dette var til stor hjelp når det gjaldt å holde styr på hvor langt man var på vei i henhold til planen. 
 
 \begin{figure}[h]
 \centering
@@ -130,20 +154,27 @@ Verktøyet som ble brukt for å budsjettere tiden og sørge for at man kom i mål me
 \end{figure}
 
 
+Utviklingen av programvare ble gjort på en windows maskin med Atmel Studio 6. For versjonskontroll av kode og dokumenter falt valget på Git.
 
+\section{Rapportens oppbygning}
+
+Skrive om hva som kommer når? JA! Bluphbluhp
 
 \chapter{NRWD Spesifikasjoner}
 
+Dette kapittelet går gjennom funksjonsspesifikasjonene til NRWD'en punkt for punkt. Spesifikasjonene beskriver kravene til systemet i sin hellhet fra de fysiske dimensjonene, kommunikasjons grensesnittet opp mot protesen, oppløsningen på de ulike sensorene, maks vinkel hastighet til protesen og så videre. 
 
-Spesifikasjonene til protesen er i hovedsak utarbeidet av Øyvind Stavdahl og noen mindre revisjoner gjort i sammarbeid med tidligere studenter som har arbeidet på oppgaven. Vedlagt er versjon 0.4 av funksjons spesifikasjonene[ref]. Under følger en punktvis gjennomgang av spesifikasjonene, fokuset er på om systemet i sin nåværende form innfrir kravene og hva som eventuelt mangler. Noen av spesifikasjonene omhandler de rent mekaniske sidene, som foreksempel de ytre dimensjonene til protesen. Disse vil være merket som "ikke relevant". 
+Delkapittlene som følger tar for seg hver sin del av funksjonsspesifikasjonene. De beskriver hvike av kravene som er oppfylt, de som enda ikke er implementert og de som krever mer arbeid. Dette kapittelet beskriver systemet i sin nåværende tilstand og er ment for å hjelpe neste person som skal arbeide på prosjektet til å få en rask oversikt over hva som er gjort og hva som må gjøres. For noen av kravene vil statusen være kommentert som "Ikke relevant", dette gjelder de spesifikasjonene som omhandler de rent mekaniske sidene av systemet.
 
-Spesifikasjonene er delt opp etter hvilken del av systemet de omhandler.
+Ikke tatt med i dette kapittelet er de overordente funksjonsspesifikasjonene til NRWD'en. De kan leses i det originale spesifikasjons dokumentet vedlagt denne oppgaven\ref{fig:funkspes}.
 
 \section{Wrist Joint Function, WJF}
 
+Beskriver det roterende leddet i protesen og hvordan festeanordningen til underarm og eventuell håndleddsprotese skal være manuelt justerbar. 
+
 \begin{center}
 
-	\begin{tabular}{ | l | p{10cm} | l | }
+	\begin{tabular}{  | p{2cm} | p{8cm} | p{4cm} |}
 	
 	\hline
 	Nr & Beskrivelse  & Status \\ \hline
@@ -157,8 +188,10 @@ Spesifikasjonene er delt opp etter hvilken del av systemet de omhandler.
 
 \section{Wrist Motor Function, WMF}
 
+Beskriver kravene til protesens vinkelhastighet og moment. Viktig å merke seg at det her settes krav til at motoren skal være beskyttet mot overopphetning i maskinvare.
+
 \begin{center}
-	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\begin{tabular}{ | p{2cm} | p{8cm} | p{4cm} |}
 	\hline
 
 Nr & Beskrivelse & Status  \\ \hline
@@ -173,8 +206,10 @@ WMF-04 & The motor shall be protected from overheating. The protection should be
 
 \section{Wrist Servo Function, WSF}
 
+Beskriver kravet til posisjonssensoren og hvilke regulatorer som systemet skal implementere. 
+
 \begin{center}
-	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\begin{tabular}{ | p{2cm} | p{8cm} | p{4cm} | }
 	\hline
 
 Nr & Beskrivelse & Status  \\ \hline
@@ -208,8 +243,10 @@ WSF-03 & WSF shall provide an interface to WCF through which the modes (describe
 
 \section{Wrist Communication Function, WCF}
 
+Beskriver hva slags kommunikasjonsgrensesnitt systemt skal implementere. 
+
 \begin{center}
-	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\begin{tabular}{  | p{2cm} | p{8cm} | p{4cm} | }
 	\hline
 
 Nr & Beskrivelse & Status \\ \hline
@@ -229,8 +266,10 @@ WCF-11 & WCF shall implement an interface to WSF according to WSF-03. &  Se WSF-
 
 \section{Wrist Power Function, WPF}
 
+Beskriver kraftforsyningen til systemet.
+
 \begin{center}
-	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\begin{tabular}{  | p{2cm} | p{8cm} | p{4cm} | }
 	\hline
 
 Nr & Beskrivelse & Status \\ \hline
@@ -245,8 +284,10 @@ WPF-04 & The NRWD should automatically limit its motor current to a level that d
 
 \section{Proximal Attachment Function, PAF}
 
+Beskriver festeanordningen og grensesnittet mellom NRWD'en og underarmen. 
+
 \begin{center}
-	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\begin{tabular}{  | p{2cm} | p{8cm} | p{4cm} | }
 	\hline
 
 Nr & Beskrivelse & Status\\ \hline
@@ -262,8 +303,10 @@ PAF-03-01 & The PAF electrical coupling shall include at least two power supply 
 
 \section{Distal Attachment Function, DAF}
 
+Beskriver festeanordningen og grensesnittet mellom NRWD'en og en eventuell håndprotese. 
+
 \begin{center}
-	\begin{tabular}{ | l | p{9cm} | p{5cm} | }
+	\begin{tabular}{  | p{2cm} | p{8cm} | p{4cm} | }
 	\hline
 Nr & Beskrivelse & Status\\ \hline
 DAF-01 & The DAF should comprise two parts, the proximal of which is permanently attached to the wrist and the distal permanently attached to the terminal device. The parts must ?mate? to form a mechanically stable connection while also being detachable. &  Ikke relevant\\ \hline
@@ -276,18 +319,70 @@ DAF-02-02 & The DAF electrical coupling should be rotatable without twisting the
 
 \chapter{Mekanikken}
 
-Mekanikken i protesen er et resultat av masteroppgave skrevet ved universitetet i  New Brunswick, Canada. Dette ble gjort på oppdrag fra Øyvind Stavdahl for å teste resultatene fra sin doktorgradsavhandling i praksis. Mekanikken består av to deler som ved hjelp av et kulelager kan rotere fritt fra hverandre. Selve bevegelsen er drevet av en motor som er koplet til et girtog med utveksling 120:1 [ref] [inkluder oversiktsbilde]
+Mekanikken i protesen er et resultat av masteroppgave skrevet ved universitetet i  New Brunswick, Canada. Dette ble gjort på oppdrag fra Øyvind Stavdahl for å teste resultatene fra sin doktorgradsavhandling i praksis. Mekanikken består av to seksjoner, den proksimale og distale(henholdsvis seksjonen nærmest underarmen og den lengst unna). De to seksjonene kan rotere fritt mot hverandra ved hjelp av et kulelager. Selve bevegelsen er drevet av en børsteløs DC-motor som er koplet til et girtog med utveksling 120:1 \cite{bib:zink}.
 
-Under testing av motordriveren ble det funnet at det, ved en forsyningsspenning på 12V, måtte det til en dutycycle på oppmot 60\% for å i det hele tatt bevege mekanikken. Ved rundt 80\% dutycycle ble strømmen til motoren kuttet av strømovervåkingsmodulen da strømmen gjennom motoren oversteg maksimum grensen for hva den kunne tåle før det ble fare for overopphetning. Dette ga regulatoren et veldig lite rom å jobbe innenfor noe som gjorde implementasjonen av posisjon og hastighetskontrolleren meget vanskelig. Mekanikken ble tatt med til mekaniske verksted for å se om de kunne løse problemet. Det viste seg at aksen til det minste tannhjulet var bøyd noe som førte til ekstra friksjon i systemet, verkstedet fikk bøyd det til slik at det gikk fra å ha en kast på 0.22 mm til 0.03 mm. Dette reduserte friksjonen betraktelig og mekanikken kunne nå beveges med en dutycycle ned mot 40\%. 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{../Figurer/mekanikk}
+\caption{Oversiktbilde over den indre mekanikken til protesen. Figur hentet fra \cite{bib:zink} }
+\label{fig:mekanikk}
+\end{figure}
 
-Da mekanikken ble undersøkt ble det også funnet at kulelageret i protesen begynte å bli slitt og at ved utskiftning av denne så kunne friksjonen bli yterligere redusert. Det er ikke sikkert at rettingen av giraksen er en endelig løsning på problemet. Mest sannsynelig er ikke mekanikken riktig dimensjonert for de krefter den blir utsatt for. For fremtidig bruk er det lagt ved en oversikt over rotasjonshastigheten til protesen ved forskjellige dutycycler, se vedlegg \ref{tab:velocity}. Denne kan brukes for å se om problemet har gjenoppstått.
+
+Under testing av motordriveren ble det funnet at det, ved en forsyningsspenning på 12V, måtte til en dutycycle på oppmot 60\% for å i det hele tatt bevege mekanikken. Ved rundt 80\% dutycycle ble strømmen til motoren kuttet av strømovervåkingsmodulen da strømmen gjennom motoren oversteg maksimum grensen. Denne grensen er satt i maskinvare for å unngå at motoren blir ødelagt på grunn av overopphetning. Dette ga regulatoren et veldig lite rom å jobbe innenfor noe som gjorde implementasjonen av posisjon og hastighetskontrolleren meget vanskelig. 
+
+Mekanikken ble tatt med til mekaniske verksted ved NTNU for å se om de kunne løse problemet. Det viste seg at aksen til det minste tannhjulet var bøyd noe som førte til ekstra friksjon i systemet. Tannhjulet det er snakk om er det som er koblet til Faulhaber girboksen i den distale seksjonen, se figur \ref{fig:mekanikk}. Verkstedet fikk bøyd det til slik at det gikk fra å ha en kast på 0.22 mm til 0.03 mm. Dette reduserte friksjonen betraktelig og mekanikken kunne nå beveges med en dutycycle ned mot 40\%. 
+
+Da mekanikken ble undersøkt ble det også funnet at kulelageret i protesen begynte å bli slitt noe som førte til yterligere friksjon i systemet.
+
+Om rettingen av giraksen løser problemet på langt sikt vil vise seg med tiden. At problemet i det hele tatt har oppstått tyder på at mekanikken ikke er riktig dimensjonert for de krefter den kan bli utsatt for. En teori på hvordan problemet kan ha oppstått er at man har vridd på den distale seksjonen, noe som påfører store krefter på den indre mekanikken. Dette tyder på at mekanikken kan ha behov for en ny revisjon før den er robust nok til å kunne brukes i eksprimenter.
+
+For fremtidig bruk er det lagt ved en oversikt over rotasjonshastigheten til protesen ved forskjellige dutycycler etter at mekanikken var rettet av verkstedet, se vedlegg \ref{tab:velocity}. Denne kan brukes for å se om problemet har gjenoppstått.
 
 
 \chapter{Interrupt diskusjon}
+\label{chap:interrupt}
 
-Tidligere forsøk på å realisere styresystemet til NRWD'en har brukt to mikrokontrollere, det gikk man bortifra etter at det oppsto problemer med kommunikasjonen mellom enhetene. Da er spørsmålet om den valgte mikrokontrolleren, AT90CAN128 kjørende på 16 MHz, er nok til å håndtere alle oppgaver som skal utføres. 
+Hvorfor diskutere interrupt
 
-Etter at alle software modulene har blitt initialisert er det bare den valgte regulatoren(posisjon/ hastighet) som beregner pådrag som blir håndtert inni while loopen. Alt annet blir håndtert inni interrupt rutinene, som motor kommutering, posisjonsoppdatering, kommunikasjon osv. 
+Problemer med gamle arkitektur
+
+\section{Bakgrunn}
+
+Tidligere forsøk på å realisere styresystemet til NRWD'en har brukt to mikrokontrollere. Den ene skulle brukes til motor kommuteringen mens den andre skulle håndtere alle de andre oppgavene som regulering og kommunikasjon. Da systemet ble testet oppsto det problemer med kommunikasjonen mellom mikrokontrollerene og selv etter mye testing fant man aldri årsaken til problemet. Dette førte til at man gikk over til en arkitektur som brukte en enkelt mikrokontroller.
+
+Ny arkitektur
+
+Spørsmålet var da om den valgte mikrokontrolleren, AT90CAN128 kjørende på 16 MHz, var nok til å håndtere alle oppgaver som før skulle blitt utført av to mikrokontrollere. Dette kapitellet tar for seg denne problemstillingen. 
+
+\section{Et interrupt drevet system}
+
+
+
+Så hva slags type system er det som styrer protesen? Styringssystemet er nesten helt og holdent interrupt drevet. Bortsett fra regulatoren som blir kjørt inni main while loopen er alt annet styrt med interrupts. Det vil si at motorkommuteringen, kommunikasjonsprotokollen, fartsestimeringen, posisjonsavlesningen og strømovervåkingen alle generer interrupts som mikrokontrolleren må håndtere raskt nok i det de dukker opp.
+
+Styringssystemet til protesen er et interrupt drevet sanntidssystem. 
+
+Hva slags system er dette her? Soft real time? 
+
+Forklar hvordan systemet er bygget på interrupts
+
+
+
+Hvorfor er det viktig at alle interrupts blir håndtert
+
+Hvordan håndterer AVR interrupts
+
+KOrt om hvilke interrupt systemet må håndtere
+
+
+
+
+
+
+
+
+Etter at alle programvare modulene har blitt initialisert er det bare den valgte regulatoren(posisjon/ hastighet) som beregner pådrag som blir håndtert inni while loopen. Alt annet blir håndtert inni interrupt rutinene, som motor kommutering, posisjonsoppdatering, kommunikasjon osv. 
 
 Om ikke systemet har nok resurser til å håndtere alle interruptene som kommer vil man risikere å miste kommunikasjons meldinger og at motoren ikke lenger blir kommutert riktig som begge vil medføre at du får et system som virker tregt og uresponsivt. For å kunne gi en garanti om at dette ikke ville skje ble systemet analysert for tidsbruk i interrupt rutiner. 
 
@@ -332,11 +427,15 @@ Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteri
 
 
 \chapter{Modul testing/ implemenstasjon og diskusjon}
+\label{chap:modTesting}
 
-Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til flere studenter. Således var det mye dokumentasjon, hardware og software som måtte gjennomgåes før det kunne bygges videre på. For å være sikker på at det som ble bygget på var av akseptabel kvalitet ble hver modul gjennomgått for om den fungerte i henhold til det som sto beskrevet i tidligere oppgaver. Masteroppgaven til Andreas Kråkenes var spesielt nyttig her siden han var siste student som jobbet på prosjektet og således er nesten alt av kode og hardware for NRWD'en som ble overlevert, produsert og dokumentert av han.
+??Før arbeidet startet ble det skrevet korte testplaner for hver maskinvare modul. De ble så gjennomgått og testet en etter en slik at jeg kunne stole på at det av maskinvare jeg brukte fungerte som beskrevet. Det falt seg naturlig å teste driverkoden sammen med maskinvare modulen under testing, og skrive den om der det ble funnet feil eller mangler. 
+??
+
+Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til flere studenter. Således var det mye dokumentasjon, maskinvare og programvare som måtte gjennomgåes før det kunne bygges videre på. For å være sikker på at det som ble bygget på var av akseptabel kvalitet ble hver modul gjennomgått for om den fungerte i henhold til det som sto beskrevet i tidligere oppgaver. Masteroppgaven til Andreas Kråkenes var spesielt nyttig her siden han var siste student som jobbet på prosjektet og således er nesten alt av kode og hardware for NRWD'en som ble overlevert, produsert og dokumentert av han.
 
 
-Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at hardware og software for den modulen oppførte seg som forventet. Under følger testplanene som ble brukt, samt en diskusjon rundt hver modul. 
+Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at  maskinvare og programvare for den modulen oppførte seg som forventet. Under følger testplanene som ble brukt, samt en diskusjon rundt hver modul. 
 
 \section{Mikrokontroller}
 
@@ -404,9 +503,10 @@ Kretsen ble testet ved å måle strømmen gjennom motoren ved hjelp av et multimete
 \section{CAN}
 
 
-\chapter{Software implementasjon}
+\chapter{Programvare implementasjon}
+\label{chap:sw}
 
-Det som i hovedsak manglet ved overtagelsen av prosjektet var å skrive ferdig software til NRWD'en. Det var skrevet drivere til de fleste modulene hvor koden var av varierende kvalitet, skrevet mer for å teste hardware'en enn for å kunne brukes i det ferdige produktet. 
+Det som i hovedsak manglet ved overtagelsen av prosjektet var å skrive ferdig programvare til NRWD'en. Det var skrevet drivere til de fleste modulene hvor koden var av varierende kvalitet, skrevet mer for å teste hardware'en enn for å kunne brukes i det ferdige produktet. 
 
 Modulariseringen av koden ble beholdt da den allerede var delt opp i fornuftige deler. 
 
@@ -463,6 +563,11 @@ Technology. 2002. PhD Thesis.
 	Master of Science in Engineering Cybernetics
 	2010.
 	
+\bibitem{bib:pdcp}
+	Yves Losier
+	\emph{Prosthetic Device Communication Protocol for the AIF UNB Hand Project}
+	UNB Hand Project Systems Integrator
+	2012.
 	
 \end{thebibliography}
 

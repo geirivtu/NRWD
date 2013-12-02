@@ -5,6 +5,8 @@ Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "nrwd_test", "nrwd_test\nrwd
 EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "pdcp", "pdcp\pdcp.cproj", "{B38C7212-6081-45EC-BAB9-BA3DE6437BF2}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "nrwd", "nrwd\nrwd.cproj", "{A3AA32D7-0481-4ABC-BE11-FF8CB59AF2E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
@@ -19,6 +21,10 @@ Global
 		{B38C7212-6081-45EC-BAB9-BA3DE6437BF2}.Debug|AVR.Build.0 = Debug|AVR
 		{B38C7212-6081-45EC-BAB9-BA3DE6437BF2}.Release|AVR.ActiveCfg = Release|AVR
 		{B38C7212-6081-45EC-BAB9-BA3DE6437BF2}.Release|AVR.Build.0 = Release|AVR
+		{A3AA32D7-0481-4ABC-BE11-FF8CB59AF2E8}.Debug|AVR.ActiveCfg = Debug|AVR
+		{A3AA32D7-0481-4ABC-BE11-FF8CB59AF2E8}.Debug|AVR.Build.0 = Debug|AVR
+		{A3AA32D7-0481-4ABC-BE11-FF8CB59AF2E8}.Release|AVR.ActiveCfg = Release|AVR
+		{A3AA32D7-0481-4ABC-BE11-FF8CB59AF2E8}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
