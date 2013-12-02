@@ -1,7 +1,6 @@
 \documentclass[12pt,a4paper]{report}
 %\usepackage[language]{babel}
 \usepackage{listings}
-
 \usepackage[norsk]{babel}
 \usepackage{graphicx}
 \usepackage[latin1]{inputenc}
@@ -52,7 +51,7 @@ Instituttet har sammen med University of New Brunswick, Canada, stått sentralt i
 
 Denne prosjektoppgaven tar for seg design og utvikling av styresystemet til håndleddsprotesen NRWD(NTNU Rotary Wrist Device). NRWD ble i sin tid skapt på bakgrunn av doktorgradsavhandingen\cite{bib:stavdahl2002} til Øyvind Stavdahl.
 
-Det har blitt skrevet flere prosjekt- og masteroppgaver\cite{bib:brattbakken,bib:kraakenes} om NRWD'en hvor alle har hatt som mål å realisere en prototype av protesen, men på grunn av ulike årsaker ikke har fullført. Denne oppgaven baserer seg i hovedsak på arbeidet til Andreas Kråkenes \cite{bib:kraakenes}. Han har produsert maskinvare lagt ut på flerlagskort, samt skrevet programvare for testing av maskinvaremodulene, noe som la et meget godt grunnlag for videre arbeide. 
+Det har blitt skrevet flere prosjekt- og masteroppgaver\cite{bib:brattbakken,bib:kraakenes} om NRWDen hvor alle har hatt som mål å realisere en prototype av protesen, men på grunn av ulike årsaker ikke har fullført. Denne oppgaven baserer seg i hovedsak på arbeidet til Andreas Kråkenes \cite{bib:kraakenes}. Han har produsert maskinvare lagt ut på flerlagskort, samt skrevet programvare for testing av maskinvaremodulene, noe som la et meget godt grunnlag for videre arbeide. 
 
 I denne prosjektoppgaven har styresystemet blitt ferdigstilt og det har blitt gjort anbefalinger til endringer i maskinvare der man har sett muligheter for forbedringer. 
 
@@ -73,6 +72,8 @@ Jeg vil takke katten min Tom.
 \item CAN - Controller Area Network
 \item PWM - Pulse Width Modulation
 \item UNB - University of New Brunswick
+\item ISR - Interrupt Service Routine
+
 
 
 \end{itemize}
@@ -98,7 +99,7 @@ For å teste disse resultatene i praksis trengte man en 1-akse håndleddsprotese m
 \label{fig:wrist_angel}
 \end{figure}
 
-Det ble også funnet ut at dette var en gylden mulighet til å teste ut den åpne protesestyrings protokollen PDCP som da var under utvikling hos UNB. Det ble lagt til som et krav i funksjonsspesifikasjonen til NRWD'en at den skulle kommunisere ved hjelp av denne protokollen, i tillegg til at den skulle kunne styres med de mer konvensjonelle analoge og digitale elektrodene. 
+Det ble også funnet ut at dette var en gylden mulighet til å teste ut den åpne protesestyrings protokollen PDCP som da var under utvikling hos UNB. Det ble lagt til som et krav i funksjonsspesifikasjonen til NRWDen at den skulle kommunisere ved hjelp av denne protokollen, i tillegg til at den skulle kunne styres med de mer konvensjonelle analoge og digitale elektrodene. 
 
 
 \section{Tidligere arbeide}
@@ -118,7 +119,7 @@ Den overleverte koden var av varierende kvalitet. Koden var strukturert på et fo
 
 Under testing av maskinvaren ble det funnet muligheter for forbedringer i spenningsregulator og posisjonsensor modulene. Anbefalinger til endring i maskinvaren er gjort i kapittel \ref{chap:modTesting}. 
 
-Det første styressystemet som ble designet til NRWD'en benyttet seg av to mikrokontrollere for å håndtere alle oppgavene til systemet. Denne arkitekturen gikk man bort ifra da man fikk problemer med kommunikasjonen mellom de to kontrollerne og man gikk over til å bruke en mikrokontroller. Som en del av oppgaven ble det gjort grundige undersøkelser om den valgte mikrokontrolleren hadde nok ressurser til å styre systemet på egen hånd. Diskusjonen rundt dette er gjort i kapittel \ref{chap:interrupt}.
+Det første styressystemet som ble designet til NRWDen benyttet seg av to mikrokontrollere for å håndtere alle oppgavene til systemet. Denne arkitekturen gikk man bort ifra da man fikk problemer med kommunikasjonen mellom de to kontrollerne og man gikk over til å bruke en mikrokontroller. Som en del av oppgaven ble det gjort grundige undersøkelser om den valgte mikrokontrolleren hadde nok ressurser til å styre systemet på egen hånd. Diskusjonen rundt dette er gjort i kapittel \ref{chap:interrupt}.
 
 Ifølge funksjonsspesifikasjonene skal protesen ha minst tre forskjellige styringsmoduser, maks fart i valgt retning, posisjon- og hastighetsstyring. De forskjellige regulatorene ble alle skrevet fra bunnen av. For detaljer til hvordan de ulike regulatorene ble implementert se kapittel \ref{chap:sw}.
 
@@ -126,7 +127,7 @@ På slutten av prosjektet ble styringssystemet integrert med kommunikasjons proto
 
 \section{Utviklingsmetodikk og fremgangsmåte}
 
-Hvordan dette prosjektet best skulle styres falt klart for meg fra begynnelsen av. Det er et maskin- og programvare system som allerede da det ble overtatt var delt opp i klare moduler. Som nevnt tidligere var det meste av maskinvare designet ferdig, mens mye av programvaren enda måtte skrives. Det var også mye programvare som var skrevet av tidligere studenter som skulle flettes inn i prosjektet for ikke å reprodusere arbeide som var gjort tidligere, det tenkes spesielt på lavnivå implementasjonen av PDCP protokollen som ble utviklet av  Andrzej Zamojski \cite{bib:zamojski} og  Andreas Nordal\cite{bib:nordal} samt programvare driverne til NRWD'en skrevet av Andreas Kråkenes. 
+Hvordan dette prosjektet best skulle styres falt klart for meg fra begynnelsen av. Det er et maskin- og programvare system som allerede da det ble overtatt var delt opp i klare moduler. Som nevnt tidligere var det meste av maskinvare designet ferdig, mens mye av programvaren enda måtte skrives. Det var også mye programvare som var skrevet av tidligere studenter som skulle flettes inn i prosjektet for ikke å reprodusere arbeide som var gjort tidligere, det tenkes spesielt på lavnivå implementasjonen av PDCP protokollen som ble utviklet av  Andrzej Zamojski \cite{bib:zamojski} og  Andreas Nordal\cite{bib:nordal} samt programvare driverne til NRWDen skrevet av Andreas Kråkenes. 
 
 Metoden min sin hovedlinje var og i størst grad arbeide på prosjektet modul for modul, forsikre meg om at alt fungerte separat før til slutt å sette modulene sammen til et komplett styresystem. Kort oppsummert punktvis var planen:
 
@@ -162,11 +163,11 @@ Skrive om hva som kommer når? JA! Bluphbluhp
 
 \chapter{NRWD Spesifikasjoner}
 
-Dette kapittelet går gjennom funksjonsspesifikasjonene til NRWD'en punkt for punkt. Spesifikasjonene beskriver kravene til systemet i sin hellhet fra de fysiske dimensjonene, kommunikasjons grensesnittet opp mot protesen, oppløsningen på de ulike sensorene, maks vinkel hastighet til protesen og så videre. 
+Dette kapittelet går gjennom funksjonsspesifikasjonene til NRWDen punkt for punkt. Spesifikasjonene beskriver kravene til systemet i sin hellhet fra de fysiske dimensjonene, kommunikasjons grensesnittet opp mot protesen, oppløsningen på de ulike sensorene, maks vinkel hastighet til protesen og så videre. 
 
 Delkapittlene som følger tar for seg hver sin del av funksjonsspesifikasjonene. De beskriver hvike av kravene som er oppfylt, de som enda ikke er implementert og de som krever mer arbeid. Dette kapittelet beskriver systemet i sin nåværende tilstand og er ment for å hjelpe neste person som skal arbeide på prosjektet til å få en rask oversikt over hva som er gjort og hva som må gjøres. For noen av kravene vil statusen være kommentert som "Ikke relevant", dette gjelder de spesifikasjonene som omhandler de rent mekaniske sidene av systemet.
 
-Ikke tatt med i dette kapittelet er de overordente funksjonsspesifikasjonene til NRWD'en. De kan leses i det originale spesifikasjons dokumentet vedlagt denne oppgaven\ref{fig:funkspes}.
+Ikke tatt med i dette kapittelet er de overordente funksjonsspesifikasjonene til NRWDen. De kan leses i det originale spesifikasjons dokumentet vedlagt denne oppgaven\ref{fig:funkspes}.
 
 \section{Wrist Joint Function, WJF}
 
@@ -275,7 +276,7 @@ Beskriver kraftforsyningen til systemet.
 Nr & Beskrivelse & Status \\ \hline
 WPF-01  & The WPF shall accept external power in the form of an unregulated two-wire DC supply. & Implementert ved brukt av intern spenningsregulator. \\ \hline
 WPF-02 & The NRWD shall tolerate and run normally when powered with a voltage in the range (6 V, 12 V). The range of usable voltages should be as wide as (5 V, 18 V). &  Valgte spenningsregulator opererer normalt innenfor området (7V, 18V). Det er anbefalt å gå over til en Low Droupout Regulator for å tilfredstille kravet.  \\ \hline
-WPF-03 & The NRWD shall tolerate supply voltage in the range (0 V, 12 V) without exhibiting unpredictable behaviour and without getting damaged. & Implementert ved bruk av brown out deteksjon internt på AVR'en. [todo] \\ \hline
+WPF-03 & The NRWD shall tolerate supply voltage in the range (0 V, 12 V) without exhibiting unpredictable behaviour and without getting damaged. & Implementert ved bruk av brown out deteksjon internt på AVRen. [todo] \\ \hline
 WPF-04 & The NRWD should automatically limit its motor current to a level that does not reduce the supply voltage below the interval given in WPF-01. & Ikke implementert.  \\ 
 
 	\hline
@@ -284,7 +285,7 @@ WPF-04 & The NRWD should automatically limit its motor current to a level that d
 
 \section{Proximal Attachment Function, PAF}
 
-Beskriver festeanordningen og grensesnittet mellom NRWD'en og underarmen. 
+Beskriver festeanordningen og grensesnittet mellom NRWDen og underarmen. 
 
 \begin{center}
 	\begin{tabular}{  | p{2cm} | p{8cm} | p{4cm} | }
@@ -303,7 +304,7 @@ PAF-03-01 & The PAF electrical coupling shall include at least two power supply 
 
 \section{Distal Attachment Function, DAF}
 
-Beskriver festeanordningen og grensesnittet mellom NRWD'en og en eventuell håndprotese. 
+Beskriver festeanordningen og grensesnittet mellom NRWDen og en eventuell håndprotese. 
 
 \begin{center}
 	\begin{tabular}{  | p{2cm} | p{8cm} | p{4cm} | }
@@ -349,7 +350,7 @@ Problemer med gamle arkitektur
 
 \section{Bakgrunn}
 
-Tidligere forsøk på å realisere styresystemet til NRWD'en har brukt to mikrokontrollere. Den ene skulle brukes til motor kommuteringen mens den andre skulle håndtere alle de andre oppgavene som regulering og kommunikasjon. Da systemet ble testet oppsto det problemer med kommunikasjonen mellom mikrokontrollerene og selv etter mye testing fant man aldri årsaken til problemet. Dette førte til at man gikk over til en arkitektur som brukte en enkelt mikrokontroller.
+Tidligere forsøk på å realisere styresystemet til NRWDen har brukt to mikrokontrollere. Den ene skulle brukes til motor kommuteringen mens den andre skulle håndtere alle de andre oppgavene som regulering og kommunikasjon. Da systemet ble testet oppsto det problemer med kommunikasjonen mellom mikrokontrollerene og selv etter mye testing fant man aldri årsaken til problemet. Dette førte til at man gikk over til en arkitektur som brukte en enkelt mikrokontroller.
 
 Ny arkitektur
 
@@ -357,15 +358,18 @@ Spørsmålet var da om den valgte mikrokontrolleren, AT90CAN128 kjørende på 16 MHz
 
 \section{Et interrupt drevet system}
 
-
-
-Så hva slags type system er det som styrer protesen? Styringssystemet er nesten helt og holdent interrupt drevet. Bortsett fra regulatoren som blir kjørt inni main while loopen er alt annet styrt med interrupts. Det vil si at motorkommuteringen, kommunikasjonsprotokollen, fartsestimeringen, posisjonsavlesningen og strømovervåkingen alle generer interrupts som mikrokontrolleren må håndtere raskt nok i det de dukker opp.
-
-Styringssystemet til protesen er et interrupt drevet sanntidssystem. 
-
 Hva slags system er dette her? Soft real time? 
 
 Forklar hvordan systemet er bygget på interrupts
+
+
+
+Så hva slags type system er det som styrer protesen? Styringssystemet er nesten helt og holdent interrupt drevet. Bortsett fra regulatoren som blir kjørt inni main while loopen er alt annet styrt med interrupts. Motorkommuteringen, kommunikasjonsprotokollen, fartsestimeringen, posisjonsavlesningen og strømovervåkingen blir alle styrt gjennom interrupts. Hver av disse funksjonene krever at tiden mellom et interrupt blir generert og mikrokontrolleren går inn i tilhørende ISR(Interrupt Service Routine) ikke overstiger en viss lengde. 
+
+Om et interrupt ikke blir håndtert innenfor tidsfristen en eller flere ganger vil systemet i beste fall bli mindre nøyaktig, i verste fall vil det slutte å fungere. Som et eksempel kan man ta for seg posisjonssensoren. Posisjonen er proporsjonal med dutycyclelen til sensor signalet. Denne leses av ved å måle tiden mellom positiv og negativ flanke på signalet, hver endring i nivå på signalet genererer et interrupt. Hvis tiden det tar for mikrokontrolleren å behandle interruptet tar lengere tid enn forventet vil posisjonen bli feil avlest. 
+
+
+
 
 
 
@@ -382,9 +386,7 @@ KOrt om hvilke interrupt systemet må håndtere
 
 
 
-Etter at alle programvare modulene har blitt initialisert er det bare den valgte regulatoren(posisjon/ hastighet) som beregner pådrag som blir håndtert inni while loopen. Alt annet blir håndtert inni interrupt rutinene, som motor kommutering, posisjonsoppdatering, kommunikasjon osv. 
-
-Om ikke systemet har nok resurser til å håndtere alle interruptene som kommer vil man risikere å miste kommunikasjons meldinger og at motoren ikke lenger blir kommutert riktig som begge vil medføre at du får et system som virker tregt og uresponsivt. For å kunne gi en garanti om at dette ikke ville skje ble systemet analysert for tidsbruk i interrupt rutiner. 
+Som nevnt ovenfor, om ikke systemet har nok resurser til å håndtere alle interruptene som kommer vil man risikere at man får et system som virker tregt og uresponsivt eller slutter å virke. For å kunne gi en garanti om at dette ikke ville skje ble systemet analysert for tidsbruk i interrupt rutiner. 
 
 Typen interrupts som systemet skal håndtere kan deles inn i to typer, periodiske og aperiodiske. 
 
@@ -403,13 +405,14 @@ De aperiodiske er:
 \item RESET 
 \end{itemize}
 
-Varigheten til hvert interrupt ble målt ved å sette en GPIO-pinne høy ved inngangen av interruptet og lav i den gikk ut og lese av oppetiden på oscilloskopet. Deretter ble tiden det tar for mikrokontrolleren å gjøre kontekst skiftet lagt til. Se tabell \ref{tab:interrupt} for oppsumering av tidsbruk til de periodisk interruptene.
 
-\begin{table}[h]
+For å analysere systemet ble varigheten til hver interrupt målt. Et interrupt i mikrokontrolleren består av tre deler. Det er kontektsskiftet hvor mikrokontrolleren lagrer unna stacken før man går inn i ISRen, arbeidet som blir utført inni rutinen og gjennopprettingen av stacken i det man forlater den. Tiden det tar for mikrokontrolleren å utføre de to konteksskiftene er et fast antall instruksjoner, det faktiske tallet finnes i mikrokontrollerens datablad \cite{bib:at90can}. Varigheten til hvert interrupt ble målt ved å sette en GPIO-pinne høy ved inngangen av interruptet og lav i det den gikk ut og lese av oppetiden på oscilloskopet. Se tabell \ref{tab:interrupt} for oppsumering av tidsbruk til de periodisk interruptene.
+
+\begin{table}[h!]
 	\begin{center}
 		\begin{tabular}{ | l | l | l | l |}
 		\hline
-	Navn & Varighet ($\mu$s) & Maks frekvens & $\mu$s per sekund \\ \hline
+	Navn & Varighet ($\mu$s) & Maks frekvens & Tidsbruk per sekund($\mu$s) \\ \hline
 	HALL\_X\_vect  & 4.5 & 3600 & 16200  \\ \hline
 	TIMER3\_CAPT\_vect  & 4.8 & 490 & 2352 \\ \hline
 	TIMER0\_OVF\_vect  & 3.2 & 61 & 196 \\ \hline
@@ -417,13 +420,13 @@ Varigheten til hvert interrupt ble målt ved å sette en GPIO-pinne høy ved inngan
 		\hline
 		\end{tabular} 
 	\end{center}
-	\caption{Timing av periodiske interrupts}
+	\caption{Viser varigheten til hvert interrupt, hvor mange ganger de blir kjørt i sekundet og totalt tidsbruk per sekund. }
 	\label{tab:interrupt}
 \end{table}
 
-Vi ser av tabell \ref{tab:interrupt} at mikrokontrolleren bruker mindre enn 2\% av tiden inni en interrupt rutine. Det gir rikelig med tid til å håndtere kontroll loopen som kjører utenfor interruptene. 
+Vi ser av tabell \ref{tab:interrupt} at mikrokontrolleren bruker mindre enn 2\% av tiden inni en interrupt rutine. Det gir rikelig med tid til å håndtere kontrolloopen som kjører utenfor interruptene. Derimot så garanterer det ikke at alle interrupts vil bli håndtert innenfor rimelig tid. I et tilfelle hvor en eller flere av modulene genererer et interrupt samtidig kan dette føre til midlertidige feil i systemet. Siden dette ikke er et hard sanntidssystem, hvor overskridelsen av en tidsfrist hadde knekt systemet, er disse midlertidige feilene akseptable siden med alle de forskjellige ISRene vil problemet være løst ved neste interrupt. Da ISRene opptar under 2\% av prosseror syklene og de alle operere ved ulike frekvenser vil kolisjon mellom to eller flere ISR være et sjeldent fenomen. 
 
-Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteringen av motoren. En den for treig vil den ikke kunne kommutere raskt nok til at motoren oppnår den ønskede hastighet. ATMEL sin applikasjonsnote AVR452 som tar for seg motor styring av BLDC motorer ved bruk av AT90CAN mikrokontrolleren setter en teoretisk maksgrense ved 3478K rpm ved 8 MHz, da maksfarten til NRWD motoren er satt til 3600 rpm befinner vi oss godt innenfor kravene. 
+Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteringen av motoren. En den for treig vil den ikke kunne kommutere raskt nok til at motoren oppnår den ønskede hastighet. ATMEL sin applikasjonsnote AVR452 som tar for seg motor styring av børste løse DC motorer ved bruk av AT90CAN mikrokontrolleren. Den setter en teoretisk maksgrense ved 3'478'000 rpm ved 8 MHz, da maksfarten til NRWD motoren er satt til 3600 rpm og mikrokontrolleren kjører på 16 MHz befinner vi oss godt innenfor kravene. 
 
 
 \chapter{Modul testing/ implemenstasjon og diskusjon}
@@ -432,7 +435,7 @@ Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteri
 ??Før arbeidet startet ble det skrevet korte testplaner for hver maskinvare modul. De ble så gjennomgått og testet en etter en slik at jeg kunne stole på at det av maskinvare jeg brukte fungerte som beskrevet. Det falt seg naturlig å teste driverkoden sammen med maskinvare modulen under testing, og skrive den om der det ble funnet feil eller mangler. 
 ??
 
-Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til flere studenter. Således var det mye dokumentasjon, maskinvare og programvare som måtte gjennomgåes før det kunne bygges videre på. For å være sikker på at det som ble bygget på var av akseptabel kvalitet ble hver modul gjennomgått for om den fungerte i henhold til det som sto beskrevet i tidligere oppgaver. Masteroppgaven til Andreas Kråkenes var spesielt nyttig her siden han var siste student som jobbet på prosjektet og således er nesten alt av kode og hardware for NRWD'en som ble overlevert, produsert og dokumentert av han.
+Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til flere studenter. Således var det mye dokumentasjon, maskinvare og programvare som måtte gjennomgåes før det kunne bygges videre på. For å være sikker på at det som ble bygget på var av akseptabel kvalitet ble hver modul gjennomgått for om den fungerte i henhold til det som sto beskrevet i tidligere oppgaver. Masteroppgaven til Andreas Kråkenes var spesielt nyttig her siden han var siste student som jobbet på prosjektet og således er nesten alt av kode og hardware for NRWDen som ble overlevert, produsert og dokumentert av han.
 
 
 Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at  maskinvare og programvare for den modulen oppførte seg som forventet. Under følger testplanene som ble brukt, samt en diskusjon rundt hver modul. 
@@ -443,12 +446,12 @@ Det første som ble testet var om det var mulig å få kontakt med mikrokontrollere
 
 \section{Spenningsforsyning}
 
-Spenningsregulatoren brukt i NRWD'en er en linær regulator som i henhold til databladet gir ut 5V +- 0.2V ved inngangsspenninger 7-20 V. Ifølge funksjonsspesifikasjonen WPF-02 skal NRWD'en håndtere spenninger mellom  6-12 V. Det er viktig at NRWD'en kan operere på spenninger ned til 6V siden de vanligste batteriene som er brukt i slike proteser gir ut en spenning som kan gå ned til minst 6V. Når differansen mellom inngangs- og utgangsspenning kan være så lav som 1V er en LDO (Low Dropout Regulator) et bedre valg. 
+Spenningsregulatoren brukt i NRWDen er en linær regulator som i henhold til databladet gir ut 5V +- 0.2V ved inngangsspenninger 7-20 V. Ifølge funksjonsspesifikasjonen WPF-02 skal NRWDen håndtere spenninger mellom  6-12 V. Det er viktig at NRWDen kan operere på spenninger ned til 6V siden de vanligste batteriene som er brukt i slike proteser gir ut en spenning som kan gå ned til minst 6V. Når differansen mellom inngangs- og utgangsspenning kan være så lav som 1V er en LDO (Low Dropout Regulator) et bedre valg. 
 
 \section{Posisjonsmåling}
 
 
-Ifølge kravspesifikasjonene \ref{fig:funkspes} til NRWD'en skal den være utstyrt med en absolutt posisjonssensor med en oppløsning på minst 10 bit. Løsningen som har blitt valgt av min forfølger er en Hall sensor enkoder som leser av vinkelen til magnetfeltet gikk av en magnet festet på den distale[?] delen av NRWD'en. Den gir ut et PWM signal med dutycycle [?] proporsjonalt med vinkelen til magnetfeltet på sensoren. Til nå har en av interrupt pinnene blitt satt opp med flanke deteksjon hvor den først ser etter en stigende flanke, skrur på timeren og konfigurerer pinnen til å få interrupt på synkende flanke. Når neste interrupt blir trigget leser man av timeren og får derved vinkelen. Problemet med dette oppsettet kommer ved vinkler nær 0 og 360 grader. Ved så små og store vinkler vil tiden mellom flankene være så korte[sett inn figur] at mikrokontrolleren ikke vil rekke å behandle interruptet  før det neste kommer og avlesningen vil bli feil. 
+Ifølge kravspesifikasjonene \ref{fig:funkspes} til NRWDen skal den være utstyrt med en absolutt posisjonssensor med en oppløsning på minst 10 bit. Løsningen som har blitt valgt av min forfølger er en Hall sensor enkoder som leser av vinkelen til magnetfeltet gikk av en magnet festet på den distale[?] delen av NRWDen. Den gir ut et PWM signal med dutycycle [?] proporsjonalt med vinkelen til magnetfeltet på sensoren. Til nå har en av interrupt pinnene blitt satt opp med flanke deteksjon hvor den først ser etter en stigende flanke, skrur på timeren og konfigurerer pinnen til å få interrupt på synkende flanke. Når neste interrupt blir trigget leser man av timeren og får derved vinkelen. Problemet med dette oppsettet kommer ved vinkler nær 0 og 360 grader. Ved så små og store vinkler vil tiden mellom flankene være så korte[sett inn figur] at mikrokontrolleren ikke vil rekke å behandle interruptet  før det neste kommer og avlesningen vil bli feil. 
 Det har derfor blitt valgt å gå over til å bruke et lavpassfilter på sensorsignalet så vinkelen kan leses av ved bruk av en ADC. Det vil ha tilleggsfordelen at man ikke bruker så mye tid på å lese av posisjon som nå blir gjort siden frekvensen til signalet fra sensoren allerede er satt til 240[ref], noe som er mye høyere enn det som kreves for god kontroll. 
 
 Siden signalet har en frekvens på 204[?] har det blitt valg er RC filter med knekkfrekvens []. ADC pinnen har en intern pullup motstand så den eneste eksterne komponenten som trengs er en kondensator. Verdien på den interne pulloppmotstanden er [?] så for å få den ønskede knekkfrekvensen ble en [?] F stor kondensator valgt. 
@@ -506,7 +509,7 @@ Kretsen ble testet ved å måle strømmen gjennom motoren ved hjelp av et multimete
 \chapter{Programvare implementasjon}
 \label{chap:sw}
 
-Det som i hovedsak manglet ved overtagelsen av prosjektet var å skrive ferdig programvare til NRWD'en. Det var skrevet drivere til de fleste modulene hvor koden var av varierende kvalitet, skrevet mer for å teste hardware'en enn for å kunne brukes i det ferdige produktet. 
+Det som i hovedsak manglet ved overtagelsen av prosjektet var å skrive ferdig programvare til NRWDen. Det var skrevet drivere til de fleste modulene hvor koden var av varierende kvalitet, skrevet mer for å teste maskinvaren enn for å kunne brukes i det ferdige produktet. 
 
 Modulariseringen av koden ble beholdt da den allerede var delt opp i fornuftige deler. 
 
@@ -569,6 +572,11 @@ Technology. 2002. PhD Thesis.
 	UNB Hand Project Systems Integrator
 	2012.
 	
+\bibitem{bib:at90can}
+
+	\emph{8-bit AVR Microcontroller with CAN controller AT90CAN128. Datablad.}
+	Atmel
+	
 \end{thebibliography}
 
 \appendix
@@ -592,7 +600,7 @@ Technology. 2002. PhD Thesis.
 			50	& 44 grader/sekund\\ \hline
 		\end{tabular}
 	\end{center}
-\caption{Vinkelhastighet til NRWD'en ved ulike duty cycles, 12V spenningsforsyning}
+\caption{Vinkelhastighet til NRWDen ved ulike duty cycles, 12V spenningsforsyning}
 \label{tab:velocity}
 \end{table}
 
