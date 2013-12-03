@@ -472,10 +472,30 @@ Spenningsregulatoren brukt i NRWDen er en linær regulator som i henhold til data
 
 
 
-Ifølge kravspesifikasjonene \ref{fig:funkspes} til NRWDen skal den være utstyrt med en absolutt posisjonssensor med en oppløsning på minst 10 bit. Løsningen som har blitt valgt av min forfølger er en Hall sensor enkoder som leser av vinkelen til magnetfeltet gikk av en magnet festet på den distale[?] delen av NRWDen. Den gir ut et PWM signal med dutycycle [?] proporsjonalt med vinkelen til magnetfeltet på sensoren. Til nå har en av interrupt pinnene blitt satt opp med flanke deteksjon hvor den først ser etter en stigende flanke, skrur på timeren og konfigurerer pinnen til å få interrupt på synkende flanke. Når neste interrupt blir trigget leser man av timeren og får derved vinkelen. Problemet med dette oppsettet kommer ved vinkler nær 0 og 360 grader. Ved så små og store vinkler vil tiden mellom flankene være så korte[sett inn figur] at mikrokontrolleren ikke vil rekke å behandle interruptet  før det neste kommer og avlesningen vil bli feil. 
-Det har derfor blitt valgt å gå over til å bruke et lavpassfilter på sensorsignalet så vinkelen kan leses av ved bruk av en ADC. Det vil ha tilleggsfordelen at man ikke bruker så mye tid på å lese av posisjon som nå blir gjort siden frekvensen til signalet fra sensoren allerede er satt til 240[ref], noe som er mye høyere enn det som kreves for god kontroll. 
+Ifølge funksjonskravet WSF-01-02-01 skal NRWDen være utstyrt med en absolutt posisjonssensor med en oppløsning på minst 10 bit. 
 
-Siden signalet har en frekvens på 204[?] har det blitt valg er RC filter med knekkfrekvens []. ADC pinnen har en intern pullup motstand så den eneste eksterne komponenten som trengs er en kondensator. Verdien på den interne pulloppmotstanden er [?] så for å få den ønskede knekkfrekvensen ble en [?] F stor kondensator valgt. 
+
+Løsningen som har blitt valgt av min forfølger er en Hall sensor enkoder som leser av vinkelen til magnetfeltet gikk av en magnet festet på den distale[?] delen av NRWDen. Den gir ut et PWM signal med dutycycle [?] proporsjonalt med vinkelen til magnetfeltet på sensoren. 
+
+Den nåværende løsningen er en magnetisk enkoder. Den leser av magnetfeltet til en magnet festet på den distale delen av NRWDen. Sensoren gir ut et PWM signal hvis dutycycle er proporsjonalt med vinkelen til magnetfeltet på sensoren, se figur \ref{fig:posisjon_hel_periode}.  Hver flanke på PWM-signalet generer et interrupt og tiden mellom en stigende og synkende flanke blir målt av mikrokontrolleren. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\linewidth]{../Figurer/posisjon_hel_periode}
+\caption{Utgangen til posisjonssensoren målt med oscilloskop}
+\label{fig:posisjon_hel_periode}
+\end{figure}
+
+Problemet med dette oppsettet kommer ved vinkler nær 0 og 360 grader. Ved disse vinklene vil tiden mellom to flankeendringer være under 1 $\mu$s, se figur \ref{fig:posisjon_min_periode}. Som beskrevet i kapittel \ref{chap:interrupt} tar dette interruptet 4.8 $\mu$s å fullføre. Dette vil si at det andre interruptet som kommer enten ikke vil bli behandlet eller bli behandlet for sent noe som vil gi feil avlest vinkel. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\linewidth]{../Figurer/posisjon_min_periode}
+\caption{Utgangen til posisjonssensoren ved lavest dutycycle}
+\label{fig:posisjon_min_periode}
+\end{figure}
+
+Forløpig er problemet løst i programvare, men en bedre løsning ville vært å lavpassfiltrere PWM-signalet for så å lese av vinkelen med en ADC. Dette løser ikke bare problemet med feil avlesning av vinkel, men det vil også redusere antall interrupts som mikrokontrolleren må behandle. PWM-signalet har en frekvens på 245 Hz, noe som gir 490 interrups i sekundet. Ved bruk av et lavpassfilter og en ADC vil man bare trenge å kalkulere posisjonen hver gang posisjonsregulatoren skal kjøre. GPIO pinnene på mikrokontrolleren har allerede mulighet for å aktivere en intern pullup motstand noe som betyr at den eneste eksterne komponenten som kreves for å lage et lavpassfilter er en kondensator med passende verdi.
 
 \section{Motordriver}
 
