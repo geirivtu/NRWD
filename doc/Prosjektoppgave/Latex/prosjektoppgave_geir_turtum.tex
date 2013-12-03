@@ -73,7 +73,7 @@ Jeg vil takke katten min Tom.
 \item PWM - Pulse Width Modulation
 \item UNB - University of New Brunswick
 \item ISR - Interrupt Service Routine
-
+\item LDO - Low Dropout Regulator
 
 
 \end{itemize}
@@ -429,26 +429,47 @@ Vi ser av tabell \ref{tab:interrupt} at mikrokontrolleren bruker mindre enn 2\% 
 Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteringen av motoren. En den for treig vil den ikke kunne kommutere raskt nok til at motoren oppnår den ønskede hastighet. ATMEL sin applikasjonsnote AVR452 som tar for seg motor styring av børste løse DC motorer ved bruk av AT90CAN mikrokontrolleren. Den setter en teoretisk maksgrense ved 3'478'000 rpm ved 8 MHz, da maksfarten til NRWD motoren er satt til 3600 rpm og mikrokontrolleren kjører på 16 MHz befinner vi oss godt innenfor kravene. 
 
 
-\chapter{Modul testing/ implemenstasjon og diskusjon}
+\chapter{Maskinvaretesting og diskusjon}
 \label{chap:modTesting}
 
-??Før arbeidet startet ble det skrevet korte testplaner for hver maskinvare modul. De ble så gjennomgått og testet en etter en slik at jeg kunne stole på at det av maskinvare jeg brukte fungerte som beskrevet. Det falt seg naturlig å teste driverkoden sammen med maskinvare modulen under testing, og skrive den om der det ble funnet feil eller mangler. 
-??
-
-Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til flere studenter. Således var det mye dokumentasjon, maskinvare og programvare som måtte gjennomgåes før det kunne bygges videre på. For å være sikker på at det som ble bygget på var av akseptabel kvalitet ble hver modul gjennomgått for om den fungerte i henhold til det som sto beskrevet i tidligere oppgaver. Masteroppgaven til Andreas Kråkenes var spesielt nyttig her siden han var siste student som jobbet på prosjektet og således er nesten alt av kode og hardware for NRWDen som ble overlevert, produsert og dokumentert av han.
+Dette kapittelet går igjennom maskinvaren som dette prosjektet har basert seg på. Det blir forklart hvordan hver modul har blitt testet og eventuelle forslag til forbedringer blir gitt. 
 
 
-Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at  maskinvare og programvare for den modulen oppførte seg som forventet. Under følger testplanene som ble brukt, samt en diskusjon rundt hver modul. 
+Hvorfor skal du teste dem?
+
+Hvordan ble de testet?
+
+
+Hva ble oppdaget under hver test?
+
+Kommentarer til modulen? Fungerer? Forbedringspotensiale? Anbefalinger til ny revisjon
+
+
+Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til flere studenter. Således var det mye dokumentasjon, maskinvare og programvare som måtte gjennomgåes før det kunne bygges videre på. Det tenkes her spesielt på arbeidet til Andreas Kråkenes som var siste student som arbeided på NRWDen. Det var han som sto for utlegg og produksjon av maskinvareprototypen, se figur \ref{fig:nrwd_prototype}, som har blitt brukt under dette prosjektet. 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{../Figurer/nrwd_prototype}
+\caption{Prototypen av NRWD maskinvaren produsert av Andreas Kråkenes, her vist tilkoplet protese mekanikken.}
+\label{fig:nrwd_prototype}
+\end{figure}
+
+Alt av overlevert maskin- og programvare ble gjennomgått og testet modul for modul for å se om det fungerte i henhold til det som sto i Kråkenes sin oppgave \cite{bib:kraakenes}. Domumentasjonen av maskinvaren besto av tekstlige beskrivelser gjort i oppgaven samt vedlagte skjemategninger. Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at maskin- og programvaren for valgt modulen oppførte seg som forventet. Under følger resultatene av testingen, samt en diskusjon rundt hver modul. For flere detaljer rundt maskinvaren, se Kråkenes sin oppgave \cite{bib:kraakenes}.
 
 \section{Mikrokontroller}
 
-Det første som ble testet var om det var mulig å få kontakt med mikrokontrolleren. Til det ble det brukt en JTAGICE 3. Alt fungerte bra. 
+Styringen av protesen er gjort med en AT90CAN128 ATMEL AVR mikrokontroller. Opplasting av programvare og debugging ble gjort over JTAG via ATMELs programmerinsverktøy, JTAGICE 3. Det ble opprettet kontakt med AVRen og alt fungerte som forventet. 
 
 \section{Spenningsforsyning}
 
-Spenningsregulatoren brukt i NRWDen er en linær regulator som i henhold til databladet gir ut 5V +- 0.2V ved inngangsspenninger 7-20 V. Ifølge funksjonsspesifikasjonen WPF-02 skal NRWDen håndtere spenninger mellom  6-12 V. Det er viktig at NRWDen kan operere på spenninger ned til 6V siden de vanligste batteriene som er brukt i slike proteser gir ut en spenning som kan gå ned til minst 6V. Når differansen mellom inngangs- og utgangsspenning kan være så lav som 1V er en LDO (Low Dropout Regulator) et bedre valg. 
+Ifølge funksjonskravet WPF-02 skal NRWDen operere normalt når den blir drevet av en spenningsforsynning mellom 6 og 12V. Spesifikasjonene sier ikke noe om hvilke spenninger som skal brukes internt, men den valgte mikrokontrolleren trenger 4.5V for å kjøre på 16MHz. Det har derfor blitt valgt at den eksterne spenningsforsyningen skal reguleres ned til 5V.  
+
+Spenningsregulatoren brukt i NRWDen er en linær regulator som i henhold til databladet gir ut 5V +- 0.2V ved inngangsspenninger 7-20 V. Det er viktig at NRWDen kan operere på spenninger ned til 6V siden de vanligste batteriene som er brukt i slike proteser gir ut en spenning som kan gå ned til minst 6V. Da differansen mellom inngangs- og utgangsspenning kan være så lav som 1V er anbefales det å gå over til å bruke en LDO (Low Dropout Regulator). En LDO er spesielt designet for å operere under akkurat slike forhold. Et eksempel på en LDO som kan brukes er LF50CDT fra STMicroelectronics.  
+
+
 
 \section{Posisjonsmåling}
+
 
 
 Ifølge kravspesifikasjonene \ref{fig:funkspes} til NRWDen skal den være utstyrt med en absolutt posisjonssensor med en oppløsning på minst 10 bit. Løsningen som har blitt valgt av min forfølger er en Hall sensor enkoder som leser av vinkelen til magnetfeltet gikk av en magnet festet på den distale[?] delen av NRWDen. Den gir ut et PWM signal med dutycycle [?] proporsjonalt med vinkelen til magnetfeltet på sensoren. Til nå har en av interrupt pinnene blitt satt opp med flanke deteksjon hvor den først ser etter en stigende flanke, skrur på timeren og konfigurerer pinnen til å få interrupt på synkende flanke. Når neste interrupt blir trigget leser man av timeren og får derved vinkelen. Problemet med dette oppsettet kommer ved vinkler nær 0 og 360 grader. Ved så små og store vinkler vil tiden mellom flankene være så korte[sett inn figur] at mikrokontrolleren ikke vil rekke å behandle interruptet  før det neste kommer og avlesningen vil bli feil. 
@@ -506,6 +527,11 @@ Kretsen ble testet ved å måle strømmen gjennom motoren ved hjelp av et multimete
 \section{CAN}
 
 
+\section{Diverse}
+
+Diskuter tilkoblingskontakter her
+
+
 \chapter{Programvare implementasjon}
 \label{chap:sw}
 
@@ -522,11 +548,16 @@ Selve implementasjonen av PDCP protokollen er en porting av programvare skrevet 
 
 \chapter{Diskusjon}
 
-Diskutere, reparere, filsofere..
+
+
 
 \chapter{Konklusjon}
 
-Bra jobba geir
+Hva har blitt diskutert i denne oppgaven
+
+Hva har blitt gjort på dette prosjektet
+
+Hva er det som er igjen for å fullføre prototypen
 
 
 \begin{thebibliography}{99}
