@@ -74,6 +74,7 @@ Jeg vil takke katten min Tom.
 \item UNB - University of New Brunswick
 \item ISR - Interrupt Service Routine
 \item LDO - Low Dropout Regulator
+\item BLDC motor - Brushless DC electric motor
 
 
 \end{itemize}
@@ -434,17 +435,6 @@ Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteri
 
 Dette kapittelet går igjennom maskinvaren som dette prosjektet har basert seg på. Det blir forklart hvordan hver modul har blitt testet og eventuelle forslag til forbedringer blir gitt. 
 
-
-Hvorfor skal du teste dem?
-
-Hvordan ble de testet?
-
-
-Hva ble oppdaget under hver test?
-
-Kommentarer til modulen? Fungerer? Forbedringspotensiale? Anbefalinger til ny revisjon
-
-
 Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til flere studenter. Således var det mye dokumentasjon, maskinvare og programvare som måtte gjennomgåes før det kunne bygges videre på. Det tenkes her spesielt på arbeidet til Andreas Kråkenes som var siste student som arbeided på NRWDen. Det var han som sto for utlegg og produksjon av maskinvareprototypen, se figur \ref{fig:nrwd_prototype}, som har blitt brukt under dette prosjektet. 
 
 \begin{figure}
@@ -454,7 +444,7 @@ Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til fl
 \label{fig:nrwd_prototype}
 \end{figure}
 
-Alt av overlevert maskin- og programvare ble gjennomgått og testet modul for modul for å se om det fungerte i henhold til det som sto i Kråkenes sin oppgave \cite{bib:kraakenes}. Domumentasjonen av maskinvaren besto av tekstlige beskrivelser gjort i oppgaven samt vedlagte skjemategninger. Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at maskin- og programvaren for valgt modulen oppførte seg som forventet. Under følger resultatene av testingen, samt en diskusjon rundt hver modul. For flere detaljer rundt maskinvaren, se Kråkenes sin oppgave \cite{bib:kraakenes}.
+Alt av overlevert maskin- og programvare ble gjennomgått og testet modul for modul for å se om det fungerte i henhold til det som sto i Kråkenes sin oppgave \cite{bib:kraakenes}. Domumentasjonen av maskinvaren besto av tekstlige beskrivelser gjort i oppgaven samt vedlagte skjemategninger. Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at maskin- og programvaren for valgt modulen oppførte seg som forventet. Under følger resultatene av testingen, samt en diskusjon rundt hver modul. For flere detaljer rundt maskinvaren, se Kråkenes sin oppgave\cite{bib:kraakenes}.
 
 \section{Mikrokontroller}
 
@@ -474,14 +464,11 @@ Spenningsregulatoren brukt i NRWDen er en linær regulator som i henhold til data
 
 Ifølge funksjonskravet WSF-01-02-01 skal NRWDen være utstyrt med en absolutt posisjonssensor med en oppløsning på minst 10 bit. 
 
-
-Løsningen som har blitt valgt av min forfølger er en Hall sensor enkoder som leser av vinkelen til magnetfeltet gikk av en magnet festet på den distale[?] delen av NRWDen. Den gir ut et PWM signal med dutycycle [?] proporsjonalt med vinkelen til magnetfeltet på sensoren. 
-
 Den nåværende løsningen er en magnetisk enkoder. Den leser av magnetfeltet til en magnet festet på den distale delen av NRWDen. Sensoren gir ut et PWM signal hvis dutycycle er proporsjonalt med vinkelen til magnetfeltet på sensoren, se figur \ref{fig:posisjon_hel_periode}.  Hver flanke på PWM-signalet generer et interrupt og tiden mellom en stigende og synkende flanke blir målt av mikrokontrolleren. 
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.7\linewidth]{../Figurer/posisjon_hel_periode}
+\includegraphics[width=0.9\linewidth]{../Figurer/posisjon_hel_periode}
 \caption{Utgangen til posisjonssensoren målt med oscilloskop}
 \label{fig:posisjon_hel_periode}
 \end{figure}
@@ -495,15 +482,28 @@ Problemet med dette oppsettet kommer ved vinkler nær 0 og 360 grader. Ved disse 
 \label{fig:posisjon_min_periode}
 \end{figure}
 
-Forløpig er problemet løst i programvare, men en bedre løsning ville vært å lavpassfiltrere PWM-signalet for så å lese av vinkelen med en ADC. Dette løser ikke bare problemet med feil avlesning av vinkel, men det vil også redusere antall interrupts som mikrokontrolleren må behandle. PWM-signalet har en frekvens på 245 Hz, noe som gir 490 interrups i sekundet. Ved bruk av et lavpassfilter og en ADC vil man bare trenge å kalkulere posisjonen hver gang posisjonsregulatoren skal kjøre. GPIO pinnene på mikrokontrolleren har allerede mulighet for å aktivere en intern pullup motstand noe som betyr at den eneste eksterne komponenten som kreves for å lage et lavpassfilter er en kondensator med passende verdi.
+Forløpig er problemet løst i programvare, men en bedre løsning ville vært å lavpassfiltrere PWM-signalet for så å lese av vinkelen med en ADC. Dette løser ikke bare problemet med feil avlesning av vinkel, men det vil også redusere antall interrupts som mikrokontrolleren må behandle. PWM-signalet har en frekvens på 245 Hz, noe som gir 490 interrupts i sekundet. Ved bruk av et lavpassfilter og en ADC vil man bare trenge å kalkulere posisjonen hver gang posisjonsregulatoren skal kjøre. GPIO pinnene på mikrokontrolleren har allerede mulighet for å aktivere en intern pullup motstand noe som betyr at den eneste eksterne komponenten som kreves for å lage et lavpassfilter er en kondensator med passende verdi.
 
 \section{Motordriver}
 
-Ifølge funksjonsspesifikansjonen, punkt WMF-01\ref{fig:funkspes}, skal protesen hvertfall ha en maksimums omdreiningshastighet på 81 grader/sek. Da motoren er giret ned med en ratio 800:1 vil det tilsvare en motorhastighet på 10800 rpm.
+Protesen sin bevegelse er drevet av en børsteløs DC-motor med innebydge Hall sensorer. Ved å lese av Hall sensorene vet man posisjonen til motoraksen og kan utifra det vite hvilket pådragsmønster man skal gi motoren får å få den til å rotere. Utgangen til Hall sensorene er digitale og er koplet opp mot hver sin interrupt linje slik at det blir generert et interrupt hver gang utgangen skifter nivå. 
 
-(81 grader/sek * 800 * 60 sek / 360 grader = 10800 rpm)
+Ifølge funksjonskravet WMF-01 skal protesen minst ha en maksimums omdreiningshastighet på 81 grader/sek. Ifølge Zink\cite{bib:zink} er motoren giret ned med en ratio på 800:1, se tabell \ref{tab:drive_train}. Dette stemmmer ikke med protesen brukt i dette prosjektet da diameterene til drivhjulene fra motor til Faulhaber planetary gear ikke er som spesifisert hos Zink. Faktiske målinger viser at den totale gir ration til protesen er på 333:1. 
 
-Ifølge databladet[ref] er makshastigheten til motoren 35600 rpm noe som faller godt innenfor kravet. 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{../Figurer/drive_train}
+\caption{Tabellen viser girtoget til motoren slik det originalt var ment, stemmer IKKE med den mekanikken brukt i dette prosjektet. Tabell hentet fra Zink, Design of a compact, reconfigurable, prosthetic wrist\cite{bib:zink}.}
+\label{tab:drive_train}
+\end{figure}
+
+For å oppnå ønsket vinkelhastighet tilsvarer dette en motorhastighet på 4496 rpm, se formel \ref{eq:motor_rpm}. Ifølge motordatabladet \cite{bib:bldc} er makshastigheten til motoren 35600 rpm noe som faller godt innenfor kravet. 
+
+\begin{equation}
+ \frac{81 \text{grader/sekund} }{360 \text { grader}}  \times 333 \times 60 \text{ sekund} = 4495.5 \text{ rpm}
+	\label{eq:motor_rpm}
+\end{equation}
+
 Da motorens hall sensorer genererer 6 interrupt per omdreining vil mikrokontrolleren måtte kunne håndtere minst opptil 3560 interrupts i sekundet, se formell \ref{eq:interrupt}. 
 
 \begin{equation}
@@ -511,40 +511,44 @@ Da motorens hall sensorer genererer 6 interrupt per omdreining vil mikrokontroll
 	\label{eq:interrupt}
 \end{equation}
 
+En testbenk ble satt opp for å teste om mikrokontrolleren greie å håndtere alle motor sensor interruptene. Et Arduino brett ble brukt for å simulere utgangene til motoren sine Hall sensorer med en hastighet som tilsvarte 400'000 rpm. Arduino brettet var programmert til å påføre et bestemt antall interrupts som mikrokontrolleren telte. Da antallet registrerte interrupts stemte med antallet sendt ut ved disse hastighetene kunne man være sikker på at mikrokontrolleren ville greie å håndtere kommuteringen av motoren ved de faktiske hastighetene. 
 
-En testbenk ble satt opp for å teste om mikrokontrolleren greie å håndtere alle motor sensor interruptene. Et arduino brett ble brukt for å simulere utgangene til motoren sine hall sensorer med opptil en hastighet som tilsvarer 400'000 rpm. Arduino brettet var programmert til å påføre et vist antall interrupts, mikrokontrolleren ble satt opp til å telle inkommende interrupts og da antallet stemte overens viste man at mikrokontrolleren taklet disse hastighetene. 
 
 \section{Strømovervåkning}
 
-Strømovervåkningsmodulen skal sørge for at motoren ikke overoppheter og gi mikrokontrolleren mulighet til å måle hvor mye strøm motoren trekker. Dette i henhold til de to funksjonsspesifikasjons kravene, WMF-04[ref] som sier at motoren skal være beskyttet mot overopphetning i hardware og WSF-02-04-01[ref] som sier at man skal kunne lese av hvor mye strøm motoren trekker. 
+Ifølge funksjonskravene WMF-04 og WSF-02-04-01 skal motoren være beskyttet mot overopphetning i maskinvare og man skal kunne måle hvor mye strøm motoren trekker. Overopphetning skjer når motoren trekker for mye strøm. Utregningen av den maksimalt tillatte strømmen er gjort tidligere av Kråkens\cite{bib:kraakenes} itifra motorens datablad\cite{bib:bldc} og er satt til 145 mA. 
 
-[legg inn skjemategning]
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{../Figurer/fig_strommaaling}
+\caption{Skjemategning til strømovervåknings modulen. Figur hentet fra Kråkenes\cite{bib:kraakenes}}
+\label{fig:fig_strommaaling}
+\end{figure}
 
-Som vi ser av skjemategningen går motorstrømmen over den 1 ohms målemotstanden. Deretter blir signalet lavpassfiltrert, motoren er styrt med en 20 kHz PWM signal, og forsterket opp av en operasjonsforsterker. For å få strømovervåkning har utgangen fra operasjonsforsterkeren blitt lagt ut til en av mikrokontrolleren sine ADC innganger. Da kan strømmen leses av ved denne formelen. 
 
+Motoren får strøm gjennom et 20 KHz PWM-signal som går gjennom den 1 ohms store målemotstanden før det går til jord. Spenningen over målemotstanden blir lavpasfiltrert og forsterket av en operasjonsforsterker før det går inn på en komparator krets som setter en SR-vippe, denne sørger for å slå av strømforsyningen til motoren når den trekker mer enn den maksimalt tillatte strømmen. SR-vippen kan bli resatt av mikrokontrolleren. Utgangen til operasjonsforsterkeren er også koplet til en ADC-pinne på mikrokontrolleren. Strømmen kan da måles ved å lese av ADCen o
+
+Som vi ser av skjemategningen går motorstrømmen over den 1 ohms store målemotstanden. Deretter blir signalet lavpassfiltrert, motoren er styrt med en 20 kHz PWM signal, og forsterket opp av en operasjonsforsterker. For å få strømovervåkning har utgangen fra operasjonsforsterkeren blitt lagt ut til en av mikrokontrolleren sine ADC innganger. Strømmen gjennom motoren kan da leses av ved å bruke formel \ref{eq:strom}. 
+
+\begin{figure}[h]
 \begin{lstlisting}
-	/* Multiply K with ADC value to get current in uA 
-	* KuA = ADCref * (1'000'000/1024)/(Aopamp) = 311 
+	/* Multiply K with ADC value to get current in 1/10 uA 
 	* ADCref = 5 V
 	* Aopamp = 15.7 (opamp gain)
+	* K = ADCref * (100'000/1024)/(Aopamp) = 31
 	*/
-	uint16_t K = 31; //311 	
-	//kAdc = K*adc;
+	uint16_t K = 31; 
 	current_mA = (K*ADC)/100;
 \end{lstlisting}
+\label{eq:strom}
+\end{figure}
 
-
-
-Utgangen fra operasjonsforsterkeren går også inn på en komparatorkrets som setter en SR-vippe, denne sørger for å slå av strømforsyningen til motoren når den trekker mer enn den maksimalt tillatte strømmen. SR-vippen kan bli resatt av mikrokontrolleren.
-
-Når komperatorkretsen detekterer overstrøm vil det også bli generert et eksternt interrupt på mikrokontrolleren så den kan behandle situasjonen. 
-
-
-Utregningen av den maksimalt tillatte strømmer er tidligere gjort av Andreas Kråkens \cite{bib:kraakenes} utifra motorprodusentens tekniske informasjonshefte og er satt til 145 mA. 
-
-Kretsen ble testet ved å måle strømmen gjennom motoren ved hjelp av et multimeter. Komparatorkretsen slo av strømmen idet den nådde den maksimalt tillatte verdien. 
+For å teste kretsen ble det brukt en variabel strømforsyning. Modulen skrudde av strømmen ved riktig verdi og mikrokontrolleren leste av strømmen med stor nøyaktighet. 
 
 \section{CAN}
+
+Ifølge funksjonskravet WCF-02 skal protesen være styrt over PDCP-protokollen som baserer seg på CAN for å sende og ta imot meldinger. Prototypekortet er utstyrt med en CAN-tranceiver som er koplet opp mot mikrokontrolleren. CAN modulen ble testet med et USB til CAN modul som gjorde det enkelt å sende meldinger fra PCen. Mikrokontrolleren ble testet ved hastiheter opp til 125 kbit hvor alt fungerte som forventet. 
+
 
 
 \section{Diverse}
@@ -627,6 +631,11 @@ Technology. 2002. PhD Thesis.
 
 	\emph{8-bit AVR Microcontroller with CAN controller AT90CAN128. Datablad.}
 	Atmel
+	
+\bibitem{bib:bldc}
+	
+	\emph{Brushless DC-Servomotor, series 0620 B. Datablad}
+	Faulhaber
 	
 \end{thebibliography}
 
