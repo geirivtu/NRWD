@@ -189,3 +189,4 @@ ISR(CURRENT_vect)
 	current_startup();
 	motor_start();
 }
+

@@ -19,17 +19,6 @@ void current_init(void)
 	/* Enabling ADC */
 	ADCSRA = (1<<ADEN);
 	
-	/* First conversion ends up with wrong(?) result, do one at init to warmup ADC */
-	ADMUX = (ADMUX & 0b11100000) | 3;
-	
-	/* Starting conversion */
-	ADCSRA |= (1<<ADSC);
-
-	/* Waiting for 10 bit ADC conversion to complete */
-	while (!(ADCSRA & (1<<ADIF)));
-	/* Clear conversion complete flag */
-	ADCSRA &= ~(1<<ADIF);
-
 	current_startup();
 }
 

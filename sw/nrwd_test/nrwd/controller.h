@@ -26,7 +26,7 @@ void control_speed(void);
 
 void control_set_setpoint(int16_t setpoint);
 
-void control_set_parameter(double proportional);
+void control_set_parameter(double * parameter_array, uint8_t array_len);
 
 void control_speed_v2(void); //remove
 

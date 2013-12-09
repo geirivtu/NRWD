@@ -403,7 +403,7 @@ De periodiske er som følger:
 De aperiodiske er:
 \begin{itemize}
 \item CANIT\_vect - Trigger hver gang det kommer en CAN melding
-\item CURRENT\_vect - Trigger når hardwaren slår av strømmen til motoren
+\item CURRENT\_vect - Trigger når maskinvaren slår av strømmen til motoren
 \item RESET 
 \end{itemize}
 
@@ -513,7 +513,7 @@ For å oppnå ønsket vinkelhastighet tilsvarer dette en motorhastighet på 4496 rpm
 Da motorens hall sensorer genererer 6 interrupt per omdreining vil mikrokontrolleren måtte kunne håndtere minst opptil 3560 interrupts i sekundet, se formell \ref{eq:interrupt}. 
 
 \begin{equation}
- \frac{35600 \text{ rpm}}{60 \text { s}}  \times 6 \text{ interrupts} = 3560 \text{ interrupts} 
+ \frac{35600 \text{ rotasjon/min}}{60 \text { sek/min}}  \times 6 \text{ interrupts/sek} = 3560 \text{ interrupts/sek} 
 	\label{eq:interrupt}
 \end{equation}
 
@@ -567,14 +567,28 @@ Diskuter tilkoblingskontakter her
 
 Hva står i dette kapittelet?
 
-
+Dette kapittelet beskriver hvordan programvaren er bygget opp og satt sammen. I tillegg diskuteres modulariseringen av koden og fallgruver ved programmering av et interrupt drevet system. Underkapittlene beskriver hva hver modul gjør og hvordan den forholder seg til resten av koden. 
 
 Hvordan koden har blitt skrevet
 
+Koden kan deles opp i to hoveddeler. Driverkoden til NRWDen som er maskinvareavhengig og høy nivå laget(HLL) til PDCP-protokollen. Driverkoden er igjen delt opp i deler etter de ulike maskinvaremodulene. 
+
+
 Hvilke deler er skrevet av meg?
 
+En oversikt over programvaren kan ses i figur \ref{fig:code_class_diagram}. Her vises alle de ulike modulene og hvem som inkluderer hvem. 
 
 Viktigst! Forklar hvordan koden er bygd opp! Hva trenger neste utvikler å vite?
+
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{../Figurer/code_class_diagram}
+\caption{Klassediagram som viser innholdet i og avhengighetene mellom de ulike programvare modulene.}
+\label{fig:code_class_diagram}
+\end{figure}
+
 
 Hva er faren ved å bruke interrupts? 
 
@@ -589,28 +603,86 @@ Programflyt?
 
 Detaljer rundt hver modul? 
 
-\section{motor.h}
+\section{motor}
+
+Motor-modulen sørger for kommuteringen av motoren og vinkelhastighetsavlesning.
+
+Pådraget til motoren settes ved motor\_set\_speed(). Denne funksjonen setter dutycyclen til PWM-signalet som driver motoren. Siden strømmen levert av dette signalet varierer med forsyningsspenningen setter man ikke vinkelhastigheten direkte. Kontrolering av farten til protesen skjer i controller modulen. 
+
+Etter at duty cyclen er satt vil Hallsensor interrupt rutinene automatisk ta seg av kommuteringen av motoren. En timer overflow interrup rutine vil kontinuerlig oppdatere vinkelhastigheten til protesen slik at den til enhver tid kan leses av med motor\_read\_speed().
+
+\section{current}
+
+Current-modulen bruker mikrokontrollerens ADC til å lese av strømmen som går gjennom motoren. Interruptrutinen, CURRENT\_vect, som blir kjørt når maskinvaren skrur av strømmen til motoren ligger ikke her, men i main c-filen. Dette er fordi CURRENT\_vect benytter seg av flere av modulene til å rydde opp i systemet etter at motorstrømmen har blitt skrudd av. 
+
+\section{position}
+
+Position-modulen setter opp en timer til "input capture mode". Den er satt opp til å generere et interrupt ved endring i flanken på signalet fra posisjonssensoren. Ved en positiv flanke starter timeren og ved negativ flanke blir telleren i timeren lagret. Utifra verdien til telleren blir vinkelposisjonen til protesen regnet ut og lagret i en global variabel. Denne kan til en hver tid bli lest ut av position\_read funksjonen.  
+
+\section{controller}
+
+Ifølge funksjonskravet WSF-01 skal bevegelsen til protesen være kontrollerbar gjennom de følgende måtene:
+
+\begin{itemize}
+\item On/Off-mode
+\item Position mode
+\item Velocity mode
+\end{itemize}
+
+Disse finnes implementert i controller.c som henholdsvis control\_on\_off(), control\_position() og control\_speed(). Utfordringen ved designet av regulatorene var at strømmen til motoren automatisk ble slått av hvis den oversteg en forhåndsbestemt maksgrense. En regulator som ikke hadde tatt hensyn til dette vil ikke ha gitt en god brukeropplevelse da protesemotoren ville skrudd seg av med gjevne mellomrom.  
+
+Funksjonskravet WSF-01-01 sier at On/Off-mode skal være kjørt i en open-loop kontroller. På grunn av overnevnte grunner har den istedenfor blitt kjørt i en PI-kontroller. Denne regulerer strømmen gjennom motoren tett opptil den maksimale grensen for å oppnå høyest mulig vinkelhastighet. 
+
+Fartsregulatoren løser begrensingen i motorstrøm ved å brukke en dobbel PI-regulator. Den ytre sløyfen tar inn vinkelhastighet og setter strøm referansen til den indre sløyfen. Den indre setter pådraget til motoren basert på strømreferansen og sørger samtidig for at strømmen ikke går over den maksimalt tillate verdien. 
+
+Posisjonsregulatoren fungerer på samme måte som fartsregulatoren, bortsett fra at den ytre sløfen tar inn vinkelposisjonen til protesen. 
+
+I alle regulatorene er utregningen av integralleddet uavhengig av frekvensen som regulatoren kjører på. Dette betyr at om frekvensen til regulatorløkken blir endret så må regulatorene justeres. Frekvensen til regulatorløkken er styrt med en busy-wait forsinkelse funksjon, se figur \ref{code:while_regulator}. Denne typen forsinkelsesfunksjoner registrerer ikke når man er inni en interruptrutine. Dette betyr at regulatorløkken blir forsinket med så mye tid man bruker inni hver av interruptrutinene. Da mikrokontrolleren bruker mindre enn 2\% av tiden sin inne interruptrutiner vil dette ikke medføre noen problemer for regulatoren. 
+
+\begin{figure}[h]
+\begin{lstlisting}
+    while(1)
+    {
+        control_controller();
+		_delay_ms(TIMESTEP);
+    }
+\end{lstlisting}
+\label{code:while_regulator}
+\end{figure}
+
+Verdien til P- og I-leddet til de tre regulatorene ble funnet vet å prøve å se hva som virket bra. De gir god regulering, men det kan med fordel brukes mer tid for å få enda bedre respons. 
+
+Funksjonskravet WSF-03 setter krav til at man skal kunne skifte både regulatortype og vedien til regulatorparametrene gjennom PDCP-protokollen. Bytte av regulatortype gjøres gjennom control\_set\_mode() funksjonen. For å bytte parametere må man først velge regulator gjennom nevnte funksjon, deretter kan man sette P- og I leddet ved control\_set\_parameter() funksjonen. 
 
 
-\section{current.h}
+\section{analog}
+
+
+Funksjonskravet WCF-04 sier at NRWDen skal kunne styres ved å bruke analoge elektroder. Dette er den normale måten å styre myoelektriskeproteser. Videre sier WCF-02-01 at de analoge linjene skal kunne samples ved minst 1 kHz. Myoelektriske signaler har en båndbredde på 500 Hz. 
+
+Analog-modulen ble ikke ferdig implementert i dette prosjektet. Hadde den blitt ferdig hadde den hatt de samme oppgavene som PDCP-modulen, ta imot eksterne signaler og styre protesen. 
+
+Da kommunikasjonen ville vært rent analogt ville den ikke hatt like rik funksjonalitet som PDCP-protokollen. I sin enkleste form ville den kunne styre protesen i on/off-modus. 
+
+
+\section{PDCP and can}
+
+Når protesen er ferdig skal den kunne styres gjennom PDCP-protokollen. PDCP-protokollen er en åpen kilde protese kommunikasjonsprotokoll. Den har blitt til ved UNB i Canada og har som ambisjon og bli den nye standarden for protesekommunikasjon. 
+
+I dette prosjektet har det blitt brukt en NTNU produsert PDCP-implementasjon. Den var oppdelt i to lag, et høynivå\cite{bib:nordal} lag som implementerte selve funksjonaliteten til protokollen og et maskinvare abstraksjonslag\cite{bib:zamojski} som var kodet for å være lett å tilpasse til ny maskinvare. 
+
+I masteroppgaven\cite{bib:zamojski} knyttet til koden hevdes det at koden skal være lett å tilpasse til en mikrokontroller med intern CAN-kontroller. Dette var ikke min erfaring. Det ble brukt mye tid på å forsøke og kode om maskinvarelaget til å passe med AT90CAN mikrokontrolleren. Etter å ha jobbet mye med koden er min konklusjon at den er godt egnet om man skal skifte AVR mikrokontroller, men fortsatt holde seg til den eksterne CAN kontrolleren MCP2515 som koden har blitt designet rundt. 
+
+Da man ikke greide å tilpasse det eksisterende maskinvare abstraksjonslaget ble det skrevet et nytt et som implementerte basis funksjonaliteten som krevdes for å teste ut PDCP-protokollen. Denne koden finnes i hal-c filen. Bruken av den interne CAN-kontrolleren er gjort med et åpent CAN bibliteket skrevet for AT90CAN mikrokontrolleren. Biblioteket består av filene can.c og can.h.
 
 
 
-\section{position.h}
 
-
-\section{controller.h}
-
-
-\section{analog.h}
+\section{main}
 
 
 
-
-
-\section{PDCP and can.h}
-
-
+-----------------
 
 Det som i hovedsak manglet ved overtagelsen av prosjektet var å skrive ferdig programvare til NRWDen. Det var skrevet drivere til de fleste modulene hvor koden var av varierende kvalitet, skrevet mer for å teste maskinvaren enn for å kunne brukes i det ferdige produktet. 
 
@@ -635,6 +707,9 @@ Hva har blitt diskutert i denne oppgaven
 Hva har blitt gjort på dette prosjektet
 
 Hva er det som er igjen for å fullføre prototypen
+
+
+
 
 
 \begin{thebibliography}{99}
@@ -689,6 +764,8 @@ Technology. 2002. PhD Thesis.
 	
 	\emph{Brushless DC-Servomotor, series 0620 B. Datablad}
 	Faulhaber
+	
+	
 	
 \end{thebibliography}
 

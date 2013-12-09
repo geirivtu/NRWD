@@ -4,8 +4,8 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>360</x>
-      <y>756</y>
+      <x>306</x>
+      <y>594</y>
       <w>216</w>
       <h>117</h>
     </coordinates>
@@ -20,8 +20,8 @@ int16_t current_get()</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>594</x>
-      <y>756</y>
+      <x>540</x>
+      <y>594</y>
       <w>216</w>
       <h>99</h>
     </coordinates>
@@ -35,8 +35,8 @@ int16_t position_get()</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>360</x>
-      <y>549</y>
+      <x>306</x>
+      <y>387</y>
       <w>216</w>
       <h>135</h>
     </coordinates>
@@ -55,8 +55,8 @@ void control_set_parameter(double)
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>126</x>
-      <y>756</y>
+      <x>72</x>
+      <y>594</y>
       <w>216</w>
       <h>135</h>
     </coordinates>
@@ -77,8 +77,8 @@ ISR(HALL_[A,B,C]_vect)
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>594</x>
-      <y>459</y>
+      <x>540</x>
+      <y>297</y>
       <w>216</w>
       <h>99</h>
     </coordinates>
@@ -92,8 +92,8 @@ void analog_init()
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>837</x>
-      <y>594</y>
+      <x>783</x>
+      <y>432</y>
       <w>216</w>
       <h>99</h>
     </coordinates>
@@ -106,8 +106,8 @@ void analog_init()
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>837</x>
-      <y>756</y>
+      <x>783</x>
+      <y>594</y>
       <w>216</w>
       <h>117</h>
     </coordinates>
@@ -122,8 +122,8 @@ prepare_rx(..)</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>360</x>
-      <y>360</y>
+      <x>306</x>
+      <y>198</y>
       <w>216</w>
       <h>99</h>
     </coordinates>
@@ -135,8 +135,8 @@ prepare_rx(..)</panel_attributes>
   <element>
     <type>com.umlet.element.Note</type>
     <coordinates>
-      <x>729</x>
-      <y>306</y>
+      <x>675</x>
+      <y>144</y>
       <w>126</w>
       <h>63</h>
     </coordinates>
@@ -151,8 +151,8 @@ mellom de.</panel_attributes>
   <element>
     <type>com.umlet.element.Note</type>
     <coordinates>
-      <x>891</x>
-      <y>504</y>
+      <x>837</x>
+      <y>342</y>
       <w>126</w>
       <h>63</h>
     </coordinates>

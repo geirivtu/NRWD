@@ -19,6 +19,24 @@ static int8_t Current_safe_zone = 10;
 
 controller_mode_t Controller_mode = CONTROL_MODE_ON_OFF; 
 
+/* P and I-term for the on/off regulator */
+double K_p_on_off = 0.4;
+double K_i_on_off = 0.1;
+
+/* P and I-term for the position regulator */
+double K_p_position = 0.9;
+double K_i_position = 0.1;
+
+/* P and I-term for the speed regulator */
+/* outer loop */
+double K_p_v_speed = 0.4;
+double K_i_v_speed = 0.07;
+
+/* inner loop */
+double K_p_i_speed = 0.4;
+double K_i_i_speed = 0.07;
+	
+
 uint8_t control_set_mode(controller_mode_t mode)
 {
 	if (mode == CONTROL_MODE_ON_OFF)
@@ -62,8 +80,7 @@ void control_on_off(void)
 		
 	current_setpoint = CURRENT_MAX-Current_safe_zone;
 
-	double K_p = 0.4;
-	double K_i = 0.1;
+
 	
 
 	if(Control_setpoint!=0){
@@ -71,10 +88,10 @@ void control_on_off(void)
 		error = current_setpoint - current;
 	
 		/* Proportional part */
-		motor_setpoint = (int16_t)(K_p*error);
+		motor_setpoint = (int16_t)(K_p_on_off*error);
 
 		/* Integral part */
-		motor_setpoint += (int16_t)(K_i*accum_error); 
+		motor_setpoint += (int16_t)(K_i_on_off*accum_error); 
 	
 		accum_error += error;	
 	}
@@ -113,8 +130,7 @@ void control_position(void)
 	/* How many degrees of error the system accepts */
 	uint8_t error_tolerance = 3;
 	
-	double K_p = 0.9;
-	double K_i = 0.1;
+
 	
 	/* error - how many degrees away from setpoint */
 	position = position_read();
@@ -129,10 +145,10 @@ void control_position(void)
 
 	if(abs(error) > error_tolerance){
 		/* Proportional part */
-		motor_setpoint = (int16_t)(K_p*error);
+		motor_setpoint = (int16_t)(K_p_position*error);
 
 		/* Integral part */
-		motor_setpoint += (int16_t)(K_i*accum_error); 
+		motor_setpoint += (int16_t)(K_i_position*accum_error); 
 	
 		accum_error += error;
 	}else{
@@ -206,12 +222,7 @@ void control_speed(void)
 	
 void control_speed_v2(void)
 {
-	double K_p_v = 0.4;
-	double K_i_v = 0.07;
-	
-	double K_p_i = 0.4;
-	double K_i_i = 0.07;	
-	
+
 	/* Special case: Minimize the time it takes before stopping */
 	//if(Control_setpoint==0) accum_error = 0;
 	
@@ -219,7 +230,7 @@ void control_speed_v2(void)
 	error_v = Control_setpoint - control_motor_speed;
 	
 	/* Outer loop pi regulator */
-	current_setpoint = (int16_t)(K_p_v*error_v) + (int16_t)(K_i_v*accum_error_v);
+	current_setpoint = (int16_t)(K_p_v_speed*error_v) + (int16_t)(K_i_v_speed*accum_error_v);
 	accum_error_v += error_v;
 	
 	//Current saturation
@@ -231,7 +242,7 @@ void control_speed_v2(void)
 	error_i = current_setpoint - current;
 	
 	/* Inner loop pi regulator */
-	motor_setpoint = (int16_t)(K_p_i*error_i) + (int16_t)(K_i_i*accum_error_i);
+	motor_setpoint = (int16_t)(K_p_i_speed*error_i) + (int16_t)(K_i_i_speed*accum_error_i);
 	accum_error_i += error_i;
 
 	if(Control_setpoint == 0){
@@ -252,21 +263,35 @@ void control_set_setpoint(int16_t setpoint)
 	}
 }
 
-void control_set_parameter(double proportional)
+
+/* Expectet order of parameters in the parameter_array is:
+ * parameter_array = { P  term, I term, Optional second P term, Optional second I term}  */
+void control_set_parameter(double * parameter_array, uint8_t array_len )
 {
-	//K_p = proportional;
-	
 	switch(Controller_mode){
 		case CONTROL_MODE_ON_OFF:
-		
+			K_p_on_off = parameter_array[0];
+			K_i_on_off = parameter_array[1];
 		break;
 		
 		case CONTROL_MODE_POSITION:
-		
+			K_p_position = parameter_array[0];
+			K_i_position = parameter_array[1];		
 		break;
 		
 		case CONTROL_MODE_SPEED:
-		
+			/* Outer loop parameters */
+			K_p_v_speed = parameter_array[0];
+			K_i_v_speed = parameter_array[1];
+			
+			if(array_len>1){
+				/* Inner loop parameters */
+				K_p_i_speed = parameter_array[2];
+				K_i_i_speed = parameter_array[3];
+	
+			}
 		break;
 	}
 }
+
+
