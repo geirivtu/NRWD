@@ -46,16 +46,15 @@ void current_startup(void)
 uint16_t current_read(void)
 {
 	uint16_t current_mA = 0;
-	/* Multiply K with ADC value to get current in uA 
-	* K = ADCref * (1'000'000/1024)/(Aopamp) = 311 
+	
+	/* Multiply K with ADC value to get current in 1/10 uA 
 	* ADCref = 5 V
 	* Aopamp = 15.7 (opamp gain)
+	* K = ADCref * (100'000/1024)/(Aopamp) = 31
 	*/
-	uint16_t K = 31; //311 
+	uint16_t K = 31; 
 	
 	/* Choosing channel ADC3, output from the OPAMP where 2.28V equals the max current of 145 mA  */
-	/* The OPAMP has a gain of 15.7 */
-	
 	ADMUX &= 0b11100000 | 3;
 
 	/* Starting conversion */
@@ -65,9 +64,7 @@ uint16_t current_read(void)
 	while (!(ADCSRA & (1<<ADIF)));
 	/* Clear conversion complete flag */
 	ADCSRA &= ~(1<<ADIF);
-	//adc = ADC;
-	
-	//kAdc = K*adc;
+
 	current_mA = (K*ADC)/100;
 
 	return current_mA;

@@ -88,9 +88,9 @@ Jeg vil takke katten min Tom.
 
 \section{Bakgrunn for oppgaven}
 
-Ideen bak protesen kommer fra Øyvind Stavdahl sin doktorgradsavhandling \cite{bib:stavdahl2002} fra 2002. I den viste eksprimenter med friske håndledd at en vinkel mellom lengdeaksen til underarm og rotasjonsaksen til håndleddet gjorde flere bevegelser enklere for brukeren å utføre. 
+Ideen bak protesen kommer fra Øyvind Stavdahls doktorgradsavhandling \cite{bib:stavdahl2002} fra 2002. I den viste eksperimenter med friske håndledd at en vinkel mellom lengdeaksen til underarm og rotasjonsaksen til håndleddet gjorde flere bevegelser enklere for brukeren å utføre. 
 
-For å teste disse resultatene i praksis trengte man en 1-akse håndleddsprotese med design som muliggjør valgfri rotasjonsaske, se figur \ref{fig:wrist_angel}. Som en del av mastergraden til Arthur Zink\cite{bib:zink} ved University of New Brunswick, Canada ble mekanikken til en slik 1-akse håndleddsprotese bygget. Etter at mekanikken var ferdigstilt trengte man et styresystem for å kontrollere protesen. 
+For å teste disse resultatene i praksis trenger man en 1-akse håndleddsprotese med design som muliggjør valgfri rotasjonsaske, se figur \ref{fig:wrist_angel}. Dette ble bygget som en del av mastergraden til Arthur Zink\cite{bib:zink} ved University of New Brunswick, Canada. Etter at mekanikken var ferdigstilt trengte man et styresystem for å styre protesen. 
  
 \begin{figure}[h]
 \centering
@@ -100,37 +100,38 @@ For å teste disse resultatene i praksis trengte man en 1-akse håndleddsprotese m
 \label{fig:wrist_angel}
 \end{figure}
 
-Det ble også funnet ut at dette var en gylden mulighet til å teste ut den åpne protesestyrings protokollen PDCP som da var under utvikling hos UNB. Det ble lagt til som et krav i funksjonsspesifikasjonen til NRWDen at den skulle kommunisere ved hjelp av denne protokollen, i tillegg til at den skulle kunne styres med de mer konvensjonelle analoge og digitale elektrodene. 
+Det ble også funnet ut at dette var en god anledning til å teste ut den åpne protesestyringsprotokollen PDCP, som da var under utvikling hos UNB. Som krav i funksjonsspesifikasjonen til NRWDen ble det satt at den skulle kommunisere ved hjelp av denne protokollen. I tillegg skulle den kunne styres med de mer konvensjonelle analoge og digitale elektrodene. 
 
 
-\section{Tidligere arbeide}
+\section{Tidligere arbeid}
 
-Realisering av styresystemet til protesen har hittil vært påbegynt i to mastergradoppgaver. Den siste av disse var skrevet av Andreas Kråkenes i 2011\cite{bib:kraakenes} og kom langt på vei til å fullføre designet. Hovedgrunnen til at protesen ikke enda har blitt fullført skyldes at det første designet innholdt en alvorlig \mbox{arkitektur} feil som innvolverte kommunikasjonen mellom to mikrokontrollere. Det ble forsøkt fikset på uten hell og til slutt etter mye tid gikk man over til en løsning som besto av at en mikrokontroller skulle styre hele systemet. 
+Realisering av styresystemet til protesen har hittil vært påbegynt i to mastergradoppgaver. Den siste av disse var skrevet av Andreas Kråkenes i 2011\cite{bib:kraakenes} kom langt på vei til å fullføre designet. Hovedgrunnen til at protesen enda ikke har blitt fullført skyldes at det første designet innholdt en alvorlig \mbox{arkitekturfeil} som hindret kommunikasjonen mellom de to mikrokontrollerene. Det ble forsøkt ordnet. Det endte med at man gikk man over til en løsning hvor en mikrokontroller skulle styre hele systemet. 
 
-Da prosjektet ble overtatt av undertegnede var alt av hardware designet og lagt ut på prototype kort. Dessverre var skjemategningen bare tilgjengelig i pdf format så utlegg må gjøres på nytt når kretsen skal miniatyriseres for å få plass inni protesen. Software for å teste deler av systemet var ferdigskrevet, men koden var av varierene kvalitet og mye funksjonalitet var enda ikke implementert. Der det manglet mest var de ulike regulatorene og implementasjonen av PDCP protokollen. 
+Da prosjektet ble overtatt av undertegnede, var alt av hardware designet og lagt ut på prototypekort. Programvare for å teste deler av systemet var ferdigskrevet, men koden var av varierene kvalitet og mye funksjonalitet var ikke implementert. Flest mangler var knyttet til de ulike regulatorene og implementasjonen av PDCP protokollen. 
 
-I 2012 ble laget en implementasjon av PDCP protokollen av to mastergradsstudenter ved NTNU\cite{bib:nordal,bib:zamojski}. UNB hadde tildigere laget en implementasjon basert på PIC mikrokontrolleren, mens denne var designet for Atmel sine AVR mikrokontrollere. Implementasjonen var designet for at det skulle være enkelt å overføre koden til ny maskinvare noe som gjorde at den egnet seg godt for dette prosjektet.
+To mastergradsstudenter ved NTNU\cite{bib:nordal,bib:zamojski} laget i 2012 en implementasjon av PDCP-protokollen. UNB hadde tildigere laget en implementasjon basert på PIC mikrokontrolleren, mens denne var designet for ATMELs AVR mikrokontrollere. Implementasjonen var designet for at det skulle være enkelt å overføre koden til ny maskinvare, noe som gjorde at den egnet seg godt for dette prosjektet.
 
 
 \section{Mine bidrag}
 
-En naturlig start på prosjektet var å gå gjennom den overleverte maskinvaren og medfølgende driverkode modul for modul. Detaljer rundt hvordan de ulike modulene ble testet er beskrevet i kapittel \ref{chap:modTesting}.
+Prosjektet ble startet med gå gjennom den overleverte maskinvaren og medfølgende driverkode modul for modul. Detaljer rundt hvordan de ulike modulene ble testet er beskrevet i kapittel \ref{chap:modTesting}.
 
-Den overleverte koden var av varierende kvalitet. Koden var strukturert på et fornuftig vis, med en c fil for hver maskinvare modul. Denne strukturen ble beholdt ut prosjektet. Selve driverkoden trengte en del mer arbeid. Det var skrevet nok til å teste basis funksjonaliteten til hver modul, men måtte utvides med tilleggsfunksjonalitet før den kunne brukes. 
+Den overleverte koden var av varierende kvalitet. Koden var strukturert på et fornuftig vis, med en c-fil for hver maskinvare modul. Denne strukturen ble beholdt ut prosjektet. Selve driverkoden trengte en del mer arbeid. Det var skrevet nok til å teste basisfunksjonaliteten til hver modul, men måtte utvides med tilleggsfunksjonalitet før den kunne brukes. 
 
-Under testing av maskinvaren ble det funnet muligheter for forbedringer i spenningsregulator og posisjonsensor modulene. Anbefalinger til endring i maskinvaren er gjort i kapittel \ref{chap:modTesting}. 
+Under testing av maskinvaren ble det funnet muligheter for forbedringer i spenningsregulator og posisjonssensormodulene. Kapittel \ref{chap:modTesting} oppsumerer anbefalte endringer i maskinvaren.
 
-Det første styressystemet som ble designet til NRWDen benyttet seg av to mikrokontrollere for å håndtere alle oppgavene til systemet. Denne arkitekturen gikk man bort ifra da man fikk problemer med kommunikasjonen mellom de to kontrollerne og man gikk over til å bruke en mikrokontroller. Som en del av oppgaven ble det gjort grundige undersøkelser om den valgte mikrokontrolleren hadde nok ressurser til å styre systemet på egen hånd. Diskusjonen rundt dette er gjort i kapittel \ref{chap:interrupt}.
 
-Ifølge funksjonsspesifikasjonene skal protesen ha minst tre forskjellige styringsmoduser, maks fart i valgt retning, posisjon- og hastighetsstyring. De forskjellige regulatorene ble alle skrevet fra bunnen av. For detaljer til hvordan de ulike regulatorene ble implementert se kapittel \ref{chap:sw}.
+Det første styressystemet som ble designet til NRWDen benyttet seg av to mikrokontrollere for å håndtere alle oppgavene. Denne arkitekturen gikk man bort fra da man fikk problemer med kommunikasjonen mellom de to kontrollerne og man gikk over til å bruke en mikrokontroller. Som en del av oppgaven ble det gjort grundige undersøkelser om den valgte mikrokontrolleren hadde nok ressurser til å styre systemet på egen hånd. Diskusjonen rundt dette er gjort i kapittel \ref{chap:interrupt}.
 
-På slutten av prosjektet ble styringssystemet integrert med kommunikasjons protokollen PDCP. Implementasjonen av protokollen var all erede gjort, jobben besto av å skrive om maskinvare abstraksjons laget. Hvorfor og hvordan dette ble gjort er beskrevet i kapittel \ref{chap:sw}.
+Ifølge funksjonsspesifikasjonene skal protesen ha minst tre forskjellige styringsmoduser, maks fart i valgt retning, posisjons- og hastighetsstyring. Koden til de forskjellige regulatorene ble alle skrevet fra bunnen av. For detaljer om hvordan de ulike regulatorene ble implementert, se kapittel \ref{chap:sw}.
+
+På slutten av prosjektet ble styringssystemet integrert med kommunikasjonsprotokollen PDCP. Implementasjonen av protokollen var allerede gjort, jobben besto av å skrive om maskinvare abstraksjonslaget. Hvorfor og hvordan dette ble gjort, er beskrevet i kapittel \ref{chap:sw}.
 
 \section{Utviklingsmetodikk og fremgangsmåte}
 
-Hvordan dette prosjektet best skulle styres falt klart for meg fra begynnelsen av. Det er et maskin- og programvare system som allerede da det ble overtatt var delt opp i klare moduler. Som nevnt tidligere var det meste av maskinvare designet ferdig, mens mye av programvaren enda måtte skrives. Det var også mye programvare som var skrevet av tidligere studenter som skulle flettes inn i prosjektet for ikke å reprodusere arbeide som var gjort tidligere, det tenkes spesielt på lavnivå implementasjonen av PDCP protokollen som ble utviklet av  Andrzej Zamojski \cite{bib:zamojski} og  Andreas Nordal\cite{bib:nordal} samt programvare driverne til NRWDen skrevet av Andreas Kråkenes. 
+Hvordan dette prosjektet best skulle styres falt klart for meg fra begynnelsen av. Det er et maskin- og programvare system som allerede da det ble overtatt var delt opp i klare moduler. Som nevnt tidligere var det meste av maskinvare designet ferdig, mens den gjensto å ferdigstille programvaren. Det var også mye programvare som var skrevet av tidligere studenter som skulle flettes inn i prosjektet for ikke å reprodusere arbeide som var gjort tidligere. Det tenkes spesielt på lavnivå implementasjonen av PDCP protokollen som ble utviklet av  Andrzej Zamojski \cite{bib:zamojski} og  Andreas Nordal\cite{bib:nordal} samt programvare driverne til NRWDen skrevet av Andreas Kråkenes. 
 
-Metoden min sin hovedlinje var og i størst grad arbeide på prosjektet modul for modul, forsikre meg om at alt fungerte separat før til slutt å sette modulene sammen til et komplett styresystem. Kort oppsummert punktvis var planen:
+Metoden min sin hovedlinje var i størst grad arbeide på prosjektet modul for modul, forsikre meg om at alt fungerte atskilt, for til slutt å sette modulene sammen til et komplett styresystem. Kort oppsummert var planen:
 
 \begin{itemize}
 
@@ -427,11 +428,16 @@ For å analysere systemet ble varigheten til hver interrupt målt. Et interrupt i 
 
 Vi ser av tabell \ref{tab:interrupt} at mikrokontrolleren bruker mindre enn 2\% av tiden inni en interrupt rutine. Det gir rikelig med tid til å håndtere kontrolloopen som kjører utenfor interruptene. Derimot så garanterer det ikke at alle interrupts vil bli håndtert innenfor rimelig tid. I et tilfelle hvor en eller flere av modulene genererer et interrupt samtidig kan dette føre til midlertidige feil i systemet. Siden dette ikke er et hard sanntidssystem, hvor overskridelsen av en tidsfrist hadde knekt systemet, er disse midlertidige feilene akseptable siden med alle de forskjellige ISRene vil problemet være løst ved neste interrupt. Da ISRene opptar under 2\% av prosseror syklene og de alle operere ved ulike frekvenser vil kolisjon mellom to eller flere ISR være et sjeldent fenomen. 
 
-Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteringen av motoren. En den for treig vil den ikke kunne kommutere raskt nok til at motoren oppnår den ønskede hastighet. ATMEL sin applikasjonsnote AVR452 som tar for seg motor styring av børste løse DC motorer ved bruk av AT90CAN mikrokontrolleren. Den setter en teoretisk maksgrense ved 3'478'000 rpm ved 8 MHz, da maksfarten til NRWD motoren er satt til 3600 rpm og mikrokontrolleren kjører på 16 MHz befinner vi oss godt innenfor kravene. 
+Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteringen av motoren. En den for treig vil den ikke kunne kommutere raskt nok til at motoren oppnår den ønskede hastighet. ATMELs applikasjonsnote AVR452 som tar for seg motor styring av børste løse DC motorer ved bruk av AT90CAN mikrokontrolleren. Den setter en teoretisk maksgrense ved 3'478'000 rpm ved 8 MHz, da maksfarten til NRWD motoren er satt til 3600 rpm og mikrokontrolleren kjører på 16 MHz befinner vi oss godt innenfor kravene. 
+
+
 
 
 \chapter{Maskinvaretesting og diskusjon}
 \label{chap:modTesting}
+
+[TODO]  Dessverre var skjemategningen bare tilgjengelig i pdf format så utlegg må gjøres på nytt når kretsen skal miniatyriseres for å få plass inni protesen.
+
 
 Dette kapittelet går igjennom maskinvaren som dette prosjektet har basert seg på. Det blir forklart hvordan hver modul har blitt testet og eventuelle forslag til forbedringer blir gitt. 
 
@@ -444,7 +450,7 @@ Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til fl
 \label{fig:nrwd_prototype}
 \end{figure}
 
-Alt av overlevert maskin- og programvare ble gjennomgått og testet modul for modul for å se om det fungerte i henhold til det som sto i Kråkenes sin oppgave \cite{bib:kraakenes}. Domumentasjonen av maskinvaren besto av tekstlige beskrivelser gjort i oppgaven samt vedlagte skjemategninger. Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at maskin- og programvaren for valgt modulen oppførte seg som forventet. Under følger resultatene av testingen, samt en diskusjon rundt hver modul. For flere detaljer rundt maskinvaren, se Kråkenes sin oppgave\cite{bib:kraakenes}.
+Alt av overlevert maskin- og programvare ble gjennomgått og testet modul for modul for å se om det fungerte i henhold til det som sto i Kråkenes' oppgave \cite{bib:kraakenes}. Domumentasjonen av maskinvaren besto av tekstlige beskrivelser gjort i oppgaven samt vedlagte skjemategninger. Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at maskin- og programvaren for valgt modulen oppførte seg som forventet. Under følger resultatene av testingen, samt en diskusjon rundt hver modul. For flere detaljer rundt maskinvaren, se Kråkenes' oppgave\cite{bib:kraakenes}.
 
 \section{Mikrokontroller}
 
@@ -486,7 +492,7 @@ Forløpig er problemet løst i programvare, men en bedre løsning ville vært å lavp
 
 \section{Motordriver}
 
-Protesen sin bevegelse er drevet av en børsteløs DC-motor med innebydge Hall sensorer. Ved å lese av Hall sensorene vet man posisjonen til motoraksen og kan utifra det vite hvilket pådragsmønster man skal gi motoren får å få den til å rotere. Utgangen til Hall sensorene er digitale og er koplet opp mot hver sin interrupt linje slik at det blir generert et interrupt hver gang utgangen skifter nivå. 
+Protesens bevegelse er drevet av en børsteløs DC-motor med innebydge Hall sensorer. Ved å lese av Hall sensorene vet man posisjonen til motoraksen og kan utifra det vite hvilket pådragsmønster man skal gi motoren får å få den til å rotere. Utgangen til Hall sensorene er digitale og er koplet opp mot hver sin interrupt linje slik at det blir generert et interrupt hver gang utgangen skifter nivå. 
 
 Ifølge funksjonskravet WMF-01 skal protesen minst ha en maksimums omdreiningshastighet på 81 grader/sek. Ifølge Zink\cite{bib:zink} er motoren giret ned med en ratio på 800:1, se tabell \ref{tab:drive_train}. Dette stemmmer ikke med protesen brukt i dette prosjektet da diameterene til drivhjulene fra motor til Faulhaber planetary gear ikke er som spesifisert hos Zink. Faktiske målinger viser at den totale gir ration til protesen er på 333:1. 
 
@@ -511,7 +517,7 @@ Da motorens hall sensorer genererer 6 interrupt per omdreining vil mikrokontroll
 	\label{eq:interrupt}
 \end{equation}
 
-En testbenk ble satt opp for å teste om mikrokontrolleren greie å håndtere alle motor sensor interruptene. Et Arduino brett ble brukt for å simulere utgangene til motoren sine Hall sensorer med en hastighet som tilsvarte 400'000 rpm. Arduino brettet var programmert til å påføre et bestemt antall interrupts som mikrokontrolleren telte. Da antallet registrerte interrupts stemte med antallet sendt ut ved disse hastighetene kunne man være sikker på at mikrokontrolleren ville greie å håndtere kommuteringen av motoren ved de faktiske hastighetene. 
+En testbenk ble satt opp for å teste om mikrokontrolleren greie å håndtere alle motor sensor interruptene. Et Arduino brett ble brukt for å simulere utgangene til motorens Hall sensorer med en hastighet som tilsvarte 400'000 rpm. Arduino brettet var programmert til å påføre et bestemt antall interrupts som mikrokontrolleren telte. Da antallet registrerte interrupts stemte med antallet sendt ut ved disse hastighetene kunne man være sikker på at mikrokontrolleren ville greie å håndtere kommuteringen av motoren ved de faktiske hastighetene. 
 
 
 \section{Strømovervåkning}
@@ -528,7 +534,7 @@ Ifølge funksjonskravene WMF-04 og WSF-02-04-01 skal motoren være beskyttet mot o
 
 Motoren får strøm gjennom et 20 KHz PWM-signal som går gjennom den 1 ohms store målemotstanden før det går til jord. Spenningen over målemotstanden blir lavpasfiltrert og forsterket av en operasjonsforsterker før det går inn på en komparator krets som setter en SR-vippe, denne sørger for å slå av strømforsyningen til motoren når den trekker mer enn den maksimalt tillatte strømmen. SR-vippen kan bli resatt av mikrokontrolleren. Utgangen til operasjonsforsterkeren er også koplet til en ADC-pinne på mikrokontrolleren. Strømmen kan da måles ved å lese av ADCen o
 
-Som vi ser av skjemategningen går motorstrømmen over den 1 ohms store målemotstanden. Deretter blir signalet lavpassfiltrert, motoren er styrt med en 20 kHz PWM signal, og forsterket opp av en operasjonsforsterker. For å få strømovervåkning har utgangen fra operasjonsforsterkeren blitt lagt ut til en av mikrokontrolleren sine ADC innganger. Strømmen gjennom motoren kan da leses av ved å bruke formel \ref{eq:strom}. 
+Som vi ser av skjemategningen går motorstrømmen over den 1 ohms store målemotstanden. Deretter blir signalet lavpassfiltrert, motoren er styrt med en 20 kHz PWM signal, og forsterket opp av en operasjonsforsterker. For å få strømovervåkning har utgangen fra operasjonsforsterkeren blitt lagt ut til en av mikrokontrollerens ADC innganger. Strømmen gjennom motoren kan da leses av ved å bruke formel \ref{eq:strom}. 
 
 \begin{figure}[h]
 \begin{lstlisting}
@@ -538,7 +544,7 @@ Som vi ser av skjemategningen går motorstrømmen over den 1 ohms store målemotsta
 	* K = ADCref * (100'000/1024)/(Aopamp) = 31
 	*/
 	uint16_t K = 31; 
-	current_mA = (K*ADC)/100;
+	current_mA = (K*ADC)/100; //divide by 100 to get mA 
 \end{lstlisting}
 \label{eq:strom}
 \end{figure}
@@ -558,6 +564,53 @@ Diskuter tilkoblingskontakter her
 
 \chapter{Programvare implementasjon}
 \label{chap:sw}
+
+Hva står i dette kapittelet?
+
+
+
+Hvordan koden har blitt skrevet
+
+Hvilke deler er skrevet av meg?
+
+
+Viktigst! Forklar hvordan koden er bygd opp! Hva trenger neste utvikler å vite?
+
+Hva er faren ved å bruke interrupts? 
+
+Hva er gjort i forhold til race conditions?
+
+Optimalisering? Burde optimalisere for fart.
+
+Hvor mye av minnet bruker koden.
+
+Programflyt?
+
+
+Detaljer rundt hver modul? 
+
+\section{motor.h}
+
+
+\section{current.h}
+
+
+
+\section{position.h}
+
+
+\section{controller.h}
+
+
+\section{analog.h}
+
+
+
+
+
+\section{PDCP and can.h}
+
+
 
 Det som i hovedsak manglet ved overtagelsen av prosjektet var å skrive ferdig programvare til NRWDen. Det var skrevet drivere til de fleste modulene hvor koden var av varierende kvalitet, skrevet mer for å teste maskinvaren enn for å kunne brukes i det ferdige produktet. 
 
