@@ -346,23 +346,23 @@ For fremtidig bruk er det lagt ved en oversikt over rotasjonshastigheten til pro
 \chapter{Interrupt diskusjon}
 \label{chap:interrupt}
 
-Hvorfor diskutere interrupt
+%Hvorfor diskutere interrupt
 
-Problemer med gamle arkitektur
+%Problemer med gamle arkitektur
 
 \section{Bakgrunn}
 
 Tidligere forsøk på å realisere styresystemet til NRWDen har brukt to mikrokontrollere. Den ene skulle brukes til motor kommuteringen mens den andre skulle håndtere alle de andre oppgavene som regulering og kommunikasjon. Da systemet ble testet oppsto det problemer med kommunikasjonen mellom mikrokontrollerene og selv etter mye testing fant man aldri årsaken til problemet. Dette førte til at man gikk over til en arkitektur som brukte en enkelt mikrokontroller.
 
-Ny arkitektur
+%Ny arkitektur
 
 Spørsmålet var da om den valgte mikrokontrolleren, AT90CAN128 kjørende på 16 MHz, var nok til å håndtere alle oppgaver som før skulle blitt utført av to mikrokontrollere. Dette kapitellet tar for seg denne problemstillingen. 
 
 \section{Et interrupt drevet system}
 
-Hva slags system er dette her? Soft real time? 
+%Hva slags system er dette her? Soft real time? 
 
-Forklar hvordan systemet er bygget på interrupts
+%Forklar hvordan systemet er bygget på interrupts
 
 
 
@@ -375,11 +375,11 @@ Om et interrupt ikke blir håndtert innenfor tidsfristen en eller flere ganger vi
 
 
 
-Hvorfor er det viktig at alle interrupts blir håndtert
+%Hvorfor er det viktig at alle interrupts blir håndtert
 
-Hvordan håndterer AVR interrupts
+%Hvordan håndterer AVR interrupts
 
-KOrt om hvilke interrupt systemet må håndtere
+%KOrt om hvilke interrupt systemet må håndtere
 
 
 
@@ -565,22 +565,9 @@ Diskuter tilkoblingskontakter her
 \chapter{Programvare implementasjon}
 \label{chap:sw}
 
-Hva står i dette kapittelet?
-
 Dette kapittelet beskriver hvordan programvaren er bygget opp og satt sammen. I tillegg diskuteres modulariseringen av koden og fallgruver ved programmering av et interrupt drevet system. Underkapittlene beskriver hva hver modul gjør og hvordan den forholder seg til resten av koden. 
 
-Hvordan koden har blitt skrevet
-
-Koden kan deles opp i to hoveddeler. Driverkoden til NRWDen som er maskinvareavhengig og høy nivå laget(HLL) til PDCP-protokollen. Driverkoden er igjen delt opp i deler etter de ulike maskinvaremodulene. 
-
-
-Hvilke deler er skrevet av meg?
-
-En oversikt over programvaren kan ses i figur \ref{fig:code_class_diagram}. Her vises alle de ulike modulene og hvem som inkluderer hvem. 
-
-Viktigst! Forklar hvordan koden er bygd opp! Hva trenger neste utvikler å vite?
-
-
+Koden kan deles opp i to hoveddeler. Driverkoden til NRWDen som er maskinvareavhengig og høy nivå laget(HLL) til PDCP-protokollen. Driverkoden er igjen delt opp i deler etter de ulike maskinvaremodulene. En oversikt over programvaren kan ses i figur \ref{fig:code_class_diagram}. Her vises alle de ulike modulene og hvem som inkluderer hvem. 
 
 \begin{figure}
 \centering
@@ -590,20 +577,22 @@ Viktigst! Forklar hvordan koden er bygd opp! Hva trenger neste utvikler å vite?
 \end{figure}
 
 
-Hva er faren ved å bruke interrupts? 
+%Hva er faren ved å bruke interrupts? 
 
-Hva er gjort i forhold til race conditions?
+%Hva er gjort i forhold til race conditions?
 
-Optimalisering? Burde optimalisere for fart.
+%Optimalisering? Burde optimalisere for fart.
 
-Hvor mye av minnet bruker koden.
+%Hvor mye av minnet bruker koden.
 
-Programflyt?
+%Programflyt?
 
 
-Detaljer rundt hver modul? 
 
-\section{motor}
+
+Under følger detaljer rundt hver modul. 
+
+\section{Motor}
 
 Motor-modulen sørger for kommuteringen av motoren og vinkelhastighetsavlesning.
 
@@ -611,15 +600,15 @@ Pådraget til motoren settes ved motor\_set\_speed(). Denne funksjonen setter dut
 
 Etter at duty cyclen er satt vil Hallsensor interrupt rutinene automatisk ta seg av kommuteringen av motoren. En timer overflow interrup rutine vil kontinuerlig oppdatere vinkelhastigheten til protesen slik at den til enhver tid kan leses av med motor\_read\_speed().
 
-\section{current}
+\section{Current}
 
 Current-modulen bruker mikrokontrollerens ADC til å lese av strømmen som går gjennom motoren. Interruptrutinen, CURRENT\_vect, som blir kjørt når maskinvaren skrur av strømmen til motoren ligger ikke her, men i main c-filen. Dette er fordi CURRENT\_vect benytter seg av flere av modulene til å rydde opp i systemet etter at motorstrømmen har blitt skrudd av. 
 
-\section{position}
+\section{Position}
 
 Position-modulen setter opp en timer til "input capture mode". Den er satt opp til å generere et interrupt ved endring i flanken på signalet fra posisjonssensoren. Ved en positiv flanke starter timeren og ved negativ flanke blir telleren i timeren lagret. Utifra verdien til telleren blir vinkelposisjonen til protesen regnet ut og lagret i en global variabel. Denne kan til en hver tid bli lest ut av position\_read funksjonen.  
 
-\section{controller}
+\section{Controller}
 
 Ifølge funksjonskravet WSF-01 skal bevegelsen til protesen være kontrollerbar gjennom de følgende måtene:
 
@@ -655,7 +644,7 @@ Verdien til P- og I-leddet til de tre regulatorene ble funnet vet å prøve å se h
 Funksjonskravet WSF-03 setter krav til at man skal kunne skifte både regulatortype og vedien til regulatorparametrene gjennom PDCP-protokollen. Bytte av regulatortype gjøres gjennom control\_set\_mode() funksjonen. For å bytte parametere må man først velge regulator gjennom nevnte funksjon, deretter kan man sette P- og I leddet ved control\_set\_parameter() funksjonen. 
 
 
-\section{analog}
+\section{Analog}
 
 
 Funksjonskravet WCF-04 sier at NRWDen skal kunne styres ved å bruke analoge elektroder. Dette er den normale måten å styre myoelektriskeproteser. Videre sier WCF-02-01 at de analoge linjene skal kunne samples ved minst 1 kHz. Myoelektriske signaler har en båndbredde på 500 Hz. 
@@ -678,8 +667,38 @@ Da man ikke greide å tilpasse det eksisterende maskinvare abstraksjonslaget ble 
 
 
 
-\section{main}
+\section{Main}
 
+Main starter med å initialisere de ulike modulene og velge kontrollertype. Det er i main-c filen at callback funksjonen fra PDCP-modulen er plassert, se kode \ref{code:pdcp_callback}. 
+
+\begin{figure}[h]
+\begin{lstlisting}
+ /* callback_incoming_can ==================================== */
+ /**
+ * @fn 		void callback_incoming_can(struct socket *so)
+ * @brief  	Callback function from HLL
+ */
+void callback_incoming_can(struct socket *so){
+	
+	struct can_msg *msg = sock_pull(so);
+	switch(msg->function_code){
+
+	case REQUEST_BIND:
+	
+	break;
+	case RESPONS_BIND:
+	
+	break;
+	case REQUEST_GET_INFO:
+	
+	break;
+	
+	...
+\end{lstlisting}
+\label{code:pdcp_callback}
+\end{figure}
+
+Da dette prosjektet ble skrevet fantes det en PDCP-spesifikasjon\cite{bib:pdcp}, men ingen eksempel kode som viste hvordan de ulike PDCP-funksjonskodene skulle brukes. Det har blitt laget skjelettkode for å håndtere de ulike PDCP-funksjonskodene. Når eksempel kode blir gjort tilgjengelig kan funksjonaliteten til de ulike kommandoene skrives ferdig.
 
 
 -----------------
@@ -702,12 +721,19 @@ Selve implementasjonen av PDCP protokollen er en porting av programvare skrevet 
 
 \chapter{Konklusjon}
 
-Hva har blitt diskutert i denne oppgaven
+Det har i denne oppgaven blitt utviklet programvare for å styre NTNUs Rotary Wrist Device, en 1-akse håndleddsprotese. Koden har blitt skrevet for å kjøre på maskinvare laget av tidligere NTNU studenter. 
 
-Hva har blitt gjort på dette prosjektet
+Systemet har blitt klargjort for å kunne bruke den åpne protese kommunikasjonsprotokollen PDCP. Implementasjonen av PDCP-protokollen for AVR hadde blitt gjort tidligere på NTNU. I denne oppgaven ble koden tilpasset for å kjøre på ATMELs AT90CAN128 mikrokontroller. 
 
-Hva er det som er igjen for å fullføre prototypen
+Det har blitt skrevet programdrivere for alle de forskjellige maskinvaremodulene lagt ut på prototypekortet. For å styre bevegelsen til håndleddet har det blitt skrevet og testet tre ulike regulatorer. En fartsregulator, en posisjonsregulator og en av/på-regulator som kjører protesen ved maksimum vinkelhastihet i valgt retning. 
 
+Da prosjektet ble overtatt var friksjon i mekanikken til protesen for stor til at den kunne brukes. Den ble tatt med til NTNUs mekaniske verksted hvor de fikk rettet en girakse som ga betydelig reduksjon av friksjon. 
+
+Alt av overlevert maskinvare har blitt nøye testet. Forslag til forbedring av maskinvaren har blitt dokumentert.
+
+Videre arbeide vil bestå i å fullføre integrasjonen med PDCP-protokollen. Dette avhenger av at det blir publisert flere detaljer rundt bruken av protokollen. Før protesen skal brukes i eksperimenter vil man ha stor nytte av å miniatyrisere kretsen slik at den får plass inni protesen. Under miniatyriseringen av kretsen anbefales det å utbedre maskinvaren med de anbefalinger gjort i denne oppgaven. 
+
+Arbeidet på en analog kommunikasjonsmodul, som et alternativ til PDCP-modulen, har blitt påbegynt. 
 
 
 

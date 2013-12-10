@@ -123,24 +123,18 @@ void callback_incoming_can(struct socket *so){
 int main(void)
 {
 	motor_init();
-	
 	position_init();
-	
 	current_init();
 		
 	//analog_init();
-		
-
-
-	control_set_mode(CONTROL_MODE_SPEED);
 	
 	/* Initialize PDCP */
 	hll_init(callback_incoming_can,handled);	//* HLL init
 	initLowLevelProtocolHardware();				//* HAL init
-	
+
+	control_set_mode(CONTROL_MODE_ON_OFF);
 	
 	sei();										//* Turn on interrupts		
-
 
 	//* DEVICE part
 	#if ( CONFIG_BUS_MODE == BUS_DEVICE )
