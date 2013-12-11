@@ -3,6 +3,7 @@
 \usepackage{listings}
 \usepackage[norsk]{babel}
 \usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
 \usepackage[latin1]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -161,7 +162,7 @@ Utviklingen av programvare ble gjort på en windows maskin med Atmel Studio 6. Fo
 
 \section{Rapportens oppbygning}
 
-Skrive om hva som kommer når? JA! Bluphbluhp
+Skrive om hva som kommer når?
 
 \chapter{NRWD Spesifikasjoner}
 
@@ -169,7 +170,7 @@ Dette kapittelet går gjennom funksjonsspesifikasjonene til NRWDen punkt for punk
 
 Delkapittlene som følger tar for seg hver sin del av funksjonsspesifikasjonene. De beskriver hvike av kravene som er oppfylt, de som enda ikke er implementert og de som krever mer arbeid. Dette kapittelet beskriver systemet i sin nåværende tilstand og er ment for å hjelpe neste person som skal arbeide på prosjektet til å få en rask oversikt over hva som er gjort og hva som må gjøres. For noen av kravene vil statusen være kommentert som "Ikke relevant", dette gjelder de spesifikasjonene som omhandler de rent mekaniske sidene av systemet.
 
-Ikke tatt med i dette kapittelet er de overordente funksjonsspesifikasjonene til NRWDen. De kan leses i det originale spesifikasjons dokumentet vedlagt denne oppgaven\ref{fig:funkspes}.
+Ikke tatt med i dette kapittelet er de overordente funksjonsspesifikasjonene til NRWDen. De kan leses i det originale spesifikasjons dokumentet vedlagt denne oppgaven, se vedlegg \ref{fig:funkspes}.
 
 \section{Wrist Joint Function, WJF}
 
@@ -436,7 +437,7 @@ Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteri
 \chapter{Maskinvaretesting og diskusjon}
 \label{chap:modTesting}
 
-[TODO]  Dessverre var skjemategningen bare tilgjengelig i pdf format så utlegg må gjøres på nytt når kretsen skal miniatyriseres for å få plass inni protesen.
+%[TODO]  Dessverre var skjemategningen bare tilgjengelig i pdf format så utlegg må gjøres på nytt når kretsen skal miniatyriseres for å få plass inni protesen.
 
 
 Dette kapittelet går igjennom maskinvaren som dette prosjektet har basert seg på. Det blir forklart hvordan hver modul har blitt testet og eventuelle forslag til forbedringer blir gitt. 
@@ -636,6 +637,7 @@ I alle regulatorene er utregningen av integralleddet uavhengig av frekvensen som
 	_delay_ms(TIMESTEP);
     }
 \end{lstlisting}
+\caption{Main while loop}
 \label{code:while_regulator}
 \end{figure}
 
@@ -673,8 +675,8 @@ Main starter med å initialisere de ulike modulene og velge kontrollertype. Det e
 
 \begin{figure}[h]
 \begin{lstlisting}
- /* callback_incoming_can ==================================== */
- /**
+ /* callback_incoming_can */
+ /*
  * @fn 		void callback_incoming_can(struct socket *so)
  * @brief  	Callback function from HLL
  */
@@ -695,6 +697,7 @@ void callback_incoming_can(struct socket *so){
 	
 	...
 \end{lstlisting}
+\caption{Callback funksjonen som blir kalt fra PDCP-modulen hver gang den motar en melding.}
 \label{code:pdcp_callback}
 \end{figure}
 
