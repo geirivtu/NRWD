@@ -52,7 +52,7 @@ Instituttet har sammen med University of New Brunswick, Canada, stått sentralt i
 
 Denne prosjektoppgaven tar for seg design og utvikling av styresystemet til håndleddsprotesen NRWD(NTNU Rotary Wrist Device). NRWD ble i sin tid skapt på bakgrunn av doktorgradsavhandingen\cite{bib:stavdahl2002} til Øyvind Stavdahl.
 
-Det har blitt skrevet flere prosjekt- og masteroppgaver\cite{bib:brattbakken,bib:kraakenes} om NRWDen hvor alle har hatt som mål å realisere en prototype av protesen, men på grunn av ulike årsaker ikke har fullført. Denne oppgaven baserer seg i hovedsak på arbeidet til Andreas Kråkenes \cite{bib:kraakenes}. Han har produsert maskinvare lagt ut på flerlagskort, samt skrevet programvare for testing av maskinvaremodulene, noe som la et meget godt grunnlag for videre arbeide. 
+Det har blitt skrevet flere prosjekt- og masteroppgaver\cite{bib:brattbakken,bib:kraakenes} om NRWDen hvor alle har hatt som mål å realisere en prototype av protesen, men på grunn av ulike årsaker ikke har fullført. Denne oppgaven baserer seg i hovedsak på arbeidet til Andreas Kråkenes \cite{bib:kraakenes}. Han har produsert maskinvare lagt ut på flerlagskort, samt skrevet programvare for testing av maskinvaremodulene. Noe som la et meget godt grunnlag for videre arbeide. 
 
 I denne prosjektoppgaven har styresystemet blitt ferdigstilt og det har blitt gjort anbefalinger til endringer i maskinvare der man har sett muligheter for forbedringer. 
 
@@ -106,9 +106,9 @@ Det ble også funnet ut at dette var en god anledning til å teste ut den åpne pro
 
 \section{Tidligere arbeid}
 
-Realisering av styresystemet til protesen har hittil vært påbegynt i to mastergradoppgaver. Den siste av disse var skrevet av Andreas Kråkenes i 2011\cite{bib:kraakenes} kom langt på vei til å fullføre designet. Hovedgrunnen til at protesen enda ikke har blitt fullført skyldes at det første designet innholdt en alvorlig \mbox{arkitekturfeil} som hindret kommunikasjonen mellom de to mikrokontrollerene. Det ble forsøkt ordnet. Det endte med at man gikk man over til en løsning hvor en mikrokontroller skulle styre hele systemet. 
+Realisering av styresystemet til protesen har hittil vært påbegynt i to mastergradoppgaver. Den siste av disse var skrevet av Andreas Kråkenes i 2011\cite{bib:kraakenes} som kom langt på vei til å fullføre designet. Hovedgrunnen til at protesen enda ikke har blitt fullført skyldes at det første designet innholdt en alvorlig \mbox{arkitekturfeil} som hindret kommunikasjonen mellom de to mikrokontrollerene som skulle styre protesen. Det ble brukt mye tid på å ordne opp i problemet. Det endte med at man gikk man over til en løsning hvor en mikrokontroller skulle styre hele systemet. 
 
-Da prosjektet ble overtatt av undertegnede, var alt av hardware designet og lagt ut på prototypekort. Programvare for å teste deler av systemet var ferdigskrevet, men koden var av varierene kvalitet og mye funksjonalitet var ikke implementert. Flest mangler var knyttet til de ulike regulatorene og implementasjonen av PDCP protokollen. 
+Da prosjektet ble overtatt av undertegnede, var alt av hardware designet og lagt ut på prototypekort. Programvare for å teste deler av systemet var ferdigskrevet, men koden var av varierene kvalitet og mye funksjonalitet var ikke implementert. Flest mangler var knyttet til de ulike regulatorene og implementasjonen av PDCP-protokollen. 
 
 To mastergradsstudenter ved NTNU\cite{bib:nordal,bib:zamojski} laget i 2012 en implementasjon av PDCP-protokollen. UNB hadde tildigere laget en implementasjon basert på PIC mikrokontrolleren, mens denne var designet for ATMELs AVR mikrokontrollere. Implementasjonen var designet for at det skulle være enkelt å overføre koden til ny maskinvare, noe som gjorde at den egnet seg godt for dette prosjektet.
 
@@ -117,22 +117,22 @@ To mastergradsstudenter ved NTNU\cite{bib:nordal,bib:zamojski} laget i 2012 en i
 
 Prosjektet ble startet med gå gjennom den overleverte maskinvaren og medfølgende driverkode modul for modul. Detaljer rundt hvordan de ulike modulene ble testet er beskrevet i kapittel \ref{chap:modTesting}.
 
-Den overleverte koden var av varierende kvalitet. Koden var strukturert på et fornuftig vis, med en c-fil for hver maskinvare modul. Denne strukturen ble beholdt ut prosjektet. Selve driverkoden trengte en del mer arbeid. Det var skrevet nok til å teste basisfunksjonaliteten til hver modul, men måtte utvides med tilleggsfunksjonalitet før den kunne brukes. 
+Den overleverte koden var av varierende kvalitet. Koden var strukturert på et fornuftig vis, med en c-fil for hver maskinvare modul. Denne strukturen ble beholdt ut prosjektet. Selve driverkoden trengte en del mer arbeid. Det var skrevet nok til å teste basisfunksjonaliteten til hver modul, men måtte utvides med tilleggsfunksjonalitet før den kunne brukes i prosjektet. 
 
 Under testing av maskinvaren ble det funnet muligheter for forbedringer i spenningsregulator og posisjonssensormodulene. Kapittel \ref{chap:modTesting} oppsumerer anbefalte endringer i maskinvaren.
 
 
 Det første styressystemet som ble designet til NRWDen benyttet seg av to mikrokontrollere for å håndtere alle oppgavene. Denne arkitekturen gikk man bort fra da man fikk problemer med kommunikasjonen mellom de to kontrollerne og man gikk over til å bruke en mikrokontroller. Som en del av oppgaven ble det gjort grundige undersøkelser om den valgte mikrokontrolleren hadde nok ressurser til å styre systemet på egen hånd. Diskusjonen rundt dette er gjort i kapittel \ref{chap:interrupt}.
 
-Ifølge funksjonsspesifikasjonene skal protesen ha minst tre forskjellige styringsmoduser, maks fart i valgt retning, posisjons- og hastighetsstyring. Koden til de forskjellige regulatorene ble alle skrevet fra bunnen av. For detaljer om hvordan de ulike regulatorene ble implementert, se kapittel \ref{chap:sw}.
+Ifølge funksjonsspesifikasjonene skal protesen ha minst tre forskjellige styringsmoduser, maksimum fart i valgt retning, posisjons- og hastighetsstyring. Koden til de forskjellige regulatorene ble alle skrevet fra bunnen av. For detaljer om hvordan de ulike regulatorene ble implementert, se kapittel \ref{chap:sw}.
 
 På slutten av prosjektet ble styringssystemet integrert med kommunikasjonsprotokollen PDCP. Implementasjonen av protokollen var allerede gjort, jobben besto av å skrive om maskinvare abstraksjonslaget. Hvorfor og hvordan dette ble gjort, er beskrevet i kapittel \ref{chap:sw}.
 
 \section{Utviklingsmetodikk og fremgangsmåte}
 
-Hvordan dette prosjektet best skulle styres falt klart for meg fra begynnelsen av. Det er et maskin- og programvare system som allerede da det ble overtatt var delt opp i klare moduler. Som nevnt tidligere var det meste av maskinvare designet ferdig, mens den gjensto å ferdigstille programvaren. Det var også mye programvare som var skrevet av tidligere studenter som skulle flettes inn i prosjektet for ikke å reprodusere arbeide som var gjort tidligere. Det tenkes spesielt på lavnivå implementasjonen av PDCP protokollen som ble utviklet av  Andrzej Zamojski \cite{bib:zamojski} og  Andreas Nordal\cite{bib:nordal} samt programvare driverne til NRWDen skrevet av Andreas Kråkenes. 
+Dette prosjektet består av et maskin- og programvare system som allerede da det ble overtatt var delt opp i klare moduler. Dette ble utnyttet i planleggingsfasen. Som nevnt tidligere var det meste av maskinvare designet ferdig, mens den gjensto å ferdigstille programvaren. Det var også mye programvare som var skrevet av tidligere studenter som skulle flettes inn i prosjektet for ikke å reprodusere arbeide som var gjort tidligere. Det tenkes spesielt på lavnivå implementasjonen av PDCP protokollen som ble utviklet av  Andrzej Zamojski \cite{bib:zamojski} og  Andreas Nordal\cite{bib:nordal} samt programvare driverne til NRWDen skrevet av Andreas Kråkenes. 
 
-Metoden min sin hovedlinje var i størst grad arbeide på prosjektet modul for modul, forsikre meg om at alt fungerte atskilt, for til slutt å sette modulene sammen til et komplett styresystem. Kort oppsummert var planen:
+Metoden min sin hovedlinje var i størst grad arbeide på prosjektet modul for modul, forsikre meg om at alt fungerte atskilt, for til slutt å sette modulene sammen til et komplett styresystem. Hvordan hver modul ble testet blir gått gjennom i kapittel \ref{chap:modTesting}. Kort oppsummert var planen:
 
 \begin{itemize}
 
@@ -143,8 +143,6 @@ Metoden min sin hovedlinje var i størst grad arbeide på prosjektet modul for mod
 \item Sett seg inn i implementasjonen av PDCP gjort av tidligere NTNU studenter. 
 \item Integrere PDCP med styringssystemet.
 \end{itemize}
-
-Hvordan hver modul ble testet blir gått gjennom i kapittel \ref{chap:modTesting}.
 
 
 Verktøyet som ble brukt for å budsjettere tiden og sørge for at man kom i mål med prosjektet til rigktig tid var, på anbefaling fra veileder, Gantt diagrammet. Figur \ref{fig:fig_gantt_diagram} viser framgangsplanen for de første ukene av prosjektet og hvorvidt planen ble overholdt. Gantt diagrammet var et nyttig verktøy å bruke, ikke bare ga det en klar oversikt over hvilke oppgaver man hadde igjen, men også hvorvidt man greide å overholde de tidsfrister man hadde satt. 
@@ -168,14 +166,13 @@ I kapittel \ref{chap:spesifikasjoner} blir spesifikasjonene til systemet gått ig
 
 
 
-
 \chapter{NRWD Spesifikasjoner}
 
-Dette kapittelet går gjennom funksjonsspesifikasjonene til NRWDen punkt for punkt. Spesifikasjonene beskriver kravene til systemet i sin hellhet fra de fysiske dimensjonene, kommunikasjons grensesnittet opp mot protesen, oppløsningen på de ulike sensorene, maks vinkel hastighet til protesen og så videre. 
+Dette kapittelet går gjennom funksjonsspesifikasjonene til NRWDen punkt for punkt. Spesifikasjonene beskriver kravene til systemet i sin hellhet fra de fysiske dimensjonene, kommunikasjons grensesnittet opp mot protesen til oppløsningen på de ulike sensorene og maksimum vinkel hastighet til protesen. 
 
-Delkapittlene som følger tar for seg hver sin del av funksjonsspesifikasjonene. De beskriver hvike av kravene som er oppfylt, de som enda ikke er implementert og de som krever mer arbeid. Dette kapittelet beskriver systemet i sin nåværende tilstand og er ment for å hjelpe neste person som skal arbeide på prosjektet til å få en rask oversikt over hva som er gjort og hva som må gjøres. For noen av kravene vil statusen være kommentert som "Ikke relevant", dette gjelder de spesifikasjonene som omhandler de rent mekaniske sidene av systemet.
+Delkapittlene som følger tar for seg hver sin del av funksjonsspesifikasjonene. De beskriver hvike av kravene som er oppfylt, de som enda ikke er implementert og de som krever mer arbeid. Dette kapittelet beskriver systemet i sin nåværende tilstand og er ment for å hjelpe neste person som skal arbeide på prosjektet til å få en rask oversikt over hva som er gjort og hva som må gjøres. På noen av funksjonskravene vil statusen være kommentert som "Ikke relevant", dette gjelder de spesifikasjonene som omhandler de rent mekaniske sidene av systemet.
 
-Ikke tatt med i dette kapittelet er de overordente funksjonsspesifikasjonene til NRWDen. De kan leses i det originale spesifikasjons dokumentet vedlagt denne oppgaven, se vedlegg \ref{fig:funkspes}.
+Ikke tatt med i dette kapittelet er de overordente funksjonsspesifikasjonene til NRWDen. Disse kan leses i det originale spesifikasjonsdokumentet vedlagt denne oppgaven, se vedlegg \ref{fig:funkspes}.
 
 \section{Wrist Joint Function, WJF}
 
@@ -318,17 +315,17 @@ Beskriver festeanordningen og grensesnittet mellom NRWDen og en eventuell håndpr
 	\begin{tabular}{  | p{2cm} | p{8cm} | p{4cm} | }
 	\hline
 Nr & Beskrivelse & Status\\ \hline
-DAF-01 & The DAF should comprise two parts, the proximal of which is permanently attached to the wrist and the distal permanently attached to the terminal device. The parts must ?mate? to form a mechanically stable connection while also being detachable. &  Ikke relevant\\ \hline
-DAF-02 & The DAF shall include a four-wire electric coupling, preferably mechanically integrated with the DAF itself. & Ikke implementert i prototype hardwaren. \\ \hline
-DAF-02-01 & The DAF electrical coupling shall include at least two wires/contacts capable of transferring a constant current of 2 A per wire, and these wires shall be connected to the power supply wires from PAF. & Ikke implementert i prototype hardwaren. \\ \hline
-DAF-02-02 & The DAF electrical coupling should be rotatable without twisting the wires. & Ikke implementert i prototype hardwaren. \\ 
+DAF-01 & The DAF should comprise two parts, the proximal of which is permanently attached to the wrist and the distal permanently attached to the terminal device. The parts must mate to form a mechanically stable connection while also being detachable. &  Ikke relevant\\ \hline
+DAF-02 & The DAF shall include a four-wire electric coupling, preferably mechanically integrated with the DAF itself. & Ikke implementert i prototype maskinvaren. \\ \hline
+DAF-02-01 & The DAF electrical coupling shall include at least two wires/contacts capable of transferring a constant current of 2 A per wire, and these wires shall be connected to the power supply wires from PAF. & Ikke implementert i prototype maskinvaren. \\ \hline
+DAF-02-02 & The DAF electrical coupling should be rotatable without twisting the wires. & Ikke implementert i prototype maskinvaren. \\ 
 	\hline
 	\end{tabular} 
 \end{center}
 
 \chapter{Mekanikken}
 
-Mekanikken i protesen er et resultat av masteroppgave skrevet ved universitetet i  New Brunswick, Canada. Dette ble gjort på oppdrag fra Øyvind Stavdahl for å teste resultatene fra sin doktorgradsavhandling i praksis. Mekanikken består av to seksjoner, den proksimale og distale(henholdsvis seksjonen nærmest underarmen og den lengst unna). De to seksjonene kan rotere fritt mot hverandra ved hjelp av et kulelager. Selve bevegelsen er drevet av en børsteløs DC-motor som er koplet til et girtog med utveksling 120:1 \cite{bib:zink}.
+Mekanikken i protesen er et resultat av en masteroppgave skrevet ved universitetet i  New Brunswick, Canada. Mekanikken består av to seksjoner, den proksimale og distale(henholdsvis seksjonen nærmest underarmen og den lengst unna). De to seksjonene kan rotere fritt mot hverandra ved hjelp av et kulelager. Selve bevegelsen er drevet av en børsteløs DC-motor som er koplet til et girtog med utveksling 333:1, se seksjon \ref{sec:motordriver}.
 
 \begin{figure}[h]
 \centering
@@ -338,15 +335,15 @@ Mekanikken i protesen er et resultat av masteroppgave skrevet ved universitetet 
 \end{figure}
 
 
-Under testing av motordriveren ble det funnet at det, ved en forsyningsspenning på 12V, måtte til en dutycycle på oppmot 60\% for å i det hele tatt bevege mekanikken. Ved rundt 80\% dutycycle ble strømmen til motoren kuttet av strømovervåkingsmodulen da strømmen gjennom motoren oversteg maksimum grensen. Denne grensen er satt i maskinvare for å unngå at motoren blir ødelagt på grunn av overopphetning. Dette ga regulatoren et veldig lite rom å jobbe innenfor noe som gjorde implementasjonen av posisjon og hastighetskontrolleren meget vanskelig. 
+Under testing av motordriveren ble det funnet at det, ved en forsyningsspenning på 12V, måtte til en dutycycle på 60\% for å bevege mekanikken. Ved rundt 80\% dutycycle ble strømmen til motoren kuttet av strømovervåkingsmodulen da strømmen gjennom motoren oversteg maksimum grensen. Denne grensen er satt i maskinvare for å unngå at motoren blir ødelagt på grunn av overopphetning. Dette ga regulatoren et veldig lite rom å jobbe innenfor noe som gjorde implementasjonen av posisjon og hastighetskontrolleren meget vanskelig. 
 
 Mekanikken ble tatt med til mekaniske verksted ved NTNU for å se om de kunne løse problemet. Det viste seg at aksen til det minste tannhjulet var bøyd noe som førte til ekstra friksjon i systemet. Tannhjulet det er snakk om er det som er koblet til Faulhaber girboksen i den distale seksjonen, se figur \ref{fig:mekanikk}. Verkstedet fikk bøyd det til slik at det gikk fra å ha en kast på 0.22 mm til 0.03 mm. Dette reduserte friksjonen betraktelig og mekanikken kunne nå beveges med en dutycycle ned mot 40\%. 
 
 Da mekanikken ble undersøkt ble det også funnet at kulelageret i protesen begynte å bli slitt noe som førte til yterligere friksjon i systemet.
 
-Om rettingen av giraksen løser problemet på langt sikt vil vise seg med tiden. At problemet i det hele tatt har oppstått tyder på at mekanikken ikke er riktig dimensjonert for de krefter den kan bli utsatt for. En teori på hvordan problemet kan ha oppstått er at man har vridd på den distale seksjonen, noe som påfører store krefter på den indre mekanikken. Dette tyder på at mekanikken kan ha behov for en ny revisjon før den er robust nok til å kunne brukes i eksprimenter.
+Om rettingen av giraksen løser problemet på langt sikt er usikkert. At problemet har oppstått tyder på at mekanikken ikke er riktig dimensjonert for de krefter den kan bli utsatt for. En teori på hvordan problemet kan ha oppstått er at man har vridd på den distale seksjonen, noe som påfører store krefter på den indre mekanikken. Dette tyder på at mekanikken kan ha behov for en ny revisjon før den er robust nok til å kunne brukes i eksprimenter.
 
-For fremtidig bruk er det lagt ved en oversikt over rotasjonshastigheten til protesen ved forskjellige dutycycler etter at mekanikken var rettet av verkstedet, se vedlegg \ref{tab:velocity}. Denne kan brukes for å se om problemet har gjenoppstått.
+For fremtidig bruk er det lagt ved en oversikt over rotasjonshastigheten til protesen ved forskjellige dutycycler, se vedlegg \ref{tab:velocity}. Målingene er gjort etter at mekanikken var rettet av verkstedet. Denne kan brukes for å se om problemet har gjenoppstått.
 
 
 \chapter{Interrupt diskusjon}
@@ -358,11 +355,11 @@ For fremtidig bruk er det lagt ved en oversikt over rotasjonshastigheten til pro
 
 \section{Bakgrunn}
 
-Tidligere forsøk på å realisere styresystemet til NRWDen har brukt to mikrokontrollere. Den ene skulle brukes til motor kommuteringen mens den andre skulle håndtere alle de andre oppgavene som regulering og kommunikasjon. Da systemet ble testet oppsto det problemer med kommunikasjonen mellom mikrokontrollerene og selv etter mye testing fant man aldri årsaken til problemet. Dette førte til at man gikk over til en arkitektur som brukte en enkelt mikrokontroller.
+Tidligere forsøk på å realisere styresystemet til NRWDen har brukt to mikrokontrollere. Den ene skulle brukes til motor kommuteringen, mens den andre skulle håndtere alt annet som regulering og kommunikasjon. Da systemet ble testet oppsto det problemer med kommunikasjonen mellom mikrokontrollerene og selv etter mye testing fant man aldri løsningen til problemet. Dette førte til at man gikk over til en arkitektur som brukte en enkelt mikrokontroller.
 
 %Ny arkitektur
 
-Spørsmålet var da om den valgte mikrokontrolleren, AT90CAN128 kjørende på 16 MHz, var nok til å håndtere alle oppgaver som før skulle blitt utført av to mikrokontrollere. Dette kapitellet tar for seg denne problemstillingen. 
+Spørsmålet var da om den valgte mikrokontrolleren, AT90CAN128 kjørende på 16 MHz, var nok til å håndtere alle oppgaver som før hadde blitt fordelt på to mikrokontrollere. Dette kapitellet tar for seg denne problemstillingen. 
 
 \section{Et interrupt drevet system}
 
@@ -372,9 +369,9 @@ Spørsmålet var da om den valgte mikrokontrolleren, AT90CAN128 kjørende på 16 MHz
 
 
 
-Så hva slags type system er det som styrer protesen? Styringssystemet er nesten helt og holdent interrupt drevet. Bortsett fra regulatoren som blir kjørt inni main while loopen er alt annet styrt med interrupts. Motorkommuteringen, kommunikasjonsprotokollen, fartsestimeringen, posisjonsavlesningen og strømovervåkingen blir alle styrt gjennom interrupts. Hver av disse funksjonene krever at tiden mellom et interrupt blir generert og mikrokontrolleren går inn i tilhørende ISR(Interrupt Service Routine) ikke overstiger en viss lengde. 
+Så hva slags type system er det som styrer protesen? Styringssystemet er nesten utelukkende interrupt drevet. Bortsett fra regulatoren som blir kjørt inni main while loopen er alt annet styrt med interrupts. Motorkommuteringen, kommunikasjonsprotokollen, fartsestimeringen, posisjonsavlesningen og strømovervåkingen blir alle styrt gjennom interrupts. Hver av disse oppgavene krever at tiden mellom et interrupt blir generert og mikrokontrolleren går inn i tilhørende ISR(Interrupt Service Routine) ikke overstiger en viss lengde. 
 
-Om et interrupt ikke blir håndtert innenfor tidsfristen en eller flere ganger vil systemet i beste fall bli mindre nøyaktig, i verste fall vil det slutte å fungere. Som et eksempel kan man ta for seg posisjonssensoren. Posisjonen er proporsjonal med dutycyclelen til sensor signalet. Denne leses av ved å måle tiden mellom positiv og negativ flanke på signalet, hver endring i nivå på signalet genererer et interrupt. Hvis tiden det tar for mikrokontrolleren å behandle interruptet tar lengere tid enn forventet vil posisjonen bli feil avlest. 
+Om et interrupt ikke blir håndtert innenfor tidsfristen en eller flere ganger vil systemet i beste fall bli mindre nøyaktig, i verste fall vil det slutte å fungere. Som et eksempel kan man ta for seg posisjonssensoren. Posisjonen er proporsjonal med dutycycelen til sensorsignalet. Denne leses av ved å måle tiden mellom positiv og negativ flanke på signalet. Hver endring i nivå hos signalet genererer et interrupt, se figur \ref{fig:posisjon_min_periode}.  Hvis tiden det tar for mikrokontrolleren å behandle interruptet tar lengere tid enn forventet vil posisjonen bli feil avlest. 
 
 
 
@@ -394,27 +391,27 @@ Om et interrupt ikke blir håndtert innenfor tidsfristen en eller flere ganger vi
 
 
 
-Som nevnt ovenfor, om ikke systemet har nok resurser til å håndtere alle interruptene som kommer vil man risikere at man får et system som virker tregt og uresponsivt eller slutter å virke. For å kunne gi en garanti om at dette ikke ville skje ble systemet analysert for tidsbruk i interrupt rutiner. 
+Som nevnt ovenfor, om ikke systemet har nok resurser til å håndtere alle interruptene som kommer vil man risikere at man får et system som virker tregt og uresponsivt eller slutter å virke. For å kunne gi en garanti om at dette ikke ville skje ble systemet analysert for tidsbruk inni interrupt rutinene. 
 
 Typen interrupts som systemet skal håndtere kan deles inn i to typer, periodiske og aperiodiske. 
 
 De periodiske er som følger:
 \begin{itemize}
-\item HALL\_X\_vect - Trigger hver gang en av de tre hall sensorene i motoren skifter nivå
-\item TIMER3\_CAPT\_vect - Trigger på hver flanke til PWM signalet fra posisjons sensoren
+\item HALL\_X\_vect - Genereres hver gang en av de tre hall sensorene i motoren skifter nivå
+\item TIMER3\_CAPT\_vect - Genereres på hver flanke til PWM signalet fra posisjons sensoren
 \item TIMER0\_OVF\_vect - Brukes til å beregne hastigheten til motoren
 \end{itemize}
 
 
 De aperiodiske er:
 \begin{itemize}
-\item CANIT\_vect - Trigger hver gang det kommer en CAN melding
-\item CURRENT\_vect - Trigger når maskinvaren slår av strømmen til motoren
+\item CANIT\_vect - Genereres hver gang det kommer en CAN melding
+\item CURRENT\_vect - Genereres når maskinvaren slår av strømmen til motoren
 \item RESET 
 \end{itemize}
 
 
-For å analysere systemet ble varigheten til hver interrupt målt. Et interrupt i mikrokontrolleren består av tre deler. Det er kontektsskiftet hvor mikrokontrolleren lagrer unna stacken før man går inn i ISRen, arbeidet som blir utført inni rutinen og gjennopprettingen av stacken i det man forlater den. Tiden det tar for mikrokontrolleren å utføre de to konteksskiftene er et fast antall instruksjoner, det faktiske tallet finnes i mikrokontrollerens datablad \cite{bib:at90can}. Varigheten til hvert interrupt ble målt ved å sette en GPIO-pinne høy ved inngangen av interruptet og lav i det den gikk ut og lese av oppetiden på oscilloskopet. Se tabell \ref{tab:interrupt} for oppsumering av tidsbruk til de periodisk interruptene.
+For å analysere systemet ble varigheten til hver interrupt målt. Et interrupt i mikrokontrolleren består av tre deler. Det er kontektsskiftet hvor mikrokontrolleren lagrer unna stacken før man går inn i ISRen, arbeidet som blir utført inni rutinen og gjennopprettingen av stacken i det man forlater den. Tiden det tar for mikrokontrolleren å utføre de to konteksskiftene er et fast antall instruksjoner. Det faktiske tallet finnes i mikrokontrollerens datablad \cite{bib:at90can}. Varigheten til hvert interrupt ble målt ved å sette en GPIO-pinne høy ved inngangen av interruptet og lav i det den gikk ut for så og lese av oppetiden på oscilloskopet. Se tabell \ref{tab:interrupt} for oppsumering av tidsbruk til de periodisk interruptene.
 
 \begin{table}[h!]
 	\begin{center}
@@ -432,9 +429,9 @@ For å analysere systemet ble varigheten til hver interrupt målt. Et interrupt i 
 	\label{tab:interrupt}
 \end{table}
 
-Vi ser av tabell \ref{tab:interrupt} at mikrokontrolleren bruker mindre enn 2\% av tiden inni en interrupt rutine. Det gir rikelig med tid til å håndtere kontrolloopen som kjører utenfor interruptene. Derimot så garanterer det ikke at alle interrupts vil bli håndtert innenfor rimelig tid. I et tilfelle hvor en eller flere av modulene genererer et interrupt samtidig kan dette føre til midlertidige feil i systemet. Siden dette ikke er et hard sanntidssystem, hvor overskridelsen av en tidsfrist hadde knekt systemet, er disse midlertidige feilene akseptable siden med alle de forskjellige ISRene vil problemet være løst ved neste interrupt. Da ISRene opptar under 2\% av prosseror syklene og de alle operere ved ulike frekvenser vil kolisjon mellom to eller flere ISR være et sjeldent fenomen. 
+Vi ser av tabell \ref{tab:interrupt} at mikrokontrolleren bruker mindre enn 2\% av tiden inni en interrupt rutine. Det gir rikelig med tid til å håndtere kontrolloopen som kjører utenfor interruptene. Derimot så garanterer det ikke at alle interrupts vil bli håndtert innenfor rimelig tid. I et tilfelle hvor en eller flere av modulene genererer et interrupt samtidig kan dette føre til midlertidige feil i systemet. Siden dette ikke er et hardt sanntidssystem, hvor overskridelsen av en tidsfrist hadde gjort systemet ubrukelig, er disse potensielle midlertidige feilene akseptable. Siden med alle de forskjellige ISRene vil problemet være løst ved neste interrupt. Da ISRene opptar under 2\% av prosessortiden og de alle operere ved ulike frekvenser vil kollisjon mellom to eller flere ISR være et sjeldent fenomen. 
 
-Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteringen av motoren. En den for treig vil den ikke kunne kommutere raskt nok til at motoren oppnår den ønskede hastighet. ATMELs applikasjonsnote AVR452 som tar for seg motor styring av børste løse DC motorer ved bruk av AT90CAN mikrokontrolleren. Den setter en teoretisk maksgrense ved 3'478'000 rpm ved 8 MHz, da maksfarten til NRWD motoren er satt til 3600 rpm og mikrokontrolleren kjører på 16 MHz befinner vi oss godt innenfor kravene. 
+Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteringen av motoren. En den for treig vil den ikke kunne kommutere raskt nok til at motoren oppnår den ønskede hastighet. ATMELs applikasjonsnote AVR452 som tar for seg motor styring av børste løse DC motorer ved bruk av AT90CAN mikrokontrolleren. Den setter en teoretisk grense ved 3'478'000 rpm ved 8 MHz, da maksfarten til NRWD motoren er satt til 3600 rpm og mikrokontrolleren kjører på 16 MHz befinner vi oss godt innenfor kravene. 
 
 
 
@@ -447,7 +444,7 @@ Det ble også undersøkt om mikrokontrolleren er rask nok til å håndtere kommuteri
 
 Dette kapittelet går igjennom maskinvaren som dette prosjektet har basert seg på. Det blir forklart hvordan hver modul har blitt testet og eventuelle forslag til forbedringer blir gitt. 
 
-Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til flere studenter. Således var det mye dokumentasjon, maskinvare og programvare som måtte gjennomgåes før det kunne bygges videre på. Det tenkes her spesielt på arbeidet til Andreas Kråkenes som var siste student som arbeided på NRWDen. Det var han som sto for utlegg og produksjon av maskinvareprototypen, se figur \ref{fig:nrwd_prototype}, som har blitt brukt under dette prosjektet. 
+Dette prosjektet startet ikke fra grunnen av, men bygger videre på arbeidet til flere studenter. Således var det mye dokumentasjon, maskinvare og programvare som måtte gjennomgåes før det kunne bygges videre på. Det tenkes her spesielt på arbeidet til Andreas Kråkenes som var siste student som arbeided på NRWDen. Det var han som sto for utlegg og produksjon av maskinvareprototypen, se figur \ref{fig:nrwd_prototype}, som har blitt brukt under dette prosjektet. 
 
 \begin{figure}
 \centering
@@ -456,17 +453,17 @@ Dette prosjektet startet ikke på bar bakke, men bygger videre på arbeidet til fl
 \label{fig:nrwd_prototype}
 \end{figure}
 
-Alt av overlevert maskin- og programvare ble gjennomgått og testet modul for modul for å se om det fungerte i henhold til det som sto i Kråkenes' oppgave \cite{bib:kraakenes}. Domumentasjonen av maskinvaren besto av tekstlige beskrivelser gjort i oppgaven samt vedlagte skjemategninger. Før arbeidet startet ble en kort testplan for hver modul utarbeidet, den ble laget slik at da alt i planen var testet skulle man være sikker på at maskin- og programvaren for valgt modulen oppførte seg som forventet. Under følger resultatene av testingen, samt en diskusjon rundt hver modul. For flere detaljer rundt maskinvaren, se Kråkenes' oppgave\cite{bib:kraakenes}.
+Alt av overlevert maskin- og programvare ble gjennomgått og testet modul for modul for å se om det fungerte i henhold til det som sto i Kråkenes' oppgave \cite{bib:kraakenes}. Før arbeidet startet ble en kort testplan for hver modul utarbeidet. Den ble laget slik at da alt i planen var testet skulle man være sikker på at maskin- og programvaren for valgt modulen oppførte seg som forventet. Under følger resultatene av testingen, samt en diskusjon rundt hver modul. For flere detaljer rundt maskinvaren og skjemategninger, se Kråkenes' oppgave\cite{bib:kraakenes}. 
 
 \section{Mikrokontroller}
 
-Styringen av protesen er gjort med en AT90CAN128 ATMEL AVR mikrokontroller. Opplasting av programvare og debugging ble gjort over JTAG via ATMELs programmerinsverktøy, JTAGICE 3. Det ble opprettet kontakt med AVRen og alt fungerte som forventet. 
+Styringen av protesen er gjort med en ATMEL AT90CAN128 AVR mikrokontroller. Opplasting av programvare og debugging ble gjort over JTAG via ATMELs programmerinsverktøy, JTAGICE 3. Det ble opprettet kontakt med AVRen og alt fungerte som forventet. 
 
-\section{Spenningsforsyning}
+\section{Spenningsregulator}
 
-Ifølge funksjonskravet WPF-02 skal NRWDen operere normalt når den blir drevet av en spenningsforsynning mellom 6 og 12V. Spesifikasjonene sier ikke noe om hvilke spenninger som skal brukes internt, men den valgte mikrokontrolleren trenger 4.5V for å kjøre på 16MHz. Det har derfor blitt valgt at den eksterne spenningsforsyningen skal reguleres ned til 5V.  
+Ifølge funksjonskravet WPF-02 skal NRWDen operere normalt når den blir drevet av en spenningsforsynning mellom 6 og 12V. Spesifikasjonene sier ikke noe om hvilke spenninger som skal brukes internt, men den valgte mikrokontrolleren trenger 4.5V for å kjøre på 16MHz. Det har derfor blitt valgt at den eksterne spenningen skal reguleres ned til 5V.  
 
-Spenningsregulatoren brukt i NRWDen er en linær regulator som i henhold til databladet gir ut 5V +- 0.2V ved inngangsspenninger 7-20 V. Det er viktig at NRWDen kan operere på spenninger ned til 6V siden de vanligste batteriene som er brukt i slike proteser gir ut en spenning som kan gå ned til minst 6V. Da differansen mellom inngangs- og utgangsspenning kan være så lav som 1V er anbefales det å gå over til å bruke en LDO (Low Dropout Regulator). En LDO er spesielt designet for å operere under akkurat slike forhold. Et eksempel på en LDO som kan brukes er LF50CDT fra STMicroelectronics.  
+Spenningsregulatoren brukt i NRWDen er en linær regulator som i henhold til databladet gir ut 5V \pm 0.2V ved inngangsspenninger 7-20 V. Det er viktig at NRWDen kan operere på spenninger ned til 6V da de vanligste batteriene som er brukt i slike proteser gir ut en spenning som kan gå ned til 6V. Da differansen mellom inngangs- og utgangsspenning kan være så lav som 1V, anbefales det å gå over til å bruke en LDO (Low Dropout Regulator). En LDO er spesielt designet for å operere under slike forhold. Et eksempel på en LDO som kan brukes er LF50CDT fra STMicroelectronics.  
 
 
 
@@ -485,7 +482,7 @@ Den nåværende løsningen er en magnetisk enkoder. Den leser av magnetfeltet til e
 \label{fig:posisjon_hel_periode}
 \end{figure}
 
-Problemet med dette oppsettet kommer ved vinkler nær 0 og 360 grader. Ved disse vinklene vil tiden mellom to flankeendringer være under 1 $\mu$s, se figur \ref{fig:posisjon_min_periode}. Som beskrevet i kapittel \ref{chap:interrupt} tar dette interruptet 4.8 $\mu$s å fullføre. Dette vil si at det andre interruptet som kommer enten ikke vil bli behandlet eller bli behandlet for sent noe som vil gi feil avlest vinkel. 
+Problemet med dette oppsettet kommer ved vinkler nær 0 og 360 grader. Ved disse vinklene vil tiden mellom to flankeendringer være under 1 $\mu$s, se figur \ref{fig:posisjon_min_periode}. Som beskrevet i kapittel \ref{chap:interrupt} bruker mikrokontrolleren 4.8 $\mu$s å behandle interruptet fra posisjonssensoren. Dette vil si at det andre interruptet som kommer enten ikke vil bli behandlet eller bli behandlet for sent noe som vil gi feil avlest vinkel. 
 
 \begin{figure}[h]
 \centering
@@ -494,13 +491,14 @@ Problemet med dette oppsettet kommer ved vinkler nær 0 og 360 grader. Ved disse 
 \label{fig:posisjon_min_periode}
 \end{figure}
 
-Forløpig er problemet løst i programvare, men en bedre løsning ville vært å lavpassfiltrere PWM-signalet for så å lese av vinkelen med en ADC. Dette løser ikke bare problemet med feil avlesning av vinkel, men det vil også redusere antall interrupts som mikrokontrolleren må behandle. PWM-signalet har en frekvens på 245 Hz, noe som gir 490 interrupts i sekundet. Ved bruk av et lavpassfilter og en ADC vil man bare trenge å kalkulere posisjonen hver gang posisjonsregulatoren skal kjøre. GPIO pinnene på mikrokontrolleren har allerede mulighet for å aktivere en intern pullup motstand noe som betyr at den eneste eksterne komponenten som kreves for å lage et lavpassfilter er en kondensator med passende verdi.
+Forløpig er problemet løst i programvare, men en bedre løsning ville vært å gjøre det i maskinvaren. En god løsning ville vært å lavpassfiltrere PWM-signalet for så å lese av vinkelen med en ADC. Dette løser ikke bare problemet med feil avlesning av vinkel nør 0 og 360 grader, men det vil også redusere antall interrupts som mikrokontrolleren må behandle. PWM-signalet har en frekvens på 245 Hz, noe som gir 490 interrupts i sekundet. Ved bruk av et lavpassfilter og en ADC vil man bare trenge å kalkulere posisjonen hver gang posisjonsregulatoren skal kjøre. GPIO pinnene på mikrokontrolleren har allerede mulighet for å aktivere en intern pullup motstand noe som betyr at den eneste eksterne komponenten som kreves for å lage et lavpassfilter er en kondensator med passende verdi.
 
 \section{Motordriver}
+\label{sec:motordriver}
 
-Protesens bevegelse er drevet av en børsteløs DC-motor med innebydge Hall sensorer. Ved å lese av Hall sensorene vet man posisjonen til motoraksen og kan utifra det vite hvilket pådragsmønster man skal gi motoren får å få den til å rotere. Utgangen til Hall sensorene er digitale og er koplet opp mot hver sin interrupt linje slik at det blir generert et interrupt hver gang utgangen skifter nivå. 
+Protesens bevegelse er drevet av en børsteløs DC-motor med innebydge Hall sensorer. Ved å lese av Hall sensorene vet man posisjonen til motoraksen og kan utifra det vite hvilket pådragsmønster man skal gi motoren får å få den til å rotere. Utgangen til Hall sensorene er digitale og er koplet opp mot hver sin interrupt linje. Det blir da generert et interrupt hver gang utgangen skifter nivå. 
 
-Ifølge funksjonskravet WMF-01 skal protesen minst ha en maksimums omdreiningshastighet på 81 grader/sek. Ifølge Zink\cite{bib:zink} er motoren giret ned med en ratio på 800:1, se tabell \ref{tab:drive_train}. Dette stemmmer ikke med protesen brukt i dette prosjektet da diameterene til drivhjulene fra motor til Faulhaber planetary gear ikke er som spesifisert hos Zink. Faktiske målinger viser at den totale gir ration til protesen er på 333:1. 
+Ifølge funksjonskravet WMF-01 skal protesen minst ha en maksimums omdreiningshastighet på 81 grader/sek. Ifølge Zink\cite{bib:zink} er motoren giret ned med et forhold 800:1, se tabell \ref{tab:drive_train}. Dette stemmmer ikke med protesen brukt i dette prosjektet da diameterene til drivhjulene fra motor til Faulhaber planetary gear ikke er som spesifisert hos Zink. Faktiske målinger viser at den totale girforholdet til protesen er på 333:1. 
 
 \begin{figure}[h]
 \centering
@@ -724,7 +722,7 @@ Selve implementasjonen av PDCP protokollen er en porting av programvare skrevet 
 
 \chapter{Diskusjon}
 
-
+Kna diskutere litt om gantt
 
 
 \chapter{Konklusjon}
@@ -754,7 +752,7 @@ Arbeidet på en analog kommunikasjonsmodul, som et alternativ til PDCP-modulen, h
   
   
 \bibitem{bib:stavdahl2002}
-	Øyvind Stavdahl
+	Øyvind Stavdahl,
 	\emph{Optimal wrist prosthesis kinematics: Three-dimensional rotation statistics and	parameter estimation.}
 Department of Engineering Cybernetics, Norwegian University of Science and
 Technology. 2002. PhD Thesis.  
