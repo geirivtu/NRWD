@@ -463,7 +463,7 @@ Styringen av protesen er gjort med en ATMEL AT90CAN128 AVR mikrokontroller. Oppl
 
 Ifølge funksjonskravet WPF-02 skal NRWDen operere normalt når den blir drevet av en spenningsforsynning mellom 6 og 12V. Spesifikasjonene sier ikke noe om hvilke spenninger som skal brukes internt, men den valgte mikrokontrolleren trenger 4.5V for å kjøre på 16MHz. Det har derfor blitt valgt at den eksterne spenningen skal reguleres ned til 5V.  
 
-Spenningsregulatoren brukt i NRWDen er en linær regulator som i henhold til databladet gir ut 5V \pm 0.2V ved inngangsspenninger 7-20 V. Det er viktig at NRWDen kan operere på spenninger ned til 6V da de vanligste batteriene som er brukt i slike proteser gir ut en spenning som kan gå ned til 6V. Da differansen mellom inngangs- og utgangsspenning kan være så lav som 1V, anbefales det å gå over til å bruke en LDO (Low Dropout Regulator). En LDO er spesielt designet for å operere under slike forhold. Et eksempel på en LDO som kan brukes er LF50CDT fra STMicroelectronics.  
+Spenningsregulatoren brukt i NRWDen er en linær regulator som i henhold til databladet gir ut 5$\pm$0.2V ved inngangsspenninger 7-20V. Det er viktig at NRWDen kan operere på spenninger ned til 6V da de vanligste batteriene som er brukt i slike proteser gir ut en spenning som kan gå ned til 6V. Da differansen mellom inngangs- og utgangsspenning kan være så lav som 1V, anbefales det å gå over til å bruke en LDO (Low Dropout Regulator). En LDO er spesielt designet for å operere under slike forhold. Et eksempel på en LDO som kan brukes er LF50CDT fra STMicroelectronics.  
 
 
 
