@@ -80,9 +80,6 @@ void control_on_off(void)
 		
 	current_setpoint = CURRENT_MAX-Current_safe_zone;
 
-
-	
-
 	if(Control_setpoint!=0){
 		current = current_read();
 		error = current_setpoint - current;
@@ -264,7 +261,7 @@ void control_set_setpoint(int16_t setpoint)
 }
 
 
-/* Expectet order of parameters in the parameter_array is:
+/* Expected order of parameters in the parameter_array is:
  * parameter_array = { P  term, I term, Optional second P term, Optional second I term}  */
 void control_set_parameter(double * parameter_array, uint8_t array_len )
 {
@@ -288,7 +285,6 @@ void control_set_parameter(double * parameter_array, uint8_t array_len )
 				/* Inner loop parameters */
 				K_p_i_speed = parameter_array[2];
 				K_i_i_speed = parameter_array[3];
-	
 			}
 		break;
 	}

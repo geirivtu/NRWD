@@ -1,6 +1,4 @@
 /*
- * nrwd_test.c
- *
  * Created: 04.09.2013 14:50:49
  *  Author: Geir
  */ 
@@ -20,7 +18,7 @@
 #include "can.h"
 
 
-//pdcp includes
+/* pdcp includes */
 #include "config.h"
 #include "hal.h"
 #include "hll.h"
@@ -98,7 +96,8 @@ void callback_incoming_can(struct socket *so){
 	
 	break;
 	case REQUEST_SET_PARAMETER:
-	
+		
+		control_set_setpoint(msg->data[0]); 
 	break;
 	case RESPONS_SET_PARAMETER:
 	
@@ -125,8 +124,7 @@ int main(void)
 	motor_init();
 	position_init();
 	current_init();
-		
-	//analog_init();
+	//analog_init(); /* Used instead of the PDCP-protocol */
 	
 	/* Initialize PDCP */
 	hll_init(callback_incoming_can,handled);	//* HLL init
@@ -151,7 +149,7 @@ int main(void)
 }
 
 
-/* Overcurrent */
+/* ISR triggered from hardware when current through motor surpasses the maximum allowed */
 ISR(CURRENT_vect)
 {
 	motor_stop();
