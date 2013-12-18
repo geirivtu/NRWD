@@ -77,9 +77,5 @@ void intent_interpretation(void){
 
 ISR(TIMER2_COMP_vect)
 {
-	
 	preprocessing(); 
-	
-	/* Toggle output pin */
-	PORTD ^= (1<<PD6);
 }
