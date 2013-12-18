@@ -7,7 +7,7 @@
       <x>306</x>
       <y>594</y>
       <w>216</w>
-      <h>117</h>
+      <h>135</h>
     </coordinates>
     <panel_attributes>current.h
 --
@@ -23,7 +23,7 @@ int16_t current_get()</panel_attributes>
       <x>540</x>
       <y>594</y>
       <w>216</w>
-      <h>99</h>
+      <h>135</h>
     </coordinates>
     <panel_attributes>position.h
 --
@@ -35,8 +35,8 @@ int16_t position_get()</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>306</x>
-      <y>387</y>
+      <x>171</x>
+      <y>405</y>
       <w>216</w>
       <h>135</h>
     </coordinates>
@@ -77,10 +77,10 @@ ISR(HALL_[A,B,C]_vect)
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>540</x>
-      <y>297</y>
+      <x>414</x>
+      <y>405</y>
       <w>216</w>
-      <h>99</h>
+      <h>135</h>
     </coordinates>
     <panel_attributes>analog.h
 --
@@ -92,10 +92,10 @@ void analog_init()
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>783</x>
-      <y>432</y>
+      <x>657</x>
+      <y>405</y>
       <w>216</w>
-      <h>99</h>
+      <h>135</h>
     </coordinates>
     <panel_attributes>PDCP 
 --
@@ -109,7 +109,7 @@ void analog_init()
       <x>783</x>
       <y>594</y>
       <w>216</w>
-      <h>117</h>
+      <h>135</h>
     </coordinates>
     <panel_attributes>can.h
 --
@@ -122,8 +122,8 @@ prepare_rx(..)</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>306</x>
-      <y>198</y>
+      <x>414</x>
+      <y>261</y>
       <w>216</w>
       <h>99</h>
     </coordinates>
@@ -135,26 +135,10 @@ prepare_rx(..)</panel_attributes>
   <element>
     <type>com.umlet.element.Note</type>
     <coordinates>
-      <x>675</x>
-      <y>144</y>
+      <x>891</x>
+      <y>405</y>
       <w>126</w>
-      <h>63</h>
-    </coordinates>
-    <panel_attributes>bg=blue
-
-Diagrammet viser
-alle kode modulene
-og sammenhengen 
-mellom de.</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <type>com.umlet.element.Note</type>
-    <coordinates>
-      <x>837</x>
-      <y>342</y>
-      <w>126</w>
-      <h>63</h>
+      <h>72</h>
     </coordinates>
     <panel_attributes>PDCP representerer 
 alle filene som
