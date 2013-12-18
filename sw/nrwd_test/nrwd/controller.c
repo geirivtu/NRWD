@@ -15,13 +15,13 @@ volatile int16_t Control_setpoint = 0;
 
 /* Decides how close to the CURRENT_MAX the controllers
  * should regulate to */
-static int8_t Current_safe_zone = 10;
+static int8_t Current_safe_zone = 20;
 
 controller_mode_t Controller_mode = CONTROL_MODE_ON_OFF; 
 
 /* P and I-term for the on/off regulator */
 double K_p_on_off = 0.4;
-double K_i_on_off = 0.1;
+double K_i_on_off = 0.01;
 
 /* P and I-term for the position regulator */
 double K_p_position = 0.9;

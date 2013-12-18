@@ -58,14 +58,9 @@ int main(void)
 
 	prepare_rx( 1, 0x151, 0x7ff, setSetpoint);
 
-	control_set_mode(CONTROL_MODE_SPEED);
+	//control_set_mode(CONTROL_MODE_ON_OFF);
 	
-	/* Setting PD6 to output */
-	
-	DDRD |= (1<<PD6); //Debug
-	
-	PORTD &= ~(1<<PD6);	 //debug
-	PORTD |= (1<<PD6); //Debug
+	control_set_setpoint(-60);
 	
 	
 	/* Enabling external interrupt */

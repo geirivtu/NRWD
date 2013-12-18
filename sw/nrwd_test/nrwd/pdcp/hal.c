@@ -152,21 +152,9 @@ CAN_INIT_STATUS initCan( uint8_t id ){
 
 	if ( CONFIG_BUS_MODE == BUS_DEVICE ){
 
-		///* set filter 0 for DEVICE CONFIG_BUS_MODE */
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXF0SIDH, ( id >> 3 ) , 0 );
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXF0SIDL, ( ( id & 0x7 ) << 5 ) , 0 );
-//
-		///* set filter 1 for DEVICE CONFIG_BUS_MODE */
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXF1SIDH, ( id >> 3 ) , 0 );
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXF1SIDL, ( ( id & 0x7 ) << 5 ) , 0 );
-//
-		///* set filter 2 for DEVICE CONFIG_BUS_MODE - for broadcast messages */
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXF2SIDH, ( 0x00 >> 3 ) , 0 );
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXF2SIDL, ( ( 0x00 & 0x7 ) << 5 ) , 0 );
+
 	}
 	else if ( CONFIG_BUS_MODE == BUS_ARBITRATOR ){
-	
-		/* set filter 0 for ARBITRATOR CONFIG_BUS_MODE - receive all messages */	
 
 	}
 }
@@ -182,30 +170,7 @@ CAN_INIT_STATUS initCan( uint8_t id ){
  * @return 		void
  */
  void hal_set_mask( uint8_t id ){
- 	
-	/* Put MCP into configuration mode */
 
-	//mcp2515TransmitData(MCP_WRITE_CMD, CANCTRL, ( CANCTRL_REQOP_CONFIGURATION << CANCTRL_REQOP_SHIFT ), 0 );
-//
-	//if ( CONFIG_BUS_MODE == BUS_DEVICE ){
-//
-		///* Set mask 0 for DEVICE CONFIG_BUS_MODE */
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXM0SIDH, ( MASK_DEVICE >> 3 ) , 0 );
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXM0SIDL, ( ( MASK_DEVICE & 0x7 ) << 5 ) , 0 );
-//
-		///* Set mask 1 for DEVICE CONFIG_BUS_MODE */
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXM1SIDH, ( MASK_DEVICE >> 3 ) , 0 );
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXM1SIDL, ( ( MASK_DEVICE & 0x7 ) << 5 ) , 0 );
-//
-	//}	
-	//else if ( CONFIG_BUS_MODE == BUS_ARBITRATOR ){
-//
-		///* Set mask 0 for ARBITRATOR CONFIG_BUS_MODE */
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXM0SIDH, ( MASK_ARBITRATOR >> 3 ), 0 );
-		//mcp2515TransmitData(MCP_WRITE_CMD, RXM0SIDL, ( ( MASK_ARBITRATOR & 0x7 ) << 5 ), 0 );
-	//}
-	///* Put MCP2515 into normal mode */
-	//mcp2515TransmitData( MCP_WRITE_CMD, CANCTRL, ( CANCTRL_REQOP_NORMAL << CANCTRL_REQOP_SHIFT ) , 0 );
 	
 }
 
@@ -238,5 +203,4 @@ CAN_INIT_STATUS initCan( uint8_t id ){
  * @return 		void
  */
  void hal_msg_poll ( void ){
-	//triggerSoftwareInterrupt( TRIGGER_RECEIVING );
  }

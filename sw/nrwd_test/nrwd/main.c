@@ -130,17 +130,23 @@ int main(void)
 	hll_init(callback_incoming_can,handled);	//* HLL init
 	initLowLevelProtocolHardware();				//* HAL init
 
-	control_set_mode(CONTROL_MODE_ON_OFF);
+	control_set_mode(CONTROL_MODE_SPEED);
+	
+	control_set_setpoint(55);
 	
 	sei();										//* Turn on interrupts		
 
+	volatile uint16_t current = 0;
+
 	//* DEVICE part
 	#if ( CONFIG_BUS_MODE == BUS_DEVICE )
-		if(!request_bind(255)){					//* device requests bind
-		}
+		if(!request_bind(255));					//* device requests bind
+		
 		while(1)
 		{
 			control_controller();
+			current = current_read();
+			
 			_delay_ms(TIMESTEP);
 		}
 	#endif
