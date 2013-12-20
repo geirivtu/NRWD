@@ -32,29 +32,8 @@
 
 \maketitle
 
+\includepdf[pages={-}]{../Figurer/oppgavetekst.pdf}
 
-\chapter*{Oppgavetekst}
-
-\begin{figure}
-\centering
-\includegraphics[width=0.7\linewidth]{../Figurer/oppgavetekst}
-\caption{}
-\label{fig:oppgavetekst}
-\end{figure}
-
-
-Instituttet har sammen med University of New Brunswick, Canada, stått sentralt i utviklingen av et motorisert protesehåndledd med unike kinematiske egenskaper. Det foreligger et maskinvaredesing og en prototyp av styresystemet, og dette systemet skal nå ferdigstilles og programmeres slik at protesen kan brukes i forsknigssammenheng. Sentrale systemegenskaper inkluderer kommunikasjon over en CAN-buss ved hjelp av protokollen PDCP, noe signalbehandling og styring av en børsteløs DC-motor.
- 
-\begin{enumerate}
-\item Gi en kort oversikt over prosjektets bakgrunn og nåværende status, der du legger vekt på systemets tilstand relativt dets spesifikasjoner og tiltenkte anvendelse.
-
-\item Foreliggende HW-design er basert på en enkelt mikrokontroller som skal stå for både motorkommutering, regulering, signalbehandling og kommunikasjonsprotokoll(er). Foreta en vurdering av om dette designet er egnet, med spesiell vekt på avbruddshåndtering og sanntidsaspekter. Gjør om nødvendig praktiske målinger for å underbygge din konklusjon.
- 
-\item Foreslå på bakgrunn av punkt 2 en maskin- og programvarearkitektur for systemet. Eksisterende løsninger bør gjenbrukes i den grad det er mulig og hensiktsmessig.
-
-\item Implementer og test systemet så langt tiden tillater det.
-
-\end{enumerate}
  
  
 \chapter*{Sammendrag}
@@ -178,6 +157,7 @@ I kapittel \ref{chap:spesifikasjoner} blir spesifikasjonene til systemet gått ig
 
 
 \chapter{NRWD Spesifikasjoner}
+\label{chap:spesifikasjoner}
 
 Dette kapittelet går gjennom funksjonsspesifikasjonene til NRWDen punkt for punkt. Spesifikasjonene beskriver kravene til systemet i sin hellhet fra de fysiske dimensjonene, kommunikasjonsgrensesnittet opp mot protesen til oppløsningen på de ulike sensorene og maksimum vinkelhastighet til protesen. 
 

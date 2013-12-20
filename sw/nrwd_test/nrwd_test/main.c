@@ -19,7 +19,7 @@
 #include "can.h"
 
 
-
+volatile int16_t speed;
 
 //! interrupt callback function for CAN receiver interrupt.
 void setSetpoint( CAN_packet *p, unsigned char mob) // interrupt callback
@@ -32,7 +32,7 @@ void setSetpoint( CAN_packet *p, unsigned char mob) // interrupt callback
 	setpoint += p->data[1];
 	*/
 	
-	int16_t speed = p->data[0];
+	speed = p->data[0];
 	if(speed > 128) speed = -1;
 	
 	
@@ -47,9 +47,7 @@ void setSetpoint( CAN_packet *p, unsigned char mob) // interrupt callback
 int main(void)
 {
 	motor_init();
-	
 	position_init();
-	
 	current_init();
 		
 	//analog_init();
@@ -58,35 +56,22 @@ int main(void)
 
 	prepare_rx( 1, 0x151, 0x7ff, setSetpoint);
 
-	//control_set_mode(CONTROL_MODE_ON_OFF);
+	control_set_mode(CONTROL_MODE_ON_OFF);
 	
-	control_set_setpoint(-60);
+	control_set_setpoint(3);
 	
 	
 	/* Enabling external interrupt */
 	sei();
 
-	volatile uint16_t pos_temp;
-	
-	volatile int16_t tmp = 0;
-	
-	CAN_packet *canTmp;
-	canTmp->id = 0;
-	canTmp->length = 1;
-	canTmp->data[0] = 0;
+
 
     while(1)
     {
 		
         //control_controller();
-		control_speed_v2();
-		//control_on_off();
-		
-		tmp = motor_read_speed();
-		canTmp->data[0] = tmp;
-	
-		can_tx( 14, canTmp);
-
+		//control_speed_v2();
+		control_on_off();
 		
 		_delay_ms(TIMESTEP);
     }

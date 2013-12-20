@@ -71,6 +71,7 @@ void handled(u8 function_code){
 void callback_incoming_can(struct socket *so){
 	
 	struct can_msg *msg = sock_pull(so);
+	int16_t tmp = 0;
 
 #if CONFIG_BUS_MODE == BUS_DEVICE
 
@@ -96,8 +97,21 @@ void callback_incoming_can(struct socket *so){
 	
 	break;
 	case REQUEST_SET_PARAMETER:
+	
+		//bind respons
+		//CONFIG_DEVICE_DEF_ID - length - nodeId - Vendor ID- Product ID- Serial Num
+		//0FF - 7 - 01 - 01 00 - 2000 - 0300 
 		
-		control_set_setpoint(msg->data[0]); 
+		//id - length functionCode data1 data2 
+		//CONFIG_DEVICE_DEF_ID -   3 -	    04     -  00  -  ff
+		
+		//t0ff705000100020003
+		
+		//t0ff30400ff
+	
+		tmp = (msg->data[1] << 8) || msg->data[0];
+		control_set_setpoint(tmp); 
+		control_set_setpoint(3); 
 	break;
 	case RESPONS_SET_PARAMETER:
 	
@@ -130,23 +144,17 @@ int main(void)
 	hll_init(callback_incoming_can,handled);	//* HLL init
 	initLowLevelProtocolHardware();				//* HAL init
 
-	control_set_mode(CONTROL_MODE_SPEED);
-	
-	control_set_setpoint(55);
+	control_set_mode(CONTROL_MODE_ON_OFF);
 	
 	sei();										//* Turn on interrupts		
 
-	volatile uint16_t current = 0;
-
 	//* DEVICE part
 	#if ( CONFIG_BUS_MODE == BUS_DEVICE )
-		if(!request_bind(255));					//* device requests bind
+		//if(!request_bind(255));					//* device requests bind
 		
 		while(1)
 		{
 			control_controller();
-			current = current_read();
-			
 			_delay_ms(TIMESTEP);
 		}
 	#endif
