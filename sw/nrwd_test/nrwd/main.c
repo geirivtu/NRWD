@@ -53,7 +53,6 @@ void handled(u8 function_code){
 #elif (CONFIG_BUS_MODE == BUS_DEVICE)
 		switch(function_code){
 			case 0:
-				function_code +=4; //Debug
 			break;
 		}
 #endif
@@ -98,20 +97,8 @@ void callback_incoming_can(struct socket *so){
 	break;
 	case REQUEST_SET_PARAMETER:
 	
-		//bind respons
-		//CONFIG_DEVICE_DEF_ID - length - nodeId - Vendor ID- Product ID- Serial Num
-		//0FF - 7 - 01 - 01 00 - 2000 - 0300 
-		
-		//id - length functionCode data1 data2 
-		//CONFIG_DEVICE_DEF_ID -   3 -	    04     -  00  -  ff
-		
-		//t0ff705000100020003
-		
-		//t0ff30400ff
-	
 		tmp = (msg->data[1] << 8) || msg->data[0];
 		control_set_setpoint(tmp); 
-		control_set_setpoint(3); 
 	break;
 	case RESPONS_SET_PARAMETER:
 	
@@ -150,7 +137,7 @@ int main(void)
 
 	//* DEVICE part
 	#if ( CONFIG_BUS_MODE == BUS_DEVICE )
-		//if(!request_bind(255));					//* device requests bind
+		if(!request_bind(255));					//* device requests bind
 		
 		while(1)
 		{

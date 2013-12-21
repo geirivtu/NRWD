@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="12.1">
+  <zoom_level>9</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>306</x>
+      <y>594</y>
+      <w>216</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>current.h
+--
+#define CURRENT_MAX 145
+--
+void current_init()
+int16_t current_get()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>540</x>
+      <y>594</y>
+      <w>216</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>position.h
+--
+
+void position_init()
+int16_t position_get()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>171</x>
+      <y>405</y>
+      <w>216</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>controlller.h
+--
+#define TIMESTEP 150
+--
+void control_on_off()
+void control_position()
+void control_speed()
+void control_set_setpoint(int16_t)
+void control_set_parameter(double)
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>72</x>
+      <y>594</y>
+      <w>216</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>motor.h
+--
+void motor_init()
+void motor_start()
+void motor_stop()
+void motor_set_speed()
+void motor_read_speed()
+--
+ISR(TIMER0_OVF_vect)
+ISR(HALL_[A,B,C]_vect)
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>414</x>
+      <y>405</y>
+      <w>216</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>analog.h
+--
+
+void analog_init()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>657</x>
+      <y>405</y>
+      <w>216</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>PDCP 
+--
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>783</x>
+      <y>594</y>
+      <w>216</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>can.h
+--
+
+bool can_init()
+can_tx(char, CAN_packet)
+prepare_rx(..)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>414</x>
+      <y>261</y>
+      <w>216</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>MAIN
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Note</type>
+    <coordinates>
+      <x>891</x>
+      <y>405</y>
+      <w>126</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>PDCP representerer 
+alle filene som
+implementerer
+protokollen
+
+bg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
